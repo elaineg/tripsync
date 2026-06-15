@@ -25,4 +25,4 @@ Success checks:
 10. First-persist correctness: opening an existing trip in a fresh browser does NOT overwrite server state with an empty calendar before hydration completes (load-on-open read succeeds before any write fires).
 
 Out of scope: live realtime/websocket sync (refresh-on-focus only); field-level merge (event-level last-write-wins + soft-delete tombstones); accounts, login, passwords, email recovery; subscribe-by-URL live calendar feed; expenses, maps, place search, flight tracking; per-event ownership/permission locks; AI/LLM parsing (deterministic rule-based parser only); any paid API, OAuth, or paid infra.
-Production URL:
+Production URL: https://tripsync-five.vercel.app

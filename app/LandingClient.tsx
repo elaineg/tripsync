@@ -78,12 +78,11 @@ export default function LandingClient() {
       {/* Hero headline */}
       <div className="max-w-lg w-full text-center mb-10">
         <h1 className="text-3xl font-bold text-[#1a1a1a] leading-tight mb-3">
-          Your friend&rsquo;s trip plan, as a phone-friendly day-by-day calendar you can both
-          open and edit from one link
+          Paste a trip itinerary, get a shared day-by-day calendar &mdash; no app, no login
         </h1>
         <p className="text-[#5a5a5a] text-lg">
-          No app, no login. Paste an itinerary and watch it become a visual hourly calendar.
-          Add events straight to Google Calendar.
+          One link, open on any phone. Add individual events to Google Calendar or download
+          the whole trip as a .ics file for any calendar app.
         </p>
       </div>
 

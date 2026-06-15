@@ -89,6 +89,14 @@ export async function PUT(
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
+  // Enforce size caps server-side
+  if (data.name.length > 120) {
+    data.name = data.name.slice(0, 120);
+  }
+  if (typeof data.details === "string" && data.details.length > 10_000) {
+    data.details = data.details.slice(0, 10_000);
+  }
+
   const db = await getDb();
 
   // Ensure trip exists
@@ -103,7 +111,7 @@ export async function PUT(
   const now = Date.now();
   await db.execute({
     sql: "UPDATE trips SET data = ?, updated_at = ? WHERE id = ?",
-    args: [raw, now, id],
+    args: [JSON.stringify(data), now, id],
   });
 
   return NextResponse.json({ ok: true });

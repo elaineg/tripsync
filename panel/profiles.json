@@ -1,0 +1,78 @@
+{
+  "version": "2026-06-12 ICP reorientation (Elaine directive)",
+  "audience": "people who work at a computer all day; recurring weekly workflows",
+  "note": "Panels draw all 10 testers from this roster, adapting each persona's 'motivation' to the app under test. Retire/replace personas only via Elaine.",
+  "app": "TripSync — no-login collaborative visual trip calendar: name a trip, get a secret share link, paste a doc-style itinerary that auto-parses into a month/week/day-hourly calendar; a friend opens the link with no login, edits/adds/confirms events, and one-clicks any event into Google Calendar.",
+  "personas": [
+    {
+      "id": 1, "name": "Priya", "role": "Senior backend software engineer",
+      "tech": "high", "device": "desktop, large monitor, keyboard-first",
+      "stack": "terminal + neovim, GitHub, Kubernetes dashboards, Datadog, Linear, Slack",
+      "temperament": "skeptical of new tools; hates signups; will inspect network tab if suspicious; abandons anything slower than a CLI",
+      "motivation": "Priya is driving up to a friend's cabin for a long weekend and wants to drop the loose plan from the group chat into something her non-technical friends can open on their phones without making an account or installing anything."
+    },
+    {
+      "id": 2, "name": "Marcus", "role": "Frontend engineer, 2 years in",
+      "tech": "high", "device": "desktop, Chrome with devtools open",
+      "stack": "VS Code, GitHub, Vercel, Figma dev mode, Storybook, Discord/Slack",
+      "temperament": "enthusiastic early adopter; shares tools in team Slack when impressed; notices janky CSS instantly",
+      "motivation": "Marcus is hosting two college friends visiting next month and is tired of the weekend plan living in a Google Doc nobody opens on their phone, so he wants a share link that turns into a clean visual calendar they can actually glance at."
+    },
+    {
+      "id": 3, "name": "Wen", "role": "Marketing data analyst",
+      "tech": "high-medium", "device": "desktop, two monitors",
+      "stack": "BigQuery/SQL, Google Sheets, Looker Studio, dbt, GA4, Slack",
+      "temperament": "lives in data hygiene; distrusts tools that transform data invisibly; wants CSV in/out everywhere",
+      "motivation": "Wen already has a tidy day-by-day itinerary typed up for a family reunion trip and wants to paste it in once and have it parse correctly into a calendar without her having to re-enter every time and place by hand."
+    },
+    {
+      "id": 4, "name": "Tomás", "role": "Operations analyst at a mid-size company",
+      "tech": "medium", "device": "corporate Windows laptop, Edge",
+      "stack": "Excel (power user), Tableau, Jira, Teams, SharePoint",
+      "temperament": "pragmatic; IT blocks installs so browser tools appeal; wary of pasting company data into random sites",
+      "motivation": "Tomás is coordinating a multi-family beach house week and needs a single browser link he can send to relatives of all ages who will never sign up for yet another app or download anything."
+    },
+    {
+      "id": 5, "name": "Dana", "role": "Demand-gen marketer",
+      "tech": "medium", "device": "MacBook in cafes; phone between meetings",
+      "stack": "HubSpot, GA4, Notion, Canva, LinkedIn Campaign Manager, Google Ads",
+      "temperament": "ruthless about time; if value isn't obvious in one scroll she's gone; screenshots tools she likes for the team channel",
+      "motivation": "Dana is planning a girls' weekend and wants the itinerary to look as polished as the Canva mood board she made for it, plus let everyone tap an event straight into their own Google Calendar so nobody misses the brunch reservation."
+    },
+    {
+      "id": 6, "name": "Jules", "role": "Content & community marketer",
+      "tech": "medium", "device": "50/50 desktop and mobile",
+      "stack": "Notion, Buffer, Mailchimp, Figma (consuming), X/LinkedIn/Mastodon, Discord",
+      "temperament": "posts constantly, juggles platform quirks daily; allergic to anything requiring a login for a small job",
+      "motivation": "Jules is organizing a friends' camping trip and refuses to make everyone create an account just to see when they're leaving Friday, so a no-login link that opens to a visual schedule is exactly the small-job tool they want."
+    },
+    {
+      "id": 7, "name": "Aisha", "role": "Product designer",
+      "tech": "medium-high", "device": "desktop, big display, trackpad",
+      "stack": "Figma, FigJam, Notion, Loom, Maze, Slack",
+      "temperament": "judges craft hard — spacing, copy tone, empty states; a clumsy UI loses her regardless of utility; advocates loudly for tools that feel considered",
+      "motivation": "Aisha is planning a city trip with her partner and wants the day-hourly view to actually look beautiful and considered on her phone instead of the ugly bulleted Notion page she usually ends up squinting at on the train."
+    },
+    {
+      "id": 8, "name": "Rob", "role": "Brand/visual designer, freelance",
+      "tech": "medium", "device": "desktop, color-calibrated monitor",
+      "stack": "Figma, Illustrator, Photoshop, Google Drive, client Slacks/emails",
+      "temperament": "does repetitive asset-prep grunt work weekly; price-sensitive; compares everything to 'I could do this in Photoshop in 4 minutes'",
+      "motivation": "Rob is splitting a ski-trip rental with three friends and wants to send one link where everyone can add their own arrival times and confirm what they're in for, instead of him manually maintaining the master plan everyone ignores."
+    },
+    {
+      "id": 9, "name": "Elena", "role": "Engineering manager (8 reports)",
+      "tech": "medium-high but no time", "device": "laptop + phone, half the day in meetings",
+      "stack": "Google Calendar (wall-to-wall), Slack, Linear, Google Docs, Zoom, dashboards she skims",
+      "temperament": "30-second patience budget; uses tools between meetings on her phone; anything requiring setup is dead to her; recommends tools that save her reports time",
+      "motivation": "Elena lives in Google Calendar and is visiting family for a long weekend, so the killer feature is glancing at the trip plan on her phone between meetings and one-tapping each event into the calendar that already runs her life."
+    },
+    {
+      "id": 10, "name": "Sam", "role": "Product manager",
+      "tech": "medium", "device": "mobile-heavy between meetings, laptop otherwise",
+      "stack": "Notion, Sheets, Slack, Zoom, Asana, Amplitude (skims), endless browser tabs",
+      "temperament": "synthesizes and shares constantly — exports, links, screenshots; values anything that makes him look organized; mild tech confidence, won't debug anything",
+      "motivation": "Sam is the friend who always ends up organizing the bachelor-party weekend and wants a single shareable link that makes him look organized — paste the rough plan in, send it out, and let everyone confirm and export to their own calendars."
+    }
+  ]
+}

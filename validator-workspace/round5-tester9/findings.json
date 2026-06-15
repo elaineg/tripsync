@@ -1,0 +1,16 @@
+{
+  "url": "http://localhost:3099/",
+  "consoleErrors": [],
+  "pageErrors": [],
+  "status": 200,
+  "title": "TripSync — shared trip calendar, no login",
+  "h1": "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login",
+  "aboveFoldText": [
+    "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login",
+    "One link, open on any phone. Add individual events to Google Calendar or download the whole trip as a .ics file for any calendar app.",
+    "Name your trip",
+    "[input placeholder=\"Joanne visits — July\" value=\"\"]",
+    "Create shared trip →",
+    "Anyone with the link can view and edit — share only with your travel companions. No account or email required."
+  ]
+}

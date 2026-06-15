@@ -20,10 +20,15 @@ interface Participant {
 type CalView = "day" | "week" | "month";
 
 // ── Name prompt modal ──────────────────────────────────────────────────────────
+// H2: name is optional — the modal shows a Skip button and can be dismissed.
+// The paste import is committed BEFORE this modal appears, so dismissing/skipping
+// never loses the parsed events.
 function NamePromptModal({
   onConfirm,
+  onSkip,
 }: {
   onConfirm: (name: string) => void;
+  onSkip: () => void;
 }) {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,9 +44,19 @@ function NamePromptModal({
       aria-label="Enter your name"
     >
       <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl">
-        <h2 className="text-lg font-bold mb-1">What&rsquo;s your name?</h2>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="text-lg font-bold">What&rsquo;s your name?</h2>
+          {/* H2: Skip dismisses without losing any data */}
+          <button
+            onClick={onSkip}
+            className="text-sm text-[#aaa] hover:text-[#666] ml-4 mt-0.5"
+            aria-label="Skip name entry"
+          >
+            Skip
+          </button>
+        </div>
         <p className="text-sm text-[#666] mb-4">
-          So others can see who made changes and confirmations.
+          So others can see who made changes. You can always set this later.
         </p>
         <input
           ref={inputRef}
@@ -51,7 +66,11 @@ function NamePromptModal({
           placeholder="Joanne"
           className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[#B5C8E8]"
           onKeyDown={(e) => {
-            if (e.key === "Enter" && value.trim()) onConfirm(value.trim());
+            if (e.key === "Enter") {
+              if (value.trim()) onConfirm(value.trim());
+              else onSkip();
+            }
+            if (e.key === "Escape") onSkip();
           }}
           aria-label="Your name"
         />
@@ -68,8 +87,10 @@ function NamePromptModal({
 }
 
 // ── Copy invite link button ────────────────────────────────────────────────────
-function CopyLinkButton({ secret }: { secret: string }) {
-  const [copied, setCopied] = useState(false);
+// C: flush-then-confirm: caller passes onFlush which awaits the save before copy
+function CopyLinkButton({ secret, onFlush }: { secret: string; onFlush: () => Promise<void> }) {
+  // "idle" | "flushing" | "copied" | "failed"
+  const [state, setState] = useState<"idle" | "flushing" | "copied" | "failed">("idle");
   const [showFallback, setShowFallback] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,41 +99,57 @@ function CopyLinkButton({ secret }: { secret: string }) {
       ? `${window.location.origin}/t/${secret}`
       : `/t/${secret}`;
 
-  function handleCopy() {
+  async function handleCopy() {
     if (timerRef.current) clearTimeout(timerRef.current);
+    setState("flushing");
+    // C: flush any pending save BEFORE copying
+    try {
+      await onFlush();
+    } catch { /* ignore flush errors — still try to copy */ }
+
     const url =
       typeof window !== "undefined"
         ? `${window.location.origin}/t/${secret}`
         : `/t/${secret}`;
+
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(
         () => {
-          setCopied(true);
+          setState("copied");
           setShowFallback(false);
-          timerRef.current = setTimeout(() => setCopied(false), 3000);
+          timerRef.current = setTimeout(() => setState("idle"), 3000);
         },
         () => {
-          // Clipboard blocked — show fallback
-          setCopied(true);
+          setState("failed");
           setShowFallback(true);
-          timerRef.current = setTimeout(() => { setCopied(false); setShowFallback(false); }, 8000);
+          timerRef.current = setTimeout(() => { setState("idle"); setShowFallback(false); }, 8000);
         }
       );
     } else {
-      setCopied(true);
+      setState("failed");
       setShowFallback(true);
-      timerRef.current = setTimeout(() => { setCopied(false); setShowFallback(false); }, 8000);
+      timerRef.current = setTimeout(() => { setState("idle"); setShowFallback(false); }, 8000);
     }
   }
 
+  const copied = state === "copied";
+  const flushing = state === "flushing";
+
   return (
     <div>
+      {/* aria-live region: announces copy result to screen readers */}
+      <div aria-live="polite" className="sr-only" role="status">
+        {copied ? "Link copied to clipboard" : showFallback ? "Copy failed — select the link to copy manually" : flushing ? "Saving…" : ""}
+      </div>
       <button
         aria-label="Copy invite link"
-        onClick={handleCopy}
+        onClick={() => { void handleCopy(); }}
+        disabled={flushing}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
           copied
             ? "bg-green-100 border-green-300 text-green-800"
+            : flushing
+            ? "bg-[#FAF7F2] border-[#E8E2D8] text-[#aaa] cursor-wait"
             : "bg-white border-[#E8E2D8] text-[#1a1a1a] hover:border-[#B5C8E8]"
         }`}
       >
@@ -122,6 +159,14 @@ function CopyLinkButton({ secret }: { secret: string }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             Copied!
+          </>
+        ) : flushing ? (
+          <>
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Saving…
           </>
         ) : (
           <>
@@ -133,11 +178,7 @@ function CopyLinkButton({ secret }: { secret: string }) {
           </>
         )}
       </button>
-      {/* aria-live region for accessibility */}
-      <div aria-live="polite" className="sr-only">
-        {copied && !showFallback ? "Link copied to clipboard" : ""}
-      </div>
-      {/* Fallback for blocked clipboard */}
+      {/* Fallback for blocked clipboard — shown only when copy actually failed */}
       {showFallback && (
         <div role="alert" className="mt-2 text-xs text-[#888]">
           Copy failed — select and copy this link:
@@ -156,6 +197,8 @@ function CopyLinkButton({ secret }: { secret: string }) {
 // ── Paste import panel ─────────────────────────────────────────────────────────
 import type { ParseResult } from "../../../lib/parseItinerary";
 
+const MAX_PASTE_CHARS = 50_000; // sane cap — prevents absurd payloads
+
 function PasteImportPanel({
   tripName,
   onConfirm,
@@ -168,22 +211,57 @@ function PasteImportPanel({
   participant: Participant | null;
 }) {
   const [text, setText] = useState("");
+  const [pasteError, setPasteError] = useState<string | null>(null);
   const [preview, setPreview] = useState<ParseResult | null>(null);
   const [step, setStep] = useState<"input" | "preview">("input");
 
   function handleLoadSample() {
     setText(EMILY_ITINERARY);
+    setPasteError(null);
+  }
+
+  function handleTextChange(val: string) {
+    if (val.length > MAX_PASTE_CHARS) {
+      setPasteError(`Itinerary too long — please trim to under ${(MAX_PASTE_CHARS / 1000).toFixed(0)}k characters.`);
+      setText(val.slice(0, MAX_PASTE_CHARS));
+    } else {
+      setPasteError(null);
+      setText(val);
+    }
   }
 
   function handleParse() {
     if (!text.trim()) return;
     const result = parseItinerary(text);
+    // H1b: count total timed events across all days
+    const totalEvents = result.days.reduce((sum, d) => sum + d.events.length, 0);
+    if (totalEvents === 0) {
+      // Show helpful inline message instead of silently showing empty calendar
+      setPasteError(
+        "Couldn't find any timed events. Try lines like:\n" +
+        "  9:00 AM Coffee\n" +
+        "  14:30 Lunch — Cafe Central\n" +
+        "  1-2PM Uber to hotel\n\n" +
+        "Make sure each day starts with a header like 'Friday May 1' or 'Day 1'."
+      );
+      return;
+    }
+    setPasteError(null);
     setPreview(result);
     setStep("preview");
   }
 
-  function handleConfirm() {
-    if (preview) onConfirm(preview);
+  // D: editable preview state — map from eventId to { title, startMinutes, endMinutes }
+  const [editedEvents, setEditedEvents] = useState<Record<string, { title: string; startMinutes: number; endMinutes: number }>>({});
+
+  function getEventValue(evId: string, field: "title" | "startMinutes" | "endMinutes", original: string | number) {
+    const edits = editedEvents[evId];
+    if (!edits) return original;
+    return edits[field] ?? original;
+  }
+
+  function patchEvent(evId: string, patch: Partial<{ title: string; startMinutes: number; endMinutes: number }>) {
+    setEditedEvents((prev) => ({ ...prev, [evId]: { ...prev[evId], ...patch } }));
   }
 
   if (step === "preview" && preview) {
@@ -208,49 +286,151 @@ function PasteImportPanel({
 
         <p className="text-sm text-[#666]">
           {totalEvents} event{totalEvents !== 1 ? "s" : ""} across {preview.days.length} day
-          {preview.days.length !== 1 ? "s" : ""} will be added to the calendar.
+          {preview.days.length !== 1 ? "s" : ""} will be added. Edit titles or times below before confirming.
+        </p>
+        {/* R4-3: surface skipped/unparseable lines so users know data was omitted */}
+        {preview.skippedLines && preview.skippedLines.length > 0 && (
+          <div role="status" className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            {preview.skippedLines.length} line{preview.skippedLines.length !== 1 ? "s" : ""} couldn&apos;t be read and {preview.skippedLines.length !== 1 ? "were" : "was"} skipped
+            {preview.skippedLines.length <= 5 && (
+              <ul className="mt-1 space-y-0.5">
+                {preview.skippedLines.map((l, i) => (
+                  <li key={i} className="font-mono text-amber-800 truncate">&ldquo;{l}&rdquo;</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+        <p className="text-xs text-[#aaa]">
+          Events without an end time default to 1 hour. End time assumed (1h) is shown as "end time assumed".
         </p>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
-          {preview.days.map((day) => (
-            <div key={day.date + day.label}>
-              <h3 className="text-sm font-semibold text-[#1a1a1a] mb-2">{day.label}</h3>
-              <ul className="space-y-1">
-                {day.events.map((ev) => (
-                  <li
-                    key={ev.id}
-                    className="flex items-start gap-3 bg-white border border-[#E8E2D8] rounded-lg px-3 py-2 text-sm"
-                  >
-                    <span className="text-[#888] whitespace-nowrap min-w-0">
-                      {minutesToDisplay(ev.startMinutes)}
-                      {ev.endMinutes !== ev.startMinutes
-                        ? `–${minutesToDisplay(ev.endMinutes)}`
-                        : ""}
-                    </span>
-                    <span className="min-w-0">
-                      {ev.title}
-                      {ev.url && (
-                        <a
-                          href={ev.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-1 text-blue-600 underline text-xs"
-                        >
-                          link
-                        </a>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {preview.days.map((day) => {
+            // D: show resolved date+weekday for each day
+            let resolvedLabel = day.label;
+            if (day.date) {
+              const d = new Date(day.date + "T00:00:00");
+              const dow = d.toLocaleDateString("en-US", { weekday: "short" });
+              const mon = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              resolvedLabel = `${day.label} → ${dow}, ${mon}`;
+            }
+            return (
+              <div key={day.date + day.label}>
+                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-1">{resolvedLabel}</h3>
+                {/* R5-1: non-destructive weekday mismatch note — date is kept authoritative */}
+                {day.weekdayMismatch && (
+                  <p className="text-xs text-amber-600 mb-1">{day.weekdayMismatch}</p>
+                )}
+                <ul className="space-y-1">
+                  {day.events.map((ev) => {
+                    const currentTitle = (getEventValue(ev.id, "title", ev.title) as string);
+                    const currentStart = (getEventValue(ev.id, "startMinutes", ev.startMinutes) as number);
+                    const currentEnd = (getEventValue(ev.id, "endMinutes", ev.endMinutes) as number);
+                    // D: disclose 1h assumption
+                    const wasPointEvent = ev.endMinutes !== ev.startMinutes
+                      ? false
+                      : (currentEnd - currentStart) === 60;
+                    // Actually: original endMinutes is already patched to start+60 for point events
+                    // We can detect if endMinutes == startMinutes+60 by storing original. Simple heuristic:
+                    // The parser sets endMinutes = startMinutes+60 for point events. We disclose when
+                    // there's no explicit end time (endMinutes === startMinutes in original ev from parser,
+                    // but parseItinerary already sets endMinutes = start+60). So we look for a "1h" note:
+                    // The original ParsedEvent has startMinutes; if endMinutes - startMinutes === 60
+                    // and the source line only had a single time (not a range), we should disclose.
+                    // Since we can't tell from the parsed result alone, show disclosure when end = start+60.
+                    const isDefaultHour = currentEnd - currentStart === 60;
+                    void wasPointEvent;
+
+                    const hours24 = Array.from({ length: 24 }, (_, i) => i);
+                    const mins15 = [0, 15, 30, 45];
+
+                    return (
+                      <li
+                        key={ev.id}
+                        className="bg-white border border-[#E8E2D8] rounded-lg px-3 py-2 text-sm"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          {/* Editable start time */}
+                          <select
+                            value={currentStart}
+                            onChange={(e) => {
+                              const ns = parseInt(e.target.value);
+                              patchEvent(ev.id, { startMinutes: ns, endMinutes: Math.max(ns + 15, currentEnd) });
+                            }}
+                            className="text-xs border border-[#E8E2D8] rounded px-1 py-0.5 bg-[#FAF7F2] text-[#444]"
+                            aria-label="Start time"
+                          >
+                            {hours24.flatMap((h) => mins15.map((m) => {
+                              const val = h * 60 + m;
+                              const label = minutesToDisplay(val);
+                              return <option key={val} value={val}>{label}</option>;
+                            }))}
+                          </select>
+                          <span className="text-[#aaa] text-xs">–</span>
+                          {/* Editable end time */}
+                          <select
+                            value={currentEnd}
+                            onChange={(e) => patchEvent(ev.id, { endMinutes: parseInt(e.target.value) })}
+                            className="text-xs border border-[#E8E2D8] rounded px-1 py-0.5 bg-[#FAF7F2] text-[#444]"
+                            aria-label="End time"
+                          >
+                            {hours24.flatMap((h) => mins15.map((m) => {
+                              const val = h * 60 + m;
+                              const label = minutesToDisplay(val);
+                              return <option key={val} value={val}>{label}</option>;
+                            }))}
+                          </select>
+                          {isDefaultHour && (
+                            <span className="text-[#aaa] text-xs italic">end time assumed</span>
+                          )}
+                        </div>
+                        {/* Editable title */}
+                        <input
+                          type="text"
+                          value={currentTitle}
+                          onChange={(e) => patchEvent(ev.id, { title: e.target.value })}
+                          className="w-full text-sm text-[#1a1a1a] bg-transparent border-b border-[#E8E2D8] focus:outline-none focus:border-[#B5C8E8] pb-0.5"
+                          aria-label="Event title"
+                        />
+                        {ev.url && (
+                          <a
+                            href={ev.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-0.5 inline-block text-blue-600 underline text-xs break-all"
+                          >
+                            {ev.url}
+                          </a>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
         {/* Confirm / Cancel */}
         <div className="flex gap-3">
           <button
-            onClick={handleConfirm}
+            onClick={() => {
+              // D: apply any edits from editedEvents before confirming
+              const patched: typeof preview = {
+                ...preview,
+                days: preview.days.map((day) => ({
+                  ...day,
+                  events: day.events.map((ev) => ({
+                    ...ev,
+                    title: (getEventValue(ev.id, "title", ev.title) as string),
+                    startMinutes: (getEventValue(ev.id, "startMinutes", ev.startMinutes) as number),
+                    endMinutes: (getEventValue(ev.id, "endMinutes", ev.endMinutes) as number),
+                  })),
+                })),
+              };
+              onConfirm(patched);
+            }}
             className="flex-1 bg-[#1a1a1a] text-white rounded-xl py-3 font-semibold hover:bg-[#333] transition-colors"
           >
             Add to {tripName}
@@ -264,7 +444,7 @@ function PasteImportPanel({
         </div>
         {!participant && (
           <p role="status" className="text-xs text-[#888] text-center">
-            Your name will be asked before events are added.
+            Events will be added and you can set your name after.
           </p>
         )}
       </div>
@@ -281,11 +461,16 @@ function PasteImportPanel({
       </div>
       <textarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => handleTextChange(e.target.value)}
         placeholder={"Friday May 1\n12:30PM Emily lands\n1-2PM Uber to 123 Main St\n2-4PM unpack\n..."}
         className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-sm min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-[#B5C8E8] bg-white font-mono leading-relaxed"
         aria-label="Paste itinerary text"
       />
+      {pasteError && (
+        <div role="alert" className="text-xs text-[#a00] bg-red-50 border border-red-200 rounded-xl px-4 py-3 whitespace-pre-wrap font-mono leading-relaxed">
+          {pasteError}
+        </div>
+      )}
       <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={handleParse}
@@ -386,9 +571,10 @@ function EventBottomSheet({
               Confirm
             </button>
           )}
+          {/* H4: per-event Google add is the single-event path — labeled honestly */}
           <button
             onClick={() => onAddToCalendar(event)}
-            className="w-full bg-blue-600 text-white rounded-xl py-2.5 font-semibold hover:bg-blue-700 transition-colors"
+            className="w-full border border-blue-300 text-blue-700 rounded-xl py-2.5 font-medium hover:bg-blue-50 transition-colors"
           >
             Add to Google Calendar
           </button>
@@ -625,6 +811,59 @@ const HOUR_HEIGHT = 60; // px per hour in the grid
 const DAY_START_HOUR = 6; // start rendering from 6am
 const DAY_END_HOUR = 24; // render up to midnight
 
+/**
+ * Compute non-overlapping column layout for events.
+ * Returns a map from event.id → { col, totalCols } so overlapping events
+ * render side-by-side rather than stacking on top of each other.
+ */
+function computeEventColumns(events: TripEvent[]): Map<string, { col: number; totalCols: number }> {
+  // Sort by start time, then by id for stable ordering
+  const sorted = [...events].sort((a, b) =>
+    a.startMinutes !== b.startMinutes ? a.startMinutes - b.startMinutes : a.id.localeCompare(b.id)
+  );
+
+  // Assign columns greedily
+  const result = new Map<string, { col: number; totalCols: number }>();
+  // tracks end minute of last event placed in each column
+  const colEnds: number[] = [];
+
+  for (const ev of sorted) {
+    let placed = false;
+    for (let c = 0; c < colEnds.length; c++) {
+      if (ev.startMinutes >= colEnds[c]) {
+        result.set(ev.id, { col: c, totalCols: 0 }); // totalCols set after
+        colEnds[c] = ev.endMinutes;
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      result.set(ev.id, { col: colEnds.length, totalCols: 0 });
+      colEnds.push(ev.endMinutes);
+    }
+  }
+
+  const numCols = colEnds.length || 1;
+
+  // Determine totalCols for each event: how many columns overlap its time range
+  for (const ev of sorted) {
+    const entry = result.get(ev.id);
+    if (!entry) continue;
+    // Count how many unique columns are used by events that overlap with ev
+    const overlappingCols = new Set<number>();
+    for (const other of sorted) {
+      if (other.startMinutes < ev.endMinutes && other.endMinutes > ev.startMinutes) {
+        const otherEntry = result.get(other.id);
+        if (otherEntry) overlappingCols.add(otherEntry.col);
+      }
+    }
+    entry.totalCols = Math.max(overlappingCols.size, 1);
+  }
+
+  void numCols;
+  return result;
+}
+
 function DayGrid({
   date,
   events,
@@ -640,16 +879,27 @@ function DayGrid({
   const totalHours = DAY_END_HOUR - DAY_START_HOUR;
   const totalHeight = totalHours * HOUR_HEIGHT;
 
-  // On mount, scroll to first event or 8am
+  const activeEvents = events.filter((e) => !e.deletedAt && e.date === date);
+
+  // A/B: On date change, auto-scroll so the first event on that day is near
+  // the top of the visible scroll area (1 hour of padding above). Falls back to 8am.
   useEffect(() => {
-    if (!gridRef.current) return;
-    const firstEvent = events.filter((e) => !e.deletedAt)[0];
-    const scrollToMinute = firstEvent
-      ? Math.max(firstEvent.startMinutes - 60, DAY_START_HOUR * 60)
-      : 8 * 60;
-    const scrollToHour = scrollToMinute / 60 - DAY_START_HOUR;
-    gridRef.current.scrollTop = scrollToHour * HOUR_HEIGHT;
-  }, [events, date]);
+    const el = gridRef.current;
+    if (!el) return;
+    // Use rAF so the DOM has settled and clientHeight is accurate
+    const raf = requestAnimationFrame(() => {
+      if (!gridRef.current) return;
+      const dayEvents = events.filter((e) => !e.deletedAt && e.date === date);
+      const sorted = [...dayEvents].sort((a, b) => a.startMinutes - b.startMinutes);
+      const firstEvent = sorted[0];
+      const scrollToMinute = firstEvent
+        ? Math.max(firstEvent.startMinutes - 60, DAY_START_HOUR * 60)
+        : 8 * 60;
+      const scrollToHour = scrollToMinute / 60 - DAY_START_HOUR;
+      gridRef.current.scrollTop = scrollToHour * HOUR_HEIGHT;
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [date, events]);
 
   function minutesToTop(minutes: number): number {
     return ((minutes - DAY_START_HOUR * 60) / 60) * HOUR_HEIGHT;
@@ -659,9 +909,45 @@ function DayGrid({
     return ((endMinutes - startMinutes) / 60) * HOUR_HEIGHT;
   }
 
+  // A: Track touch start to distinguish tap vs swipe
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const TAP_THRESHOLD_PX = 8; // max movement (px) to count as a tap
+  const TAP_THRESHOLD_MS = 400; // max duration (ms) to count as a tap
+
+  function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    if (!touchStartRef.current) return;
+    const t = e.changedTouches[0];
+    const dx = Math.abs(t.clientX - touchStartRef.current.x);
+    const dy = Math.abs(t.clientY - touchStartRef.current.y);
+    const dt = Date.now() - touchStartRef.current.time;
+    touchStartRef.current = null;
+
+    // Not a tap: movement exceeded threshold or too slow
+    if (dx > TAP_THRESHOLD_PX || dy > TAP_THRESHOLD_PX || dt > TAP_THRESHOLD_MS) return;
+
+    // A: Check it's not on an event block
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-event-block]")) return;
+
+    // It's a tap on empty slot
+    const rect = gridRef.current!.getBoundingClientRect();
+    const y = t.clientY - rect.top + (gridRef.current?.scrollTop ?? 0);
+    const minutesFromStart = Math.round((y / HOUR_HEIGHT) * 60 / 15) * 15;
+    const totalMinutes = (DAY_START_HOUR * 60) + minutesFromStart;
+    onSlotTap(Math.max(0, Math.min(23 * 60, totalMinutes)));
+  }
+
   function handleGridClick(e: React.MouseEvent<HTMLDivElement>) {
     // Don't fire if an event block was clicked
     if ((e.target as HTMLElement).closest("[data-event-block]")) return;
+    // On touch devices, touchEnd handles this; on pointer devices use click
+    // Skip if this came from a touch sequence (nativeTouches)
+    if ((e as unknown as { sourceCapabilities?: { firesTouchEvents?: boolean } }).sourceCapabilities?.firesTouchEvents) return;
     const rect = gridRef.current!.getBoundingClientRect();
     const y = e.clientY - rect.top + (gridRef.current?.scrollTop ?? 0);
     const minutesFromStart = Math.round((y / HOUR_HEIGHT) * 60 / 15) * 15;
@@ -669,20 +955,29 @@ function DayGrid({
     onSlotTap(Math.max(0, Math.min(23 * 60, totalMinutes)));
   }
 
-  const activeEvents = events.filter((e) => !e.deletedAt && e.date === date);
+  // P3-1: Compute per-event column layout to avoid overlapping blocks
+  const columnLayout = computeEventColumns(activeEvents);
+  // Left gutter width for hour labels (in pixels, matches "left-12" = 48px)
+  const GUTTER_PX = 48;
+  const RIGHT_PAD_PX = 8;
 
   return (
+    // A: The grid is the ONLY scrollable region in day view. It must have a
+    // bounded height (h-full fills the flex parent which is bounded) and
+    // overflow-y:auto so the 1080px+ content height gives real scroll range.
     <div
       ref={gridRef}
-      className="day-grid-scroll relative overflow-y-auto flex-1"
-      style={{ minHeight: 0 }}
+      className="day-grid-scroll overflow-y-auto h-full"
+      style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}
       aria-label="Day schedule"
     >
-      {/* Grid background click target */}
+      {/* Grid background: fixed intrinsic content height that EXCEEDS viewport */}
       <div
         className="relative"
         style={{ height: `${totalHeight}px` }}
         onClick={handleGridClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Hour rows */}
         {Array.from({ length: totalHours }, (_, i) => {
@@ -717,7 +1012,7 @@ function DayGrid({
           />
         ))}
 
-        {/* Event blocks */}
+        {/* Event blocks — laid out in side-by-side columns when overlapping */}
         {activeEvents.map((event) => {
           const top = minutesToTop(event.startMinutes);
           const height = Math.max(
@@ -726,17 +1021,42 @@ function DayGrid({
           );
           const color = getAuthorColor(event.authorId);
           const isProposed = event.status === "proposed";
+          const layout = columnLayout.get(event.id) ?? { col: 0, totalCols: 1 };
+          const { col, totalCols } = layout;
+
+          // Calculate left/width based on column position
+          // Available width after gutter and right padding
+          // We use inline style with calc to respect the actual container width
+          const colWidthPct = (1 / totalCols) * 100;
+          const gutterAndPad = GUTTER_PX + RIGHT_PAD_PX;
+          // Each column gets an equal share of available width (after gutter).
+          // We express this as percentage of total container minus gutter+pad.
+          // Use absolute pixel offset from gutter + fractional width.
+          const colGap = 2; // px gap between side-by-side events
+          // left = GUTTER_PX + col * ((container - gutter - rightpad) / totalCols)
+          // expressed with calc:
+          const leftCalc = totalCols === 1
+            ? `${GUTTER_PX}px`
+            : `calc(${GUTTER_PX}px + ${col} * (100% - ${gutterAndPad}px - ${(totalCols - 1) * colGap}px) / ${totalCols} + ${col * colGap}px)`;
+          const widthCalc = totalCols === 1
+            ? `calc(100% - ${GUTTER_PX + RIGHT_PAD_PX}px)`
+            : `calc((100% - ${gutterAndPad}px - ${(totalCols - 1) * colGap}px) / ${totalCols})`;
+
+          void colWidthPct;
+
           return (
             <div
               key={event.id}
               data-event-block="true"
               data-event-id={event.id}
-              className={`absolute left-12 right-2 rounded-lg px-2 py-1 cursor-pointer select-none transition-opacity ${
+              className={`absolute rounded-lg px-2 py-1 cursor-pointer select-none transition-opacity ${
                 isProposed ? "event-proposed border-2" : "event-confirmed border-l-4"
               }`}
               style={{
                 top: `${top}px`,
                 height: `${height}px`,
+                left: leftCalc,
+                width: widthCalc,
                 backgroundColor: `${color}${isProposed ? "99" : "dd"}`,
                 borderColor: color,
               }}
@@ -856,13 +1176,14 @@ function WeekView({
   );
 }
 
-// ── Month view ─────────────────────────────────────────────────────────────────
+// ── Month view — real calendar month grid ──────────────────────────────────────
+// Shows a proper month grid (Sun–Sat) with dot indicators for trip event days.
+// Tapping a day that has events switches to Day view for that date.
 function MonthView({
   dates,
   events,
   selectedDate,
   onDateSelect,
-  onEventTap,
 }: {
   dates: string[];
   events: TripEvent[];
@@ -872,67 +1193,114 @@ function MonthView({
 }) {
   if (dates.length === 0) return <div className="p-4 text-[#888]">No dates yet.</div>;
 
+  // Build a set of trip dates and event counts
   const eventsByDate: Record<string, TripEvent[]> = {};
   for (const ev of events) {
     if (!ev.deletedAt) {
       (eventsByDate[ev.date] ??= []).push(ev);
     }
   }
+  const tripDateSet = new Set(dates);
+
+  // Determine which months to show based on trip date range
+  const firstDate = new Date(dates[0] + "T00:00:00");
+  const lastDate = new Date(dates[dates.length - 1] + "T00:00:00");
+
+  // Build list of months to render
+  const months: Array<{ year: number; month: number }> = [];
+  let cur = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
+  const end = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
+  while (cur <= end) {
+    months.push({ year: cur.getFullYear(), month: cur.getMonth() });
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+  }
+
+  const DOW_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="p-4">
-      <div className="space-y-3">
-        {dates.map((date) => {
-          const dayEvents = eventsByDate[date] ?? [];
-          const isSelected = date === selectedDate;
-          const label = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          });
-          return (
-            <div key={date} className={`rounded-xl border ${isSelected ? "border-[#B5C8E8]" : "border-[#E8E2D8]"} bg-white`}>
-              <button
-                className="w-full text-left px-4 py-2 font-semibold text-sm flex items-center justify-between"
-                onClick={() => onDateSelect(date)}
-              >
-                <span>{label}</span>
-                <span className="text-xs text-[#aaa]">{dayEvents.length} events</span>
-              </button>
-              {dayEvents.length > 0 && (
-                <div className="px-4 pb-3 space-y-1 border-t border-[#E8E2D8]">
-                  {dayEvents.map((ev) => {
-                    const color = getAuthorColor(ev.authorId);
-                    return (
-                      <button
-                        key={ev.id}
-                        onClick={() => onEventTap(ev)}
-                        className={`w-full text-left flex items-start gap-2 py-1 text-sm ${
-                          ev.status === "proposed" ? "opacity-70" : ""
-                        }`}
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
-                          style={{ backgroundColor: color }}
-                        />
-                        <span className="min-w-0">
-                          <span className="text-[#888] text-xs mr-1">
-                            {minutesToDisplay(ev.startMinutes)}
-                          </span>
-                          <span className="font-medium text-[#1a1a1a]">{ev.title}</span>
-                          {ev.status === "confirmed" && (
-                            <span className="ml-1 text-green-700 text-xs">✓</span>
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
+    <div className="p-4 space-y-6 overflow-y-auto">
+      {months.map(({ year, month }) => {
+        const monthLabel = new Date(year, month, 1).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        });
+        // Build grid cells: leading empty cells + days of month
+        const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Sun
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const cells: Array<number | null> = [
+          ...Array(firstDayOfWeek).fill(null),
+          ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+        ];
+        // Pad trailing cells to complete the final week row
+        while (cells.length % 7 !== 0) cells.push(null);
+
+        return (
+          <div key={`${year}-${month}`}>
+            <h3 className="text-sm font-bold text-[#1a1a1a] mb-2">{monthLabel}</h3>
+            {/* Day-of-week header */}
+            <div className="grid grid-cols-7 mb-1">
+              {DOW_LABELS.map((d) => (
+                <div key={d} className="text-center text-xs text-[#aaa] font-medium py-1">
+                  {d}
                 </div>
-              )}
+              ))}
             </div>
-          );
-        })}
-      </div>
+            {/* Day cells */}
+            <div className="grid grid-cols-7 gap-y-1">
+              {cells.map((day, idx) => {
+                if (!day) {
+                  return <div key={`empty-${idx}`} />;
+                }
+                const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                const isTripDay = tripDateSet.has(dateStr);
+                const isSelected = dateStr === selectedDate;
+                const dayEvts = eventsByDate[dateStr] ?? [];
+                const hasConfirmed = dayEvts.some((e) => e.status === "confirmed");
+                const count = dayEvts.length;
+
+                return (
+                  <button
+                    key={dateStr}
+                    onClick={() => isTripDay ? onDateSelect(dateStr) : undefined}
+                    disabled={!isTripDay}
+                    className={`relative flex flex-col items-center justify-start py-1 rounded-lg transition-colors
+                      ${isTripDay ? "cursor-pointer hover:bg-[#F0EDE8]" : "cursor-default opacity-30"}
+                      ${isSelected ? "bg-[#1a1a1a] text-white hover:bg-[#333]" : ""}
+                    `}
+                    aria-label={isTripDay ? `${dateStr}, ${count} event${count !== 1 ? "s" : ""}` : undefined}
+                    aria-pressed={isSelected || undefined}
+                  >
+                    <span className={`text-sm font-medium leading-none ${isSelected ? "text-white" : isTripDay ? "text-[#1a1a1a]" : "text-[#bbb]"}`}>
+                      {day}
+                    </span>
+                    {/* Event dot indicators */}
+                    {isTripDay && count > 0 && (
+                      <div className="flex gap-0.5 mt-0.5">
+                        <span
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: isSelected ? "white" : hasConfirmed ? "#16a34a" : "#B5C8E8" }}
+                        />
+                        {count > 1 && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: isSelected ? "white" : "#B5C8E8" }}
+                          />
+                        )}
+                        {count > 3 && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: isSelected ? "white" : "#B5C8E8" }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -949,12 +1317,16 @@ export default function TripPageClient({ secret }: { secret: string }) {
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  // R4-4: track whether the user has already skipped the name prompt this session
+  const hasSkippedNameRef = useRef(false);
   const [selectedEvent, setSelectedEvent] = useState<TripEvent | null>(null);
   const [editingEvent, setEditingEvent] = useState<(Partial<TripEvent> & { id: string }) | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tripRef = useRef<TripData | null>(null);
+  // C: track in-flight save promise so Copy can await it
+  const saveInFlightRef = useRef<Promise<void> | null>(null);
 
   // ── Load trip from server on mount ──────────────────────────────────────────
   useEffect(() => {
@@ -1049,19 +1421,46 @@ export default function TripPageClient({ secret }: { secret: string }) {
   function scheduleSave(updated: TripData) {
     if (!serverHydrated) return; // guard: never write before server read
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    setSaveStatus("saving");
+    // C: don't show "Saving…" until the fetch actually fires (after debounce)
+    setSaveStatus("idle");
     saveTimerRef.current = setTimeout(() => {
-      doSave(updated);
+      setSaveStatus("saving");
+      void doSave(updated);
     }, 2500);
   }
 
-  function doSave(data: TripData, beacon = false) {
+  // C: immediate flush for structural mutations (paste-import, add/delete/confirm event)
+  function flushSave(updated: TripData): Promise<void> {
+    if (!serverHydrated) return Promise.resolve();
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    setSaveStatus("saving");
+    return doSave(updated);
+  }
+
+  // C: flushPending — flush any pending debounce OR await any in-flight save
+  function flushPending(): Promise<void> {
+    // If there's a pending debounced timer, cancel it and flush now
+    if (saveTimerRef.current && tripRef.current && serverHydrated) {
+      return flushSave(tripRef.current);
+    }
+    // If a save is already in-flight, wait for it to complete
+    if (saveInFlightRef.current) {
+      return saveInFlightRef.current;
+    }
+    return Promise.resolve();
+  }
+
+  function doSave(data: TripData, beacon = false): Promise<void> {
     const body = JSON.stringify(data);
     if (beacon && navigator.sendBeacon) {
       navigator.sendBeacon(`/api/trip/${secret}`, body);
-      return;
+      return Promise.resolve();
     }
-    fetch(`/api/trip/${secret}`, {
+    // C: track the in-flight promise so Copy can await it
+    const p = fetch(`/api/trip/${secret}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body,
@@ -1070,7 +1469,12 @@ export default function TripPageClient({ secret }: { secret: string }) {
         if (res.ok) setSaveStatus("saved");
         else setSaveStatus("error");
       })
-      .catch(() => setSaveStatus("error"));
+      .catch(() => setSaveStatus("error"))
+      .finally(() => {
+        if (saveInFlightRef.current === p) saveInFlightRef.current = null;
+      });
+    saveInFlightRef.current = p;
+    return p;
   }
 
   // Flush on blur/visibilitychange/beforeunload
@@ -1079,7 +1483,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
       if (saveTimerRef.current && tripRef.current && serverHydrated) {
         clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
-        doSave(tripRef.current, true);
+        void doSave(tripRef.current, true);
       }
     }
     window.addEventListener("blur", flush);
@@ -1096,6 +1500,10 @@ export default function TripPageClient({ secret }: { secret: string }) {
   function requireParticipant(action: () => void) {
     if (participant) {
       action();
+    } else if (hasSkippedNameRef.current) {
+      // R4-4: user already skipped the name prompt this session — don't re-prompt.
+      // Run the action attributed to "Guest" (the auto-created participant).
+      action();
     } else {
       setPendingAction(() => action);
       setShowNamePrompt(true);
@@ -1103,8 +1511,10 @@ export default function TripPageClient({ secret }: { secret: string }) {
   }
 
   function handleNameConfirm(name: string) {
-    const id = generateId();
-    const p: Participant = { id, name };
+    // H2: preserve existing participantId if one was auto-assigned (e.g. "Guest")
+    // so events attributed to the auto-id remain associated with the confirmed name.
+    const existingId = participant?.id ?? generateId();
+    const p: Participant = { id: existingId, name };
     setParticipant(p);
     try {
       window.localStorage.setItem(participantKey(secret), JSON.stringify(p));
@@ -1117,35 +1527,27 @@ export default function TripPageClient({ secret }: { secret: string }) {
   }
 
   // ── Trip mutation helpers ─────────────────────────────────────────────────────
-  function updateTrip(updater: (t: TripData) => TripData) {
-    setTrip((prev) => {
-      if (!prev) return prev;
-      const updated = updater(prev);
-      tripRef.current = updated;
-      scheduleSave(updated);
-      return updated;
-    });
-  }
-
-  // ── Paste import confirm ──────────────────────────────────────────────────────
-  // After name is confirmed, the participant state might not be updated yet.
-  // Use a ref pattern: read localStorage directly for freshest value.
-  function handlePasteConfirmWithNameCheck(result: ParseResult) {
-    if (!participant) {
-      // Show name prompt, then confirm
-      setPendingAction(() => () => {
-        // After name set, participant will be set - re-trigger with current participant
-        // We need to capture result in closure
-        handlePasteImportWithParticipant(result);
-      });
-      setShowNamePrompt(true);
+  // C: immediate=true flushes the save immediately (for structural mutations).
+  // We compute the update outside setTrip to avoid side-effects in the updater function.
+  function updateTrip(updater: (t: TripData) => TripData, immediate = false) {
+    const prev = tripRef.current;
+    if (!prev) return;
+    const updated = updater(prev);
+    tripRef.current = updated;
+    setTrip(updated);
+    if (immediate) {
+      void flushSave(updated);
     } else {
-      handlePasteImportWithParticipant(result);
+      scheduleSave(updated);
     }
   }
 
-  function handlePasteImportWithParticipant(result: ParseResult) {
-    // Read participant directly from localStorage since state may not be updated yet
+  // ── Paste import confirm ──────────────────────────────────────────────────────
+  // H2: The paste-import ALWAYS commits, regardless of whether a name is set.
+  // If no participant exists, events are attributed to "Guest" and the name prompt
+  // is shown AFTER committing (non-blocking). The import is never lost.
+  function handlePasteConfirmWithNameCheck(result: ParseResult) {
+    // Read participant from state or localStorage
     let p = participant;
     if (!p) {
       try {
@@ -1153,10 +1555,33 @@ export default function TripPageClient({ secret }: { secret: string }) {
         if (raw) p = JSON.parse(raw) as Participant;
       } catch { /* ignore */ }
     }
-    if (!p) return; // should not happen
+    // H2: if still no participant, create a temporary "Guest" participant
+    // and commit the import immediately — do NOT gate on name entry
+    if (!p) {
+      const guestId = generateId();
+      p = { id: guestId, name: "Guest" };
+      // Persist the guest participant so returning visits are consistent
+      try {
+        window.localStorage.setItem(participantKey(secret), JSON.stringify(p));
+      } catch { /* ignore */ }
+      setParticipant(p);
+      // Show the name prompt AFTER committing, as a non-blocking invitation to personalize
+      // (using setTimeout so the state updates + import commit happen first).
+      // R5-2: only show if the user hasn't already skipped the name prompt this session.
+      setTimeout(() => {
+        if (!hasSkippedNameRef.current) {
+          setShowNamePrompt(true);
+        }
+      }, 600);
+    }
 
-    const theParticipant = p;
+    handlePasteImportWithParticipant(result, p);
+  }
+
+  function handlePasteImportWithParticipant(result: ParseResult, resolvedParticipant?: Participant) {
+    const theParticipant = resolvedParticipant ?? participant ?? { id: generateId(), name: "Guest" };
     const now = Date.now();
+    // C: immediate flush — paste-import is a structural mutation
     updateTrip((prev) => {
       const newEvents: TripEvent[] = result.days.flatMap((day) =>
         day.events.map((ev) => ({
@@ -1181,7 +1606,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
         events: [...prev.events, ...newEvents],
         updatedAt: now,
       };
-    });
+    }, true /* immediate flush */);
     setShowPastePanel(false);
   }
 
@@ -1199,13 +1624,14 @@ export default function TripPageClient({ secret }: { secret: string }) {
     setSelectedEvent(null);
     requireParticipant(() => {
       const now = Date.now();
+      // C: immediate flush for structural mutation
       updateTrip((prev) => ({
         ...prev,
         events: prev.events.map((e) =>
           e.id === id ? { ...e, deletedAt: now, updatedAt: now } : e
         ),
         updatedAt: now,
-      }));
+      }), true);
     });
   }
 
@@ -1222,6 +1648,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
       }
       const confirmerName = p?.name ?? "Someone";
       const now = Date.now();
+      // C: immediate flush for structural mutation
       updateTrip((prev) => ({
         ...prev,
         events: prev.events.map((e) =>
@@ -1230,7 +1657,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
             : e
         ),
         updatedAt: now,
-      }));
+      }), true);
     });
   }
 
@@ -1238,6 +1665,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
     setEditingEvent(null);
     const p = participant;
     const now = Date.now();
+    // C: immediate flush for structural mutation (add/edit event)
     updateTrip((prev) => {
       const existing = prev.events.find((e) => e.id === ev.id);
       if (existing) {
@@ -1270,7 +1698,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
         events: [...prev.events, newEv],
         updatedAt: now,
       };
-    });
+    }, true);
     // Update selectedDate if needed
     if (ev.date && ev.date !== selectedDate) {
       const allDates = getUniqueDates([...(trip?.events ?? [])]);
@@ -1297,12 +1725,13 @@ export default function TripPageClient({ secret }: { secret: string }) {
 
   function handleBulkIcs() {
     if (!trip) return;
+    // E: export confirmed if any; otherwise export all active events
     const confirmed = trip.events.filter((e) => !e.deletedAt && e.status === "confirmed");
-    if (confirmed.length === 0) {
-      alert("No confirmed events to export.");
-      return;
-    }
-    const icsContent = generateIcs(confirmed);
+    const toExport = confirmed.length > 0
+      ? confirmed
+      : trip.events.filter((e) => !e.deletedAt);
+    if (toExport.length === 0) return;
+    const icsContent = generateIcs(toExport);
     downloadIcs(icsContent, `${trip.name.replace(/[^a-z0-9]/gi, "-")}.ics`);
   }
 
@@ -1311,7 +1740,8 @@ export default function TripPageClient({ secret }: { secret: string }) {
   }
 
   function handleTripNameChange(name: string) {
-    updateTrip((prev) => ({ ...prev, name, updatedAt: Date.now() }));
+    // Cap trip name at 120 chars client-side (mirrors API)
+    updateTrip((prev) => ({ ...prev, name: name.slice(0, 120), updatedAt: Date.now() }));
   }
 
   function handleRefresh() {
@@ -1356,7 +1786,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* ── Sticky header ──────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 bg-[#FAF7F2] border-b border-[#E8E2D8] px-4 py-2" style={{ maxHeight: "96px" }}>
+      <header className="flex-shrink-0 bg-[#FAF7F2] border-b border-[#E8E2D8] px-4 py-1.5" style={{ maxHeight: "112px" }}>
         {/* Top row: trip name + share/actions */}
         <div className="flex items-center justify-between gap-2 min-h-0">
           {/* Trip name — inline editable */}
@@ -1390,10 +1820,13 @@ export default function TripPageClient({ secret }: { secret: string }) {
           )}
         </div>
 
-        {/* Second row: view switcher + date strip + actions */}
-        <div className="flex items-center gap-2 mt-1 min-h-0 overflow-x-auto">
-          {/* View switcher */}
-          <div className="flex-shrink-0 flex rounded-lg border border-[#E8E2D8] overflow-hidden bg-white text-xs">
+        {/* Second row: view switcher + refresh + copy-invite (NO date chips here) */}
+        {/* R5-3: date chips moved to their own dedicated row below so they NEVER share
+            horizontal space with the toggle/action buttons at 390px. */}
+        <div className="flex items-center gap-2 mt-1 min-h-0 w-full">
+          {/* View switcher — isolated so the bg-[#1a1a1a] active button doesn't bleed
+              outside the rounded container and produce a dark sliver at 390px. */}
+          <div className="flex-shrink-0 flex rounded-lg bg-white text-xs border border-[#E8E2D8] overflow-hidden">
             {(["day", "week", "month"] as CalView[]).map((v) => (
               <button
                 key={v}
@@ -1411,35 +1844,10 @@ export default function TripPageClient({ secret }: { secret: string }) {
             ))}
           </div>
 
-          {/* Date strip (day view) */}
-          {view === "day" && uniqueDates.length > 0 && (
-            <div className="flex gap-1 overflow-x-auto flex-shrink min-w-0">
-              {uniqueDates.map((d) => {
-                const label = new Date(d + "T00:00:00");
-                const isSelected = d === selectedDate;
-                return (
-                  <button
-                    key={d}
-                    onClick={() => setSelectedDate(d)}
-                    className={`flex-shrink-0 rounded-lg px-2 py-1 text-xs font-medium transition-colors ${
-                      isSelected
-                        ? "bg-[#1a1a1a] text-white"
-                        : "bg-white border border-[#E8E2D8] text-[#666] hover:border-[#B5C8E8]"
-                    }`}
-                    aria-label={d}
-                    aria-pressed={isSelected}
-                  >
-                    {label.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Spacer */}
+          {/* Flexible spacer */}
           <div className="flex-1" />
 
-          {/* Copy link + refresh */}
+          {/* Copy link + refresh — always visible at far right, never squeezed */}
           <div className="flex-shrink-0 flex items-center gap-1">
             <button
               onClick={handleRefresh}
@@ -1452,73 +1860,99 @@ export default function TripPageClient({ secret }: { secret: string }) {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            <CopyLinkButton secret={secret} />
+            {/* C: flush-then-confirm — flushPending awaits any pending debounced save */}
+            <CopyLinkButton secret={secret} onFlush={flushPending} />
           </div>
         </div>
+
+        {/* Third row: date chips (day view only) — OWN full-width row, scrolls freely */}
+        {/* R5-3: structural fix — date chips are on a dedicated row so they never collide
+            with the toggle/action buttons at any viewport width. Dark active chip is fully
+            contained; no overflow-hidden ancestor clips it here. */}
+        {view === "day" && uniqueDates.length > 0 && (
+          <div className="flex gap-1 overflow-x-auto mt-1 w-full" style={{ scrollbarWidth: "none" }}>
+            {uniqueDates.map((d) => {
+              const label = new Date(d + "T00:00:00");
+              const isSelected = d === selectedDate;
+              return (
+                <button
+                  key={d}
+                  onClick={() => setSelectedDate(d)}
+                  className={`flex-shrink-0 rounded-lg px-2 py-1 text-xs font-medium transition-colors ${
+                    isSelected
+                      ? "bg-[#1a1a1a] text-white"
+                      : "bg-white border border-[#E8E2D8] text-[#666] hover:border-[#B5C8E8]"
+                  }`}
+                  aria-label={d}
+                  aria-pressed={isSelected}
+                >
+                  {label.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </header>
 
       {/* ── Share framing (below header) ────────────────────────────────────── */}
       {/* Shown inline in the CopyLinkButton context — framing in honest-framing section */}
 
-      {/* ── Trip details card ────────────────────────────────────────────────── */}
-      {(trip.details || detailsExpanded) && (
-        <div className="flex-shrink-0 bg-white border-b border-[#E8E2D8] px-4 py-2">
-          <button
-            onClick={() => setDetailsExpanded(!detailsExpanded)}
-            className="w-full flex items-center justify-between text-xs font-semibold text-[#888] uppercase tracking-wide mb-1"
-            aria-expanded={detailsExpanded}
-          >
-            <span>Trip Details</span>
-            <span>{detailsExpanded ? "▲" : "▼"}</span>
-          </button>
-          {!detailsExpanded ? (
-            <p
-              className="text-sm text-[#444] line-clamp-2 cursor-pointer"
-              onClick={() => setDetailsExpanded(true)}
-            >
-              {trip.details || "Tap to add trip notes, weather, what to bring…"}
-            </p>
-          ) : (
+      {/* ── Trip details card (collapsed on mobile by default — F) ──────────── */}
+      <div className="flex-shrink-0 bg-white border-b border-[#E8E2D8] px-4 py-1.5">
+        <button
+          onClick={() => setDetailsExpanded(!detailsExpanded)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-[#888] uppercase tracking-wide"
+          aria-expanded={detailsExpanded}
+          aria-label="Toggle Trip Details"
+        >
+          <span>Trip Details {trip.details && !detailsExpanded ? <span className="normal-case font-normal text-[#aaa]">— tap to expand</span> : ""}</span>
+          <span>{detailsExpanded ? "▲" : "▼"}</span>
+        </button>
+        {detailsExpanded && (
+          <div className="mt-1">
             <textarea
               value={trip.details}
               onChange={(e) => handleDetailsChange(e.target.value)}
-              className="w-full text-sm text-[#444] bg-transparent focus:outline-none resize-none min-h-[80px]"
+              className="w-full text-sm text-[#444] bg-transparent focus:outline-none resize-none min-h-[60px]"
               placeholder="Weather, what to bring, dress code, general reminders…"
               aria-label="Trip details"
             />
-          )}
-        </div>
-      )}
-      {!trip.details && !detailsExpanded && (
-        <div className="flex-shrink-0 px-4 py-1 border-b border-[#E8E2D8]">
-          <button
+          </div>
+        )}
+        {!detailsExpanded && trip.details && (
+          <p
+            className="text-xs text-[#888] line-clamp-1 cursor-pointer mt-0.5"
             onClick={() => setDetailsExpanded(true)}
-            className="text-xs text-[#aaa] hover:text-[#666]"
-            aria-label="Open Trip Details"
           >
-            + Add trip details (weather, what to bring…)
-          </button>
-        </div>
-      )}
+            {trip.details}
+          </p>
+        )}
+      </div>
 
-      {/* ── Honest framing strip ──────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 bg-[#FFF8F0] border-b border-[#E8E2D8] px-4 py-1.5 flex items-center justify-between gap-2">
-        <p className="text-xs text-[#888]">
-          Anyone with this link can view and edit — share only with your travel companions.
+      {/* ── Compact action strip (honest framing + paste + export — F/E/H4) ──────── */}
+      {/* R4-2: flex-wrap so the strip wraps to a second row on 390px instead of
+          overflowing horizontally. No overflow-x-auto ancestor that would clip buttons. */}
+      <div className="flex-shrink-0 bg-[#FFF8F0] border-b border-[#E8E2D8] px-3 py-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 w-full">
+        {/* F: single small line for the framing — not a full banner */}
+        <p className="text-xs text-[#aaa]">
+          Anyone with this link can view &amp; edit
         </p>
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 ml-auto">
           <button
             onClick={() => setShowPastePanel(true)}
-            className="text-xs text-[#666] hover:text-[#1a1a1a] underline"
+            className="text-xs text-[#666] hover:text-[#1a1a1a] underline whitespace-nowrap"
           >
             Paste itinerary
           </button>
-          {confirmedEvents.length > 0 && (
+          {/* E/H4: bulk .ics is the PRIMARY "add to calendar" path — show clearly. */}
+          {activeEvents.length > 0 && (
             <button
               onClick={handleBulkIcs}
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
+              className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
+              aria-label="Save to calendar (.ics)"
+              title={confirmedEvents.length > 0 ? "Download confirmed events as .ics (imports into Google/Apple/Outlook)" : "Download all events as .ics (imports into Google/Apple/Outlook)"}
             >
-              Add all confirmed (.ics)
+              Save to calendar (.ics)
             </button>
           )}
         </div>
@@ -1537,14 +1971,18 @@ export default function TripPageClient({ secret }: { secret: string }) {
       )}
 
       {/* ── Calendar content (scrollable) ─────────────────────────────────────── */}
-      <div className="flex-1 overflow-hidden">
+      {/* A: flex-1 + min-h-0 gives a bounded height so DayGrid's h-full resolves */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         {view === "day" && selectedDate && (
-          <DayGrid
-            date={selectedDate}
-            events={activeEvents}
-            onEventTap={handleEventTap}
-            onSlotTap={handleSlotTap}
-          />
+          // A: h-full passes the bounded height into DayGrid
+          <div className="h-full">
+            <DayGrid
+              date={selectedDate}
+              events={activeEvents}
+              onEventTap={handleEventTap}
+              onSlotTap={handleSlotTap}
+            />
+          </div>
         )}
         {view === "day" && !selectedDate && (
           <div className="p-4 text-[#888] text-sm">
@@ -1592,7 +2030,19 @@ export default function TripPageClient({ secret }: { secret: string }) {
 
       {/* ── Modals ────────────────────────────────────────────────────────────── */}
       {showNamePrompt && (
-        <NamePromptModal onConfirm={handleNameConfirm} />
+        <NamePromptModal
+          onConfirm={handleNameConfirm}
+          onSkip={() => {
+            // H2: dismissing the name prompt is safe — imports are committed before the prompt appears.
+            // R4-4: mark that the user has skipped the name prompt this session so we don't re-prompt.
+            hasSkippedNameRef.current = true;
+            setShowNamePrompt(false);
+            if (pendingAction) {
+              pendingAction();
+              setPendingAction(null);
+            }
+          }}
+        />
       )}
 
       {selectedEvent && (

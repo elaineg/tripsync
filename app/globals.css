@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FAF7F2;
+  --foreground: #1a1a1a;
+  --sand: #FAF7F2;
+  --sand-border: #E8E2D8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Smooth scrolling for day grid */
+.day-grid-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Event block proposed/confirmed styles */
+.event-proposed {
+  opacity: 0.65;
+  border-style: dashed;
+}
+
+.event-confirmed {
+  opacity: 1;
+  border-style: solid;
+}

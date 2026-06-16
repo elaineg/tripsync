@@ -1,18 +1,30 @@
 Name: Dana
-Role: Demand-gen marketer, ruthless about time. Girls' weekend; want everyone tapping events into their own Google Cal. MacBook + phone (tested at 390px).
+Clarity: Yes
+Value: No
+Advocacy: 6
+PriorConcernsAddressed: most — 3 named fixes all landed; the visual bar (one flat color) still keeps me out
 
-**Round-2 nits — re-checked at 390px in the REAL loaded-trip state (after paste→commit, modal dismissed):**
-1. (Black sliver at right edge of Day/Week/Month toggle) — **NOT RESOLVED.** It's clean on the empty pre-commit screen, but once a trip has events the toggle still has a black rounded sliver poking in on its right — it's a dark `rounded-lg` button (bg rgb(26,26,26)) that sits flush after "Month" and gets clipped to just its rounded left edge. Same "wait, is that broken?" glitch I flagged in R1 and R2. (toggle wrapper itself is clean; the offending element is the next control crowding it on a narrow phone.)
-2. ("Download all (.ics)" truncates) — **NOT RESOLVED (arguably worse).** The button was relabeled to "Save to calendar (.ics)" — longer — and lives in the action bar that overflows the 390px viewport inside an `overflow-hidden` container (button right edge = 450px, container clips at 390). On my phone it visibly reads "Save to cale…" — the "(.ics)" is off-screen. The DOM text-overflow says false because the clip happens at an ancestor, not via ellipsis, but the user-visible result is a cut-off label, same as R2.
+I'm Dana, demand-gen marketer, Canva-level bar, I screenshot tools I love into my team channel. Re-ran my Charleston girls' weekend (9 events, 3 days) on a 1280px Mac and a 390px phone, reloaded, and re-checked add-to-Google-Calendar.
 
-**Clarity: Yes.** H1 + honest sub still nail it in 5 sec. Unchanged from R2 — I'd say "paste your messy itinerary, get a shared hourly calendar everyone opens from one link, no signup, tap any event into Google Cal or grab the whole trip as one file."
+THE THREE FIXES YOU FLAGGED — I checked each:
+1. 390px Week no longer truncates titles — FIXED, and this was my #1 blocker. Titles now WRAP to multiple lines: "Beach day at Sullivan's Island", "Spa at The Spa at Belmond", "Check-in at The Dewberry" all render in full across the 3 day-columns. No more "6:00pm Chec...". The view I'd actually share from my phone is finally readable. Real win.
+2. Reload no longer re-pops the paste panel — FIXED. Reloaded the /t/ link several times; the calendar comes straight back, no paste panel over it, and the URL is clean (no ?paste=1). The exact jarring thing from round 2 is gone.
+3. Own events render solid/finished, not dashed-wireframe — FIXED, once I understood it. The dashed pale pills aren't a bug — they're a "Proposed by Guest" state. Tapping an event gives Confirm / Add to Google Calendar / Edit / Delete; after I hit Confirm the pill turns SOLID, saturated rose, with "✓ Confirmed by you". So confirmed events DO look finished. Good mechanic.
 
-**Value: Yes.** Re-walked it: name is optional now (created a trip with no name, got a real share URL), Load sample → 6 events parsed across 2 days, grid auto-scrolls to 12pm with "Emily lands 12:30" right at the top (no empty morning), Trip Details extracted weather/what-to-bring, Copy invite link copied the real /t/ URL ("Copied!"), zero console errors throughout. Still beats my Notion+Canva+group-text workflow.
+CLARITY — Yes, unchanged and strong. "Turn a messy itinerary into a shared day-by-day calendar — no app, no login", two clear cards (Paste an itinerary / Start blank), "No account or email required." 5 seconds to get it.
 
-**Advocacy: 8.** Unchanged from R2. I was told both my nits were fixed; they're only fixed on the empty starter screen and BOTH come back in the actual used state on a phone — the black sliver and a clipped "Save to cale…" are exactly what my aesthetic-driven group screenshots and goes "is this broken?" Core value is a clear 9; the two 390px polish bugs that were supposed to be gone are still there, so I can't move the number. Fix the sliver and let the .ics label wrap/shrink so it fits 390px and it's a 9.
+VALUE — still No, narrowly, for MY job. Everything works: parser caught all 9 events with an editable preview, Week is a clean 3-column grid with a navy "today" header, the per-event "Add to Google Calendar" produces a correct render?action=TEMPLATE link (text=Dinner+at+FIG, dates=20260615T193000/203000, ctz set — it only bounced to Google sign-in because my test browser isn't logged in, that's Google not the app), and .ics + share link work. I'd genuinely use the export. But value=Yes means it REPLACES my Canva itinerary, and it still doesn't: every event is the SAME dusty-rose pill — no per-type color, no icons, no imagery. Brunch, Spa, Beach day, Dinner all look identical. It's prettier than round 2's sage-green, but it's still monochrome, so I'd still build the cute version in Canva and only use this for export = double work.
 
-**Likes:** Auto-scroll to first event; name-optional create; honest subtitle; preview-before-commit with editable times and "end time assumed" notes; Trip Details extraction; instant copy-invite; one-link friend-open; zero console errors.
+WHAT'S STILL MISSING (no longer blocking, just keeping me from raving):
+- One flat color for all 9 events. Even a rotating palette or color-by-time-of-day would make it screenshot-worthy.
+- A fresh paste lands as ALL "proposed/dashed" — as a solo planner I have to tap-Confirm 9 events one by one to make MY OWN trip look finished. Auto-confirm the creator's pasted events, or a "Confirm all".
+- Name doesn't persist across reload: it asks "What's your name?" then again "Confirm as..." then again on next reload. Mildly annoying.
+- "Friday → Mon, Jun 15" date mapping still defaults to today-forward; no place to set real trip dates up front.
+
+ADVOCACY — 6 (up from 5). The three fixes genuinely landed and the mobile-week readability + clean reload remove the things that made me wince. I bumped one point honestly. It's NOT a 7-to-be-nice — it's still a 6 because the headline word is "visual" and a single flat pill color means I won't drop it in my team channel unprompted; I'd mention it only if a friend asked "how do I share an itinerary?" Give events real color variety and auto-confirm the creator's own events and I'm at 8 and screenshotting it.
+
+BLOCKING: none functional — every core action worked end to end. The remaining gap is purely the one-color visual bar its own "visual trip calendar" pitch sets.
 
 ```json
-{"tester": 5, "round": 3, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Black rounded sliver (dark clipped button) still pokes out right of Day/Week/Month toggle at 390px once a trip has events", "Bulk button relabeled to 'Save to calendar (.ics)' but still visually truncates to 'Save to cale…' in the overflow-hidden action bar at 390px"], "priorConcernsAddressed": "none"}
+{"tester": 5, "round": 3, "clarity": "Yes", "value": "No", "advocacy": 6, "topComplaints": ["Still one flat dusty-rose color for all 9 events — no per-type/rotating color, icons, or imagery; prettier than round 2 but still not screenshot-grade vs my Canva itinerary", "A fresh pasted itinerary lands all-dashed 'proposed'; a solo creator must tap-Confirm 9 events to make their own trip look finished — auto-confirm the creator or add Confirm-all", "Name never persists (asks repeatedly across reload/confirm) and day-name itineraries still map to today-forward dates with no way to set real trip dates"], "priorConcernsAddressed": "all"}
 ```

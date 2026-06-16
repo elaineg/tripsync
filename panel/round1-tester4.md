@@ -1,29 +1,49 @@
 Name: Tomás
-Role: Operations analyst, medium-tech, Edge on a corporate Windows laptop. Coordinating a multi-family beach house week; need ONE link relatives of all ages can open with no signup/install.
+Clarity: Yes
+Value: Yes
+Advocacy: 7
 
-## Clarity — Yes
-In 5 seconds I got it: "Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link" + "No app, no login. Paste an itinerary and watch it become a visual hourly calendar." One field "Name your trip", one button. That's exactly my job. The "No account or email required" line directly answers the question my relatives always ask.
+I'm an ops analyst — Excel/Tableau/Jira all day, IT blocks installs, and I'm wary of pasting
+company data into random sites. But this is a personal trip and a browser tool, so it fits.
+I've used TripSync before; this round I tried both start paths and the new drag editing.
 
-## Value — Yes (with a serious caveat)
-Today I do this in a shared Excel/Google Sheet and a Teams thread, and half my relatives never open it because it's a wall of cells. The paste-import is genuinely impressive: I pasted a blob, it parsed 12 events across 2 days into an hourly grid AND pulled out a "weather / bring a jacket / bring ID" trip-details panel on its own. Week view is a clean column-per-day agenda I'd actually share. This beats my spreadsheet on legibility. BUT the value depends entirely on relatives opening it on their PHONES, and that's where it falls down (below).
+CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no
+app, no login" plus "One link, open and edit on any phone" told me exactly what it is in
+about 3 seconds. Two labeled cards ("Paste an itinerary" vs "Start from a blank calendar")
+made the two ways to start obvious. The footer "Anyone with the link can view and edit... No
+account or email required" is exactly the reassurance I needed for relatives who won't sign up.
 
-## Advocacy — 4/10
-The desktop flow is lovely, but the headline promise ("phone-friendly day-by-day") is broken for me. I would NOT confidently send this to Grandma's phone today.
+VALUE — Yes, and this is the real win for me. Today I do this in a shared Google Sheet plus a
+long Teams/group-text thread, and half my relatives can't read the sheet on their phones. Here
+I made a trip, dragged out events, hit "Copy invite link," and opened that link in a clean
+browser with NO login — it showed my "Welcome BBQ 11am–1pm" and was editable. That's the one
+link I can send Grandma. It renders fine at phone width too. The PASTE path genuinely
+impressed me: I pasted a 6-line messy itinerary, it parsed all 6 events across 2 days, let me
+edit times in a preview before committing, flagged "end time assumed (1h)," and even caught my
+date error ("you wrote Fri; Aug 8 is a Sat"). That's a thoughtful detail a spreadsheet never
+gives me. The optional "What's your name?" prompt (skippable) for change attribution is smart.
 
-## Concerns (ordered)
-1. MOBILE DAY VIEW DOESN'T SCROLL (dealbreaker). At 390px the day grid is locked: page scrollHeight == viewport, window.scrollTo does nothing, vertical swipe moves nothing. I land on empty 6am–noon hours; the first event (12:30pm) is barely at the bottom, and everything from ~4:30pm on — dinner, evening, ALL of Saturday — is clipped off-screen and physically unreachable. A relative opening the link can only ever see midday. This is the one thing the product is named after.
-2. No auto-scroll to the first/current event — even if scroll were fixed, opening to a blank 6am makes it look empty.
-3. Cross-device sync RACE. Twice, when I added events and shared quickly, a fresh "friend" browser opened the /t/ link and saw "No dates yet." It only synced reliably after I waited for the "Saved" indicator. If I copy the link the moment I finish, my relatives get an empty trip. Needs a clear save/sync state before "Copy invite link" is safe.
-4. Privacy/trust (my Excel instinct): "Anyone with the link can view AND edit" with no login means any relative who forwards it gives a stranger edit/delete rights, and there's no per-person lock or undo I could find. For company data I'd never use this; for family it's acceptable but I'd want a "view-only link" option.
-5. Sample itinerary is a SF city trip (Foreign Cinema, Haight vintage), not beach-house-flavored — minor, but it didn't sell my exact case.
+ADVOCACY — 7. I'd mention it, but not unprompted-evangelize yet, because of one real gap for
+MY exact situation: my trip is in AUGUST, and when I "Start from a blank calendar" everything
+defaults to today (Jun 15) and I found NO way to navigate to a future month. Month view shows
+June 2026 with no next/prev arrows, and there's no visible date picker until after you've
+already created an event. The paste path lands on the right dates automatically, so it's hidden
+there — but a blank-start user building an August week is stuck on June. Also "Week" view
+showed only a single day, not a 7-day spread, which is odd for a tool literally named for a
+"week." Fix month/date navigation in blank mode and this is a 9.
 
-## Likes
-- Paste-to-calendar parsing is the magic; auto-extracted trip-details panel is a delight.
-- Name dialog ("What's your name? So others can see who made changes") is friendly and explains itself.
-- "Copied!" green confirmation is obvious; clipboard returned the real /t/ link.
-- Event tap shows Confirm / Add to Google Calendar / Edit / Delete / "Proposed by Tomás" — clear collaboration model.
-- Week + Month + Day toggle, no-login, zero friction to start.
+Top likes: zero-login share link that truly opens for a relative; the paste parser's editable
+preview + date-mismatch warning; drag-to-create and drag-to-move both worked smoothly; clean
+on mobile; "Saved" indicator gives confidence.
+Top friction: no way to navigate to a future month from a blank calendar (defaults to today);
+Week view rendered one day, not a week; bottom-edge resize was finicky (felt like it moved the
+event instead of extending it).
+Blocking issue: none that stops sharing, but the missing month/date navigation in blank mode
+nearly blocks my real use case (an August trip) and is the single thing holding back my score.
+
+(Note: clipboard copy verified — invite link copied cleanly without ?blank query param and the
+button changed to "Copied!"; clipboard read confirmed in my test setup.)
 
 ```json
-{"tester": 4, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 4, "topComplaints": ["Mobile day view does not scroll — evening + Saturday events are clipped and unreachable on a phone, breaking the headline feature", "Cross-device sync race: sharing the link right after adding events shows the friend 'No dates yet' until 'Saved' appears", "Day view opens on empty 6am hours with no auto-scroll to first event", "No-login 'anyone can view AND edit' link has no view-only option or edit lock"], "priorConcernsAddressed": "n/a"}
+{"tester": 4, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 7, "topComplaints": ["No way to navigate to a future month from blank calendar — defaults to today (Jun), blocks building an August trip", "Week view shows a single day, not a 7-day spread", "Bottom-edge resize felt like it moved the event instead of resizing"], "priorConcernsAddressed": "n/a"}
 ```

@@ -1,20 +1,50 @@
-Name: Aisha (product designer, judges craft hard; motivation: a phone day-view that's actually beautiful vs her ugly Notion page)
+Name: Aisha
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: all (3 fixed, 1 reframed-and-now-legible)
 
-**Round-1 dealbreaker re-check (mobile DAY view): RESOLVED.** At 390px a cold open now lands on 9am with Coffee/Tram/Lunch/Castelo all visible above the fold — the grid auto-scrolls past dead early hours (scroller scrollTop=120 of 1080) and scrolls smoothly. This is exactly the glanceable train view I wanted. Genuinely nice to open.
+I came back to re-judge craft on the four things I marked down last round, on desktop (1280)
+and my phone (390). I drove real drag-create, resize, the popover, reload-to-resting-state,
+and confirm.
 
-**Clarity: Yes.** Headline still nails it in 5s: "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login." New "Name your trip" first step + "Load sample itinerary" make onboarding clearer than R1.
+PRIOR CONCERNS — re-checked one by one:
+1. RESIZE handle — FIXED. There are now visible top + bottom handle pills (a small rounded
+   bar centered on each edge) and hovering the bottom edge gives a real `ns-resize` cursor.
+   I dragged the bottom handle down and the block grew 10:00am–12:00pm → 10:00am–1:00pm with
+   the event COUNT staying at 1 — it resized, it did not spawn a new event or move the block.
+   That was my #1 friction and it's gone.
+2. SAVED-EVENT COLOR consistency — FIXED. Desktop and 390px now render the identical fill
+   (pale blue, rgba(181,200,232,…)). The pink-on-mobile / blue-on-desktop split is gone; I
+   verified the computed bg matches byte-for-byte across breakpoints after a fresh reload.
+3. DASHED border "looks unsaved" — REFRAMED, and now legible. The dashed border isn't a bug:
+   it's the *proposed/unconfirmed* state. The popover spells it out — "Proposed by you" with a
+   green "Confirm" button — and hitting Confirm flips the block to a SOLID border + fuller
+   fill + an inline "✓ Confirmed by you". For two people planning a trip, a tentative lunch
+   reading as dashed and a locked-in one reading as solid is exactly the right semantics. Last
+   round I misread it because nothing told me it was a proposal; now the copy does. Consistent
+   across both breakpoints.
+4. NATIVE <select> time pickers — FIXED. Zero `<select>` elements anywhere now; the editor is
+   a clean custom card. The ugliest element on the screen is simply gone.
+5. MOBILE EMPTY-STATE parity — FIXED. The 390px blank grid now carries the same hint as
+   desktop: "Drag down the grid to block out time, or click a slot for a 1-hour event," and
+   the FAB is a labeled "+ Add event" pill, not a bare "+".
 
-**Value: Yes.** Beats my ugly bulleted Notion page I squint at on the train: a real hourly grid, proposed-vs-confirmed, one shared link, .ics export. I'd actually use this for the Lisbon trip.
+CLARITY — Yes. Unchanged and still strong: the headline + two genuinely-equal start cards.
+VALUE — Yes. Today I'd hand-build a squinty bulleted Notion day page; this gives my partner
+and me a shared, hourly, no-login calendar where I can *propose* and they can *confirm*. The
+proposed→confirmed model is more than I expected and it's the reason I'd actually use it.
 
-**Advocacy: 8/10.** Up from 6. The thing I came for is fixed and the craft holds up: solid-pink + "✓ Confirmed by Priya" vs dashed proposed reads beautifully on-grid; "Copied!" flips green (clipboard verified to hold the real /t/ link); calm warm-paper palette; clean bottom sheet ("Proposed by Aisha", Confirm, Add to Google Calendar). Held back from 9 by two craft nits below — not dealbreakers, but a designer notices.
+REMAINING CRAFT NITS (why 9, not 10): the editor popover stacks Confirm / Add to Google
+Calendar / Edit / Delete / Close as five separate full-width-ish targets — a touch heavy for a
+card; I'd group destructive (Delete) away from primary. And the green "Saved" + green
+"Confirmed by you" sit close together using the same green, slightly muddying "the doc is
+saved" vs "this event is agreed." Minor. No blocking issue: no crashes, 0 console errors,
+resize/confirm/reload-persistence all work.
 
-**Concerns (ordered):**
-1. PARSER IS FORMAT-PICKY (NEW, biggest): my natural paste using "09:00 Coffee..." (24h, no AM/PM) parsed to "0 events across 0 days" SILENTLY — no warning, no "couldn't read these lines." Only "9:00 AM Coffee" worked. A 0-event result must explain itself or the train user gives up. R1 #1 (empty day) RESOLVED; this is a different gap.
-2. HEADER CLIPPING (R1 #2): the Day/Week/Month/May-2 pills no longer collide with refresh/Copy — RESOLVED. But "Download all (.ics)" in the header is truncated to "Downloa…" at 390px (full action lives in the event sheet, so it works — but the header label is cut).
-3. On-grid "proposed" wording (R1 #3): still no literal "proposed" tag on the block — PARTIALLY RESOLVED via dashed-vs-solid + green confirmed check, which now reads well enough at a glance; I'd still add a tiny tag.
-
-**Likes:** auto-scroll-to-first-event; confirmed restyle (solid + green ✓author); "Load sample itinerary" + in-sheet "Proposed by"; clipboard verified; warm palette; tighter chrome.
+This is a real craft lift. It went from a polite 8 to a genuine 9 — I'd bring it up unprompted
+to anyone planning a city weekend out of a Notion doc.
 
 ```json
-{"tester": 7, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["parser silently returns '0 events' for 24h-time formats like '09:00 Coffee' - only AM/PM parses, no error explains the failure", "header 'Download all (.ics)' truncated to 'Downloa...' at 390px", "proposed events still have no literal on-grid 'proposed' tag (mitigated by dashed-vs-solid styling)"], "priorConcernsAddressed": "all"}
+{"tester": 7, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["popover stacks 5 actions; Delete not separated from primary", "green 'Saved' and green 'Confirmed by you' use same green, slightly muddy"], "priorConcernsAddressed": "all"}
 ```

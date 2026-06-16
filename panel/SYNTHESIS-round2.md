@@ -1,88 +1,66 @@
-# Panel Synthesis — TripSync Round 2
+# Panel Synthesis — TripSync drag-create feature, ROUND 2
 
-All round-1 P0 dealbreakers (mobile day-grid scroll, cold-open auto-scroll, persistence
-flush-on-commit, copy-link flush-then-confirm) are RESOLVED and re-verified by every tester.
-Result: 10/10 now clarity=Yes AND value=Yes. Three testers clear the ≥9 advocacy bar; seven
-sit at 8, one point short.
+**Verdict: 8/10 at the exit bar** (advocacy ≥9 ∧ clarity=Yes ∧ value=Yes). Up from R1's 1/10.
+Two misses: **Rob (7)** — a real confirm-attribution correctness bug that REGRESSED him 8→7;
+and **Dana (5, value=No)** — the Canva-grade visual holdout, treated as the one allowable miss.
 
 ## Score table
+| # | Tester | Clarity | Value | Advocacy | At bar | Prior concerns |
+|---|--------|---------|-------|----------|--------|----------------|
+| 1 | Priya  | Yes | Yes | 9 | ✅ | both fixed (resize + snapping) |
+| 2 | Marcus | Yes | Yes | 9 | ✅ | all 4 fixed |
+| 3 | Wen    | Yes | Yes | 9 (carried) | ✅ | n/a (not re-tested at 9) |
+| 4 | Tomás  | Yes | Yes | 9 | ✅ | all 3 fixed |
+| 5 | Dana   | Yes | **No** | **5** | ❌ | some — visual still wireframe |
+| 6 | Jules  | Yes | Yes | 9 | ✅ | all 3 fixed |
+| 7 | Aisha  | Yes | Yes | 9 | ✅ | all fixed (dashed reframed-legible) |
+| 8 | Rob    | Yes | Yes | **7** | ❌ | some (2/3); confirm-attribution bug |
+| 9 | Elena  | Yes | Yes | 9 | ✅ | 2/3 fixed |
+| 10| Sam    | Yes | Yes | 9 | ✅ | 2/3 fixed |
 
-| # | Persona | Clarity | Value | Advocacy (R1→R2) | Bar |
-|---|---------|---------|-------|------------------|-----|
-| 1 | Priya   | Yes | Yes | 5 → 8 | |
-| 2 | Marcus  | Yes | Yes | 6 → 8 | |
-| 3 | Wen     | Yes | Yes | 7 → 9 | **PASS** |
-| 4 | Tomás   | Yes | Yes | 4 → 8 | |
-| 5 | Dana    | Yes | Yes | 7 → 8 | |
-| 6 | Jules   | Yes | Yes | 7 → 9 | **PASS** |
-| 7 | Aisha   | Yes | Yes | 6 → 8 | |
-| 8 | Rob     | Yes | Yes | 5 → 8 | |
-| 9 | Elena   | Yes | Yes | 2 → 8 | |
-| 10| Sam     | Yes | Yes | 6 → 9 | **PASS** |
+Clarity 10/10. Value 9/10 (only Dana No). Advocacy ≥9: 8/10.
 
-PASS (≥9): Wen, Jules, Sam. Under bar (8): Priya, Marcus, Tomás, Dana, Aisha, Rob, Elena.
+## Strategy to clear the bar
+Fix **Rob's confirm-attribution bug** → Rob to 9 = **9/10**, with Dana the one allowable miss.
+Fold in the genuine regressions (R2-2, R2-3) and two low-risk legibility fixes (R2-4, R2-5).
+**Do NOT touch surfaces that would regress the 8 passers** — no broad event re-theme, no
+re-introducing a name wall before a solo creator's first create (a protected R1 win loved by
+Elena/Jules/Sam), no changing the dashed=proposed-by-other semantics Aisha explicitly approved.
 
-## Holdbacks keeping the seven 8s under 9 (grouped by cause)
+## Grouped complaints behind sub-bar / off-10 scores
 
-### H1 — Parser silently fails on real / 24h itineraries  — RECURRING (Aisha, Rob) — HIGHEST PRIORITY round-3 fix
-The parser returns "0 events across 0 days" for 24-hour time formats ("09:00 Coffee", no
-AM/PM) and for testers' OWN pasted itineraries — only the built-in sample parsed cleanly. It
-fails SILENTLY: no warning, no explanation, just an empty result, so the user assumes the tool
-is broken and bounces. This is the PRIMARY flow silently breaking on real-world input — the
-single biggest product risk now that the mobile blockers are gone.
-- Aisha (8): "my natural paste using '09:00 Coffee' (24h, no AM/PM) parsed to '0 events'
-  SILENTLY — a 0-event result must explain itself or the train user gives up."
-- Rob (8): "my own pasted itinerary parsed to '0 events' — only the built-in sample parsed
-  cleanly; a real user pasting a messy group-text could hit the same wall and bounce. Fix the
-  paste-anything robustness and I'm at 9."
-- (Related, single-persona signal toward parser robustness: Elena notes the parser overlaps
-  adjacent events 4:30–5:30 vs 5:15 — minor, tolerable.)
+### BLOCKER — confirm/propose attribution has no identity (Rob, the regression)
+Rob drove two real browser contexts (owner + a friend). The friend was NEVER asked their name;
+confirmations carry no identity, and "Confirmed by you" displays to EVERYONE. After the friend
+confirmed Rob's event, Rob reloaded and his own event read "Confirmed by you" though he never
+confirmed it. For a tool whose entire point is "who has confirmed they're in," this is worse
+than R1's anonymous "Someone" — it's actively misleading. → **R2-1** (the bar-clearer).
 
-### H2 — Name-gate on commit silently loses the parsed import  — RECURRING (Priya, Marcus, Elena)
-Commit pops a "What's your name?" modal before the save fires; the modal is unexpected
-mid-flow, and bailing/cancelling it SILENTLY DISCARDS the whole parsed import. The brief's
-design decision says name should be asked on first INTERACTION (browse-first) — the current
-build gates the paste-commit itself, which is the wrong moment and has a data-loss failure mode.
-- Elena (8): "the name-gate on commit is a silent failure mode (bail = lose import) and should
-  auto-save a draft."
-- Priya (8): "the friend still hits a 'What's your name?' modal on first confirm — a small
-  speed bump."
-- Marcus (8): "commit gated behind an unexpected 'What's your name?' modal mid-flow."
-- (Sam, a PASS at 9, also flags it as a minor: name prompt fires mid-flow rather than at trip
-  creation — reinforces the fix without being a holdback for him.)
+### VALUE=No — visual bar (Dana, the one allowable miss)
+All 9 events render as one identical pale-green dashed pill — no per-type color, icons, imagery,
+or theming; "reads like a wireframe, won't screenshot it." Functionally everything worked
+(parser, .ics, Google template link, no-login share). We are **NOT** chasing the full visual
+overhaul this round: a broad re-theme risks regressing the 8 passers (Marcus/Aisha explicitly
+like current event styling; Aisha approves dashed=proposed semantics). Dana stays the documented
+allowable miss. We take only the targeted, low-risk slice of her feedback (R2-5: a solo creator's
+OWN events should look finished, not dashed-wireframe) plus her two genuine regressions below.
 
-### H3 — Cosmetic mobile CSS: black sliver + truncated .ics label  — RECURRING (Marcus, Dana, Jules, Aisha)
-Two cheap polish nits at 390px: (a) a thin black rounded "sliver" still pokes out to the right
-of the Day/Week/Month view toggle; (b) the "Download all (.ics)" header label truncates to
-"Downloa…". Visual-craft personas screenshot exactly this and read it as "is that broken?"
-- Dana (8): "persistent black date-pill sliver + truncated 'Downloa...' label — fix those and
-  it's a 9."
-- Marcus (8): "thin black day-chip sliver still peeks between view-toggle and refresh at 390px."
-- Aisha (8): "'Download all (.ics)' truncated to 'Downloa…' at 390px."
-- Jules (9, PASS): "tiny cosmetic black sliver to the right of 'Month'" — reinforces; was his
-  only block to a 10.
+### NEW regression — mobile Week truncation (Dana)
+At 390px the R1 3-column Week view shreds every title ("6:00pm Chec...", "10:00am Bea..."),
+unreadable without tapping. A regression introduced by the R1 fix. → **R2-2**.
 
-### H4 — Bulk add is .ics only; per-event Google bounces through sign-in  — RECURRING (Priya, Sam, Wen, Elena) — FRAMING/MITIGATION ONLY
-Testers want a true one-tap bulk "add everything to Google Calendar"; the only bulk mechanism
-is the .ics download, and per-event Google add routes through a Google sign-in screen before
-prefill. True bulk Google add requires OAuth — OUT OF SCOPE (no credentials, free-tier rule).
-The .ics is the correct bulk mechanism. Round-3 action is framing only: lead with the .ics as
-the primary "add everything" action, keep per-event Google as secondary, frame honestly. Do NOT
-add OAuth.
-- Elena (8), Priya (8), Sam (9), Wen (9): all want bulk one-tap-to-Google; accept .ics as fine
-  but want the honest path led clearly.
+### General friction — paste panel re-opens on reload (Dana)
+Reloading re-appends `?paste=1` and pops the paste panel over the calendar. → **R2-3**.
 
-### H5 — View-only / no-edit link option  — SINGLE PERSONA (Tomás) — OUT OF SCOPE BY DESIGN
-Tomás wants a "view-only link" toggle / edit lock / undo so a forwarded link can't give a
-stranger delete rights. This DEPRIORITIZES: free editing by anyone with the link is the core
-CUJ (two trusted travel companions co-editing one plan, per design decision 5). It is a
-deliberate design choice, not a bug — not a round-3 fix. The honest "anyone with this link can
-view and edit — share only with your companions" banner already sets the expectation.
-(Tomás also notes the sample is a SF city trip not beach-house flavored — cosmetic, non-blocking.)
+### Single-persona polish (Sam) — add-form date default
+Mobile "+ Add event" defaults Date to today even when "Go to:" shows a future date (e.g. Aug 1),
+risking events on the wrong day. → **R2-4**.
 
-## Round-3 priority order
-1. H1 — parser 24h-time + real-paste robustness + helpful empty-parse message (unblocks Aisha, Rob)
-2. H2 — name optional/skippable, never discard the import (unblocks Priya, Marcus, Elena)
-3. H3 — kill the black sliver + un-truncate the .ics label (unblocks Dana, Marcus; helps Aisha, Jules)
-4. H4 — lead with .ics as primary bulk path, per-event Google secondary, framed honestly (helps Priya, Elena)
-5. H5 — out of scope by design (Tomás); note, do not build.
+## Off-10 nits (NO-FIX this round — do not act, would risk passers)
+- Bulk "add whole trip to Google Calendar" (Elena, Sam) — needs OAuth, out of scope; .ics is the
+  honest bulk path. The off-10 caveat for two already-passing 9s.
+- Paste parser rejects natural pastes like "Fri 6pm Drive up to Tahoe" (Rob, Sam) — prior-round
+  parser scope, not this feature; not weighted by Rob himself.
+- Untitled-Trip naming nudge (Jules); popover stacks 5 actions / two greens muddy (Aisha);
+  full 7-column Sun–Sat Week incl. empty days (Tomás); opacity:0.65 on unclaimed (Marcus) — all
+  explicit non-blocking off-10 nits from passers; leave them to avoid regression risk.

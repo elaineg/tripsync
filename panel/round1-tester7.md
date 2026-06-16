@@ -1,19 +1,48 @@
-Name: Aisha (product designer, judges craft hard; motivation: a phone day-view that's actually beautiful vs her ugly Notion page)
+Name: Aisha
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-**Clarity: Yes.** In 5s I knew it: "paste a friend's itinerary, it becomes a phone-friendly hourly calendar you both edit from one link, no login." The headline + "No app, no login. Paste an itinerary..." subhead + "Anyone with the link can view and edit" nailed it. Single input, one black button — clean.
+I'm a product designer; I judge spacing, copy tone and empty states hard, and I came for one
+thing: a day-hourly trip view that looks considered on my phone instead of my squinty bulleted
+Notion page. I tried both start paths, drag/click/move/resize on desktop, the popover, the
+mobile day view, and the share link.
 
-**Value: Yes.** Today I retype my partner's plans into a bulleted Notion page and squint at it on the train. TripSync parsed 12 events across 2 days from one paste, kept the El Chato link and the "what to bring" note, grouped by day, and gave me a real hourly grid + .ics export. That genuinely beats my Notion habit.
+CLARITY — Yes. In 5s the headline "Turn a messy itinerary into a shared day-by-day calendar —
+no app, no login" plus the subline about Google Calendar / .ics told me exactly what it is. The
+two start cards are genuinely visually EQUAL — symmetric, parallel copy ("Already have a plan
+in a doc?" vs "Prefer to build it yourself?"), matching icons and black CTAs. That equality is
+craft I noticed and respect; neither option feels like the afterthought. "Name your trip" up
+top is the right first step.
 
-**Advocacy: 6/10.** The bones are considered (great empty-state placeholder that teaches the format; bottom-sheet with Confirm/Add to Google Calendar; confirmed events flip to solid pink + green "Confirmed by Priya" — proposed/confirmed reads well once you act; "Copied!" turns green with a check — best-in-class). But my one core reason to open this — the mobile day view — fails its first impression, and I won't loudly recommend a calendar whose cold open is empty.
+VALUE — Yes. The paste path is the standout: I pasted a messy Porto day and got a "Preview
+parsed events" screen — "5 events across 1 day will be added. Edit titles or times below before
+confirming," editable per-event time dropdowns, an italic "end time assumed" flag on inferred
+times, and "Events will be added and you can set your name after." That's a considerate,
+trustworthy flow — it parsed all 5 correctly. Drag-to-create on desktop feels like Google
+Calendar (10am→12pm gave me a clean 10:00–12:00 block + autofocused popover), single-click made
+a tidy block, and move worked. Share genuinely works — my companion's tab loaded the saved
+event; copy-invite-link copies the URL and flips to "Copied!". The mobile day view at 390px is
+the win vs Notion: generous spacing, legible grey hour rails, side-by-side collision columns. I
+would actually use this on the train.
 
-**Concerns (ordered):**
-1. CRAFT/MOBILE, biggest: cold mobile day view parks at ~6–7am, so the entire above-the-fold is EMPTY HOURS (6am–12pm blank). My first event is 12:30pm, far below. On the train I open the link and see a blank grid, not "a beautiful glanceable day." It should auto-scroll to the first event or collapse dead hours. This is exactly the thing I came for.
-2. MOBILE toolbar clipping: at 390px the Day/Week/Month + day pills ("May 1/May 2") collide with the refresh/Copy buttons — a black sliver and a cut-off pill. Crowded, looks unfinished.
-3. Proposed events are dashed-pink with no on-grid label — not legible as "proposed" until you tap. Confirmed is clear; proposed isn't. A small "proposed" tag/icon on the block would close the loop.
-4. Trip-details + "anyone with link" banner eat vertical space above the grid on mobile, pushing real content even further down.
+TOP LIKES: the parse preview + "end time assumed" copy; the optional bottom-sheet "What's your
+name? … You can always set this later." with a Skip — attribution without a signup wall; the
+two start cards being truly equal; the GCal-style drag popover.
 
-**Likes:** format-teaching paste placeholder; in-app "Enter your name" modal on first action (no login, yet attributed); confirmed-state restyle with green check + author; Add to Google Calendar per-event AND "Add all confirmed (.ics)"; "Copied!" feedback + clipboard verified to hold the real /t/ link; overlapping events offset side-by-side; calm warm-paper palette.
+TOP DISLIKES / FRICTION (craft):
+1. RESIZE has no visible handle and is ambiguous — grabbing near a block's bottom edge often
+   STARTS A NEW EVENT instead of resizing, or moves the whole block. A designer expects a 2px
+   bottom handle with a resize cursor; right now it's a guessing game.
+2. Event COLOR is inconsistent across platforms: saved blocks are pale blue on desktop but
+   render PINK with a DASHED border on mobile — dashed reads as "draft/unsaved" to me even
+   though the header says "Saved." Pick one saved style; reserve dashed for the drag preview.
+3. EMPTY-STATE PARITY: desktop blank gets the helpful banner "Drag down the grid… or click a
+   slot for a 1-hour event," but the mobile blank grid has NO guidance — just a bare grid and a
+   "+" FAB. New mobile users get zero hint.
+4. The quick-create time pickers are NATIVE <select> dropdowns — they break the otherwise-custom
+   styling with OS chrome, the ugliest element on the screen.
 
-```json
-{"tester": 7, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 6, "topComplaints": ["mobile day view opens on empty 6am-12pm hours, no auto-scroll to first event - blank first impression on phone", "mobile toolbar clips day/view pills against refresh+copy buttons at 390px", "proposed events have no on-grid label, only dashed styling - not legible until tapped"], "priorConcernsAddressed": "n/a"}
-```
+BLOCKING: none — no crashes, zero console errors, share + persistence work. The resize ambiguity
+and the pink/dashed "saved looks unsaved" color are what keep me at 8, not 9. Fix those two and
+I'd bring it up unprompted to anyone planning a trip out of a Notion doc.

@@ -1,25 +1,48 @@
 Name: Marcus
-Round: 2 | Persona: Marcus — frontend engineer, 2yr, Chrome+devtools, notices janky CSS instantly. Hosting 2 college friends; wants the plan to live as a phone-glanceable shared calendar instead of a dead Google Doc.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: all
 
-## Round-1 concerns — re-checked first
-1. SYNC RACE (R1: friend opening link <~1s after commit saw a BLANK trip ~1.5s) → RESOLVED. I committed the sample (12 events/2 days), filled the "What's your name?" gate, copied the invite link ~79ms later, and opened it in a FRESH context immediately. Events were visible at ~115ms with NO "No dates yet" blank state ever flashing — confirmed across 4 runs (115/115/116/118ms). The blank-first-impression is gone.
-2. MOBILE DAY COLD-OPEN (R1: lands on empty 6am hours, no auto-scroll, chrome eats half the screen) → RESOLVED. At 390px the day grid now auto-scrolls (scrollTop≈330 in a dedicated `day-grid-scroll` container) so 12pm + "Emily lands" (12:30pm) sit right at the top — no wall of empty morning. Chrome is tight: title + Day/Week/Month + Copy-link + a COLLAPSED "TRIP DETAILS — tap to expand" ≈ top 130px, the rest is calendar showing ~7 events.
-3. Sticky header stack eating the viewport → RESOLVED (details panel collapses by default).
-4. Clipped day-chip CSS sliver between "Month" and the refresh icon → PARTIALLY. No horizontal page overflow now (scrollWidth==clientWidth==390), but a thin black sliver still peeks between the view-toggle and the refresh button at 390px. Cosmetic, but I notice it.
-5. Transient 405 on mobile load → not seen this round (0 console errors).
+I'm a frontend eng (2 yrs), Chrome + devtools open, re-testing for my weekend hosting two
+college friends. Last round I gave it an 8 and named four things. I re-checked each first.
 
-## Clarity — Yes
-H1 "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" + "One link, open on any phone… or download the whole trip as a .ics" nails it in 5s. I'd tell a friend exactly that.
+PRIOR CONCERNS — RE-VERIFIED:
+1. Resize hit-area / "bottom edge moved the whole block." FIXED, and this is the one that
+   mattered most to me. The event now has a real bottom resize handle: a 10px-tall full-width
+   ns-resize zone plus a visible 24px pill indicator at top and bottom. I drag-created an
+   11:30am–2:00pm block, grabbed the bottom handle and pulled down ~1h. Top stayed pinned
+   (y 221→221), height grew 150→210px, label updated 11:30am–2:00pm → 11:30am–3:00pm. It
+   RESIZED, it did not translate. Clean, Google-Calendar-grade.
+2. Day/Week/Month "styled div, no button semantics." FIXED. They're now real <button>
+   elements with aria-pressed="true/false" reflecting the active view. I tabbed/focus()'d the
+   Week button and pressed Enter — view switched to the Mon–Sun week grid. Keyboard-operable
+   and screen-reader-legible now. (Tiny polish nit, non-blocking: the wrapping div has no
+   role="group"/aria-label — individual aria-pressed buttons are already accessible, so skip
+   it unless you're chasing perfection.)
+3. Anonymous "washed-out grey" events. FIXED. Default events render as a soft-blue chip
+   (bg rgba(181,200,232), border solid blue) with near-black title text (rgb(26,26,26)) —
+   contrast is fine and it reads as a finished calendar event, not a placeholder. There's a
+   slight opacity:0.65 on unclaimed events, but it's subtle, not the eyesore from round 1.
+4. View toggle dead while parse-preview open. FIXED. With "Paste your itinerary" open I
+   clicked Month and the month grid rendered immediately; toggle is responsive throughout.
 
-## Value — Yes
-Today my plan rots in a Google Doc nobody opens on their phone. Paste→Parse→Preview ("12 events across 2 days", pulled the weather/what-to-bring note + a link)→commit is genuinely fast. The collaborative loop is the payoff: friend opened the link with NO login on a phone, tapped Emily lands, hit Confirm, typed "Jordan" → block turned solid green "✓ Confirmed by Jordan" and the header showed "Saved / Jordan". Per-event "Add to Google Calendar" (valid render?action=TEMPLATE link) and bulk "Download all (.ics)" (got SF-Weekend-with-the-boys.ics, 12 VEVENTs) both work.
+FRESH PASS — CLARITY (Yes): H1 "Turn a messy itinerary into a shared day-by-day calendar —
+no app, no login" + the two cards (Paste vs Start blank) still land in ~3s. Zero console
+errors across every flow I ran (create, move, resize, view-switch, paste-open).
 
-## Advocacy — 8/10
-Both things that gutted me in R1 are fixed and verified, so this jumps from 6 to 8. I'd share it in team Slack now. It's not a 9 because (a) the black-sliver day-chip CSS still bugs me right in the header, and (b) commit is gated behind a "What's your name?" modal that a first-time host might not expect mid-flow. Neither is a dealbreaker.
+VALUE (Yes): Today this lives in a Google Doc my friends never open on their phones, and I
+re-type it into my own calendar. Drag-create + clean resize + the Week side-by-side view +
+the no-login share link that round-trips is the doc-killer. .ics export was solid last round.
 
-## Likes
-Mobile bottom-sheet event detail (Confirm / Add to Google Calendar / Edit / Delete) is clean and thumb-friendly. Auto-scroll to first event is the single biggest fix. No-login friend confirm with name attribution is exactly the feel I wanted. Friend view defaults to collapsed Week, which glances great.
+ADVOCACY 9: All four things I flagged are genuinely fixed, the resize now feels native, and
+the toggle is properly accessible — exactly what was holding me back. I'd drop this in team
+Slack unprompted. Not a 10 only because the unclaimed-event opacity:0.65 is the last faint
+"is this finished?" tell and there's no obvious "this is me" name step in the blank flow;
+neither is a defect. Blocking issue: none.
 
 ```json
-{"tester": 2, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Thin black day-chip sliver still peeks between view-toggle and refresh icon at 390px (cosmetic CSS)", "Commit gated behind an unexpected 'What's your name?' modal mid-flow"], "priorConcernsAddressed": "all"}
+{"tester": 2, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9,
+ "topComplaints": ["Unclaimed events still render at opacity 0.65 — subtle but the last 'is this finished?' tell", "No obvious 'set my name / this is me' step in the blank flow; author color is implicit"],
+ "priorConcernsAddressed": "all"}
 ```

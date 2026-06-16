@@ -1,24 +1,50 @@
 Name: Rob
-Role: Freelance brand/visual designer. Splitting a ski-trip rental with 3 friends; want ONE link everyone adds arrival times to and confirms, opened on PHONES, instead of babysitting a master plan nobody updates.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: all (the blocking confirm-attribution trust bug is fixed)
 
-## Round-2 holdback — re-checked first
-My one holdback at 8/10 was: my OWN pasted itinerary parsed to "0 events" (only the built-in sample worked). **RESOLVED.** I pasted my own Whistler ski plan with mixed formats — 24h times ("17:00 Marco arrives"), ranges ("18:30-20:00 Dinner", "9:00 - 16:30 Skiing"), and varied day headers ("Friday Mar 7", "Saturday, March 8", "Sun 3/9"). It parsed all 8 events across 3 days into a clean "Preview parsed events" confirm step with editable times and "end time assumed (1h)" labels. And the no-times case is handled: pasting "lets just hang out, maybe ski, bring snacks" gives "Couldn't find any timed events. Try lines like:" with examples — never a silent empty calendar. This was my whole reason for not being a 9, and it's fixed.
+I'm Rob — freelance brand designer splitting a Tahoe ski cabin with three friends. I want one
+link where everyone confirms their arrival so I stop being the master-plan guy. Re-tested on
+desktop 1280px with TWO real, separate browser contexts (me = owner, Dana/Erin = friend, no
+shared storage = a genuine second person).
 
-## Clarity: Yes
-Same tight headline; "One link, open on any phone... Add individual events to Google Calendar or download the whole trip as a .ics" — got it in 5 seconds.
+PRIOR CONCERN (the round-2 blocker) — re-checked first, and it is FIXED:
+Round 2 I dropped to a 7 because a friend's confirmation showed up to ME as "Confirmed by you"
+with no name, so I couldn't tell who was actually in. This round, walking the exact flow:
+ - I made "Rob arrives 9am" by dragging the grid (still feels like Google Calendar). Opening it,
+   it reads "Proposed by you" — correct, it's mine.
+ - In a clean second context Dana opened the share link, hit the green Confirm, and THIS TIME a
+   prompt fired: "Confirm as… / So others can see who confirmed. / [Your name]" with a Skip.
+   She typed Dana; the button became "Confirm as Dana." That's the name capture that was missing.
+ - I (owner) reloaded and reopened my event: it now reads a green-check "Confirmed by Dana" — in
+   the modal AND on the calendar block — NOT "Confirmed by you." That was the whole point, and
+   it's right.
+ - Attribution is viewer-relative both ways: Dana sees HER own event as "Added by you," while I
+   see it as "Proposed by Dana." Each person sees real names for others and "you" only for self.
+No JS/console errors in either context across the whole flow.
 
-## Value: Yes
-Today: a Google Doc + group text nobody updates, then I retype into my calendar. Re-walked at 390px: create trip (name optional — Skip works) → paste MY itinerary → parse → preview → Add → events on calendar → Copy invite link (clipboard === trip URL) → friend opened in a fresh browser, no login, saw every event → Confirmed "Marco arrives" as Rob, ✓ attribution showed → "Save to calendar (.ics)" available. This is exactly my ski-trip workflow and now it eats messy real-world paste, which is what would have made my friends bounce.
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no
+login" plus the two start cards ("Paste an itinerary" / "Start from a blank calendar") still tell
+me in five seconds what it is and that it's free with no signup.
 
-## Advocacy: 9/10
-Up from 8. The parser now swallows my own wording instead of choking on it, and the no-match path teaches you the format instead of showing an empty grid — that was the last thing standing between me and sending this to my three friends. Not a 10 only because of a small date-label quirk: my "Friday Mar 7" rendered as "Fri, Mar 6" in the preview and the day tabs read "Mar 6 / Mar 8" (looks like an off-by-one / timezone display thing). Event TIMES are correct, but a friend glancing at the header date could get confused. Cosmetic, not a dealbreaker.
+VALUE — Yes. Today I run this in a Google Doc plus a group text everyone ignores; I can never tell
+who's actually committed. Here I get one link, everyone confirms under their own name, and the
+green "Confirmed by Dana" checks are exactly the at-a-glance "who's in" view I wanted. The .ics /
+Add-to-Google-Calendar export means I'm not re-entering anything. Real time saved.
 
-## Likes
-- Parser now accepts 24h times, ranges, and varied day headers from real paste — my Whistler plan went in clean.
-- "Couldn't find any timed events. Try lines like:" with examples — helpful, no silent empty calendar.
-- Name is genuinely optional now (Skip / "set this later").
-- No-login friend confirm with ✓ name attribution is still the killer feature; .ics export works.
+ADVOCACY — 9 (up from 7). The headline feature for MY use case now works correctly and the two
+gripes I'd already had stayed fixed. I'd bring this up unprompted to my cabin group.
+What keeps it off a 10: one residual cosmetic quirk — a brand-new friend who opens the OWNER's
+event BEFORE they've confirmed/named themselves sees "Proposed by you" on it (the app has no
+identity for them yet and falls back to "you"). It self-corrects the moment anyone interacts, and
+the confirmations are always attributed correctly, so it's not the old trust bug — but a fresh
+viewer briefly seeing "you" on someone else's proposal is the last rough edge. Also the paste
+parser still rejects natural pastes like "Fri 6pm Drive up to Tahoe" (unchanged), though I just
+build on the grid now so I barely care.
+
+No BLOCKING issue this round. The trust bug that capped me at 7 is genuinely gone.
 
 ```json
-{"tester": 8, "round": 3, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Day-header date label off-by-one in preview/tabs: 'Friday Mar 7' shows as 'Fri, Mar 6' (event times correct, header date misleading)"], "priorConcernsAddressed": "all"}
+{"tester": 8, "round": 3, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["A fresh friend who opens the owner's event before naming themselves briefly sees 'Proposed by you' on someone else's proposal (unknown-viewer falls back to 'you'); self-corrects after any interaction", "Paste parser still rejects natural pastes like 'Fri 6pm Drive up to Tahoe' (unchanged from r2)"], "priorConcernsAddressed": "all"}
 ```

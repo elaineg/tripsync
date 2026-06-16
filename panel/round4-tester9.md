@@ -1,50 +1,52 @@
 Name: Elena
-Round 4 — Engineering manager, lives in Google Calendar, 30-sec patience, phone between meetings (tested at 390px).
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: FIXED — non-author now sees "Proposed by the organizer", not "Proposed by you"; protected no-name-prompt win survived
 
-ROUND-3 NIT RE-CHECKED (the only thing capping me at 9):
-- Name modal re-prompting on the FIRST Confirm/Delete after a skipped import — RESOLVED.
-  I paste-committed the sample, the "What's your name?" modal popped, I hit Skip with NO name.
-  Then I opened "Emily lands at PDX" and tapped Confirm: NO re-prompt, a PUT 200 fired
-  instantly and the card flipped to a green "Confirmed by Guest". Then I deleted "lunch at
-  Pok Pok": NO re-prompt, another PUT 200, the event vanished. A skipped name is now
-  remembered for the session — exactly what I asked for. Verified across Confirm AND Delete.
-- Persistence after the skip: full reload still shows Emily (still "Confirmed by Guest") and
-  the deleted lunch stays gone. Both writes survived. Zero console errors throughout.
+Round 4, 390px mobile, real prod build. EM, in meetings all day, I one-tap family plans
+from my phone and share the link with family.
 
-FRESH RIGOROUS RE-WALK:
-- Dates resolve correctly. Sample's "Friday July 11" is internally contradictory (Jul 11 2026
-  is a Saturday); the parser sensibly honors the weekday and lands it on Fri, Jul 10, with
-  clean day tabs "Jul 10 / Jul 11". Defensible disambiguation, not a bug.
-- Events commit + render + persist: 8 events across 2 days, "No dates yet" gone, all survive reload.
-- 390px: scrollWidth == 390, zero horizontal overflow; day grid auto-scrolls to first event.
-- .ics export: "Save to calendar (.ics)" downloaded Family-weekend.ics cleanly.
-- No new regressions found.
+PRIOR CONCERN — RE-CHECKED FIRST, and it is FIXED:
+Last round the showstopper was backwards attribution: a fresh family member who opened my
+share link saw my event labeled "Proposed by you" — making them look like the author. I
+reproduced the exact flow this round: created "Family weekend", grid-tapped a 12:15 slot,
+saved "Lunch with Grandma", copied the invite link, and opened it in a COMPLETELY FRESH
+browser context (a different "person", no shared storage). The creator's event now reads
+"Proposed by the organizer" — NOT "Proposed by you". On screen, verbatim: "Proposed by the
+organizer", with a Confirm / Add to Google Calendar / Edit / Delete sheet. That is correct:
+the viewer didn't propose it, so "you" is gone. The identity model is right from both sides.
 
-CLARITY: Yes. "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login"
-plus the .ics/Google subhead tells me what it is and the no-account tradeoff in 5 seconds.
+PROTECTED WIN — re-checked, SURVIVED intact:
+- ZERO blocking name modal. name-modal count = 0 before add, after the slot-tap editor,
+  after Save, and even when the FAMILY MEMBER added their first event. No prompt anywhere.
+- My own event reads "Added by you" (green) with Add to Google Calendar / Edit / Delete.
+- The "you" label now appears ONLY for the actor's own actions: when the family member
+  added "Cousin pickup", THEIR event read "Added by you" and had no Confirm button, while
+  my "Lunch with Grandma" still read "Proposed by the organizer" in the same session.
+  That's exactly the viewer-relative behavior I wanted.
 
-VALUE: Yes. TODAY I hand-type my sister's itinerary into Google Calendar line by line. Here:
-paste → parse → preview → add → shareable by link → per-event "Add to Google Calendar" mid-
-meeting, or the whole trip as .ics. Real time saved, survives reload and a fresh device.
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app,
+no login", clean Day grid, "Anyone with this link can view & edit". One breath to a friend:
+"shared trip calendar, no login, one-tap each plan into Google Calendar." The grid hint
+"Drag down the grid to block out time, or click a slot for a 1-hour event" made event
+creation obvious immediately on the phone.
 
-ADVOCACY: 10/10. Up from 9. The last interruption that held me back is gone — skip-the-name
-is now truly ask-at-most-once-per-session, and every edit persists with no nag. It's safe,
-no-login, fast on my phone, and I'd send it to my family unprompted. The only remaining speck
-is the parser still assumes a 1h end time so adjacent events can visually overlap — pure
-polish, and it shows "end time assumed" honestly, so I will not dock the score for it.
+VALUE — Yes. Add to Google Calendar built the correct template:
+text=Lunch+with+Grandma, dates=20260616T121500/20260616T131500, ctz=America/Los_Angeles
+(it only bounced through Google sign-in because my test browser isn't logged in; on my real
+phone it's a true one-tap). Beats retyping plans from a group text. No console errors any
+session, creator OR family.
 
-CONCERNS:
-1. RESOLVED — name modal no longer re-prompts on the first Confirm or Delete after a skip
-   (PUT 200 on both; reload confirms the confirmed/deleted state persisted).
-2. No new regression.
-3. Cosmetic only — 1h-default end times can visually overlap adjacent events; labeled
-   "end time assumed", so it's transparent. Not a blocker.
+ADVOCACY — 9 (up from 8). The bug that cost the point is gone, and my fast solo flow is
+still pristine. I'd bring this up to family planning a weekend.
+What keeps it off a 10: still no bulk "Add whole trip to Google Calendar" — for an 8-event
+weekend I tap Google once per event. A single "Add all to Google Calendar" (or the .ics
+covers some of this — "Save to calendar (.ics)" is there) would be the last mile.
 
-LIKES: Skip-then-edit is now nag-free and the writes are real (green "Confirmed by Guest" +
-PUT 200); paste→parse→preview→add is still the killer interaction; reload + deleted-stays-gone
-persistence is solid; clean .ics download; per-event Add to Google Calendar; zero overflow at
-390px; no console errors; truly no-login.
+BLOCKING: none.
+PriorConcernsAddressed: all.
 
 ```json
-{"tester": 9, "round": 4, "clarity": "Yes", "value": "Yes", "advocacy": 10, "topComplaints": ["Cosmetic only: 1h-default end times can visually overlap adjacent events (labeled 'end time assumed')"], "priorConcernsAddressed": "all"}
+{"tester": 9, "round": 4, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["No bulk 'Add whole trip to Google Calendar' — still one Google tap per event for a multi-event weekend"], "priorConcernsAddressed": "all"}
 ```

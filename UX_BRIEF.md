@@ -1,5 +1,434 @@
 # UX Brief — TripSync
 
+> ## ROUND-4 FIXES (add-feature panel R4: 8/10 at the exit bar — the R3 regressions RECOVERED)
+> Marcus 7→9, Elena 8→9; Rob/Sam/Jules held at 9; Priya/Wen/Tomás carried at 9. The id-based
+> identity + own-events-solid root fix landed and is verified at the computed-style level — no
+> regressions. TWO misses remain: **Aisha (8)** with two surgical issues, and **Dana (6,
+> value=No)** the documented allowable visual-bar miss. Convergence: fix Aisha's two items
+> below → Aisha 9 → 9/10, ship with Dana as the allowable miss. BOTH fixes live on the QUICK
+> drag-create popover — the PRIMARY desktop first-touch create path every desktop user hits.
+> Do NOT regress any prior win (own=solid via id ownership, other=dashed/proposed, viewer-
+> relative confirm attribution, mobile Week legibility, future-date inheritance, no name wall
+> before a solo creator's first create, the custom steppers + title-save in the full "More" editor).
+>
+> - **R4-1 (Aisha — craft consistency on the primary path) — the QUICK drag-create popover must
+>   use the SAME custom time picker as the full editor; ZERO native `<select>` in the quick
+>   popover.** R3 added custom (non-native) time steppers to the full EventEditSheet ("More"),
+>   but the QUICK drag-create popover — the default first-touch create path — STILL renders two
+>   native OS `<select>` time dropdowns (e.g. 10:15am / 12:15pm). The same task has two different
+>   picker treatments, and the un-fixed native one sits on the MORE prominent path.
+>   - **The fix:** render the SAME custom stepper time control (the ‹ 10am › ‹ 15 › steppers used
+>     in "More") inside the quick-create popover. No native `<select>` time element anywhere in
+>     the quick popover.
+>   - **Checkable:** after a drag-create on a fine-pointer viewport, the quick popover's time
+>     range is set via the custom stepper control; the popover contains ZERO native `<select>`
+>     elements — byte-for-byte the same picker as the full "More" editor.
+>
+> - **R4-2 (Aisha — NEW functional P1; first-run data loss on the headline create path) — the
+>   quick-create Save must PERSIST the typed title.** In the quick drag-create popover: type a
+>   title (e.g. "Tram 28 ride"), the input visibly holds it, hit Save → the event persists as
+>   "(New event)" — the typed title is SILENTLY dropped. Reproduced TWICE (even after a Tab
+>   blur). The full "More" editor saves the title fine; only the quick popover drops it. Likely a
+>   state/ref commit race — quick-create Save reads a stale/empty title value rather than the
+>   typed input. This is on the path EVERY desktop user hits first, so it's a real user's very
+>   first event losing its name — high priority.
+>   - **The fix:** quick-create Save must persist EXACTLY the typed title. An EMPTY title still
+>     falls back to "(New event)" (per AF-2), but a NON-EMPTY typed title must NEVER be dropped.
+>     Commit the live input value on Save (not a stale ref).
+>   - **Checkable:** drag-create → type "Tram 28 ride" → Save → the chip and the persisted event
+>     read "Tram 28 ride" (NOT "(New event)"), survive reload and a fresh-context invite link.
+>     Drag-create → leave title empty → Save → falls back to "(New event)". Verified twice.
+>
+> - **Minor / NO-FIX (the ALLOWABLE MISS — note only):** Dana value=No is the ONE documented
+>   allowable miss. Her two items — (a) per-type/rotating event COLOR (every event is one flat
+>   pill; "visual trip calendar" reads monochrome) and (b) auto-confirm-the-creator's-events /
+>   "Confirm all" so a shared link doesn't render as dashed "proposed" drafts — are DELIBERATELY
+>   NOT chased this round. Both touch the confirm semantics and own/other styling that Rob,
+>   Aisha, and Elena now depend on and that JUST recovered from the R3 regression; chasing one
+>   holdout risks re-breaking three passers. Sam/Elena bulk "add whole trip to Google Calendar"
+>   = known OAuth-out-of-scope limitation (.ics is the bulk path), both at bar. Jules/Marcus
+>   Day-vs-Week per-density border/hue difference = deliberate density affordance, not a bug.
+>   Rob's natural-paste parser pickiness = prior parser scope, low impact (he builds on the grid).
+>
+> ## ROUND-3 FIXES (add-feature panel R3: 6/10 — a REGRESSION from R2's 8/10)
+> Rob's R2 confirm-attribution blocker is FIXED and stable (7→9). But the R2 styling/identity
+> changes REGRESSED three previously-passing testers — Marcus 9→7, Aisha 9→6, Elena 9→8 — and
+> ALL THREE trace to ONE root cause: identity is keyed off a NAME STRING, so an unnamed solo
+> creator has no self-identity and a fresh viewer matches the empty "you" fallback. This round
+> is a ROOT-CAUSE fix, NOT symptom patches. Dana (6, value=No) stays the ONE ALLOWABLE MISS
+> (Canva-grade per-type color/imagery — deliberately not chased; it risks the other passers).
+> Do NOT regress any prior win (no name wall before a solo creator's first create; viewer-
+> relative confirm attribution; mobile Week legibility; clean reload; viewed-date inheritance).
+>
+> **CRITICAL builder directive — the R2 build FALSELY CLAIMED the own-events-solid fix landed.**
+> Marcus pulled computed styles and proved own events are STILL dashed + opacity 0.65. Claims
+> are not accepted this round. The builder MUST SELF-VERIFY with COMPUTED STYLES before handing
+> off: (a) an own event created by a SOLO creator with NO NAME SET, on BOTH desktop AND 390px
+> mobile, asserting SOLID border + FULL opacity (no dashed, no opacity:0.65); (b) an other-
+> person proposed event, asserting DASHED; and (c) the attribution text shown to a NON-AUTHOR
+> viewer with no name set — it must NOT say "you". Paste the computed-style readouts as evidence.
+>
+> - **R3-1 (P0 — ROOT CAUSE; fixes Elena 8→9, enables R3-2/R3-3; unblocks Marcus 7) — replace
+>   NAME-STRING identity with a STABLE per-device PARTICIPANT ID.** Today identity compares by
+>   name, so: (a) a SOLO creator who hasn't set a name has NO identity → their own committed
+>   events fail the "is this mine?" check → render as another-person's dashed/faded "proposed"
+>   (Marcus: his own SAVED titled event computes `event-proposed border-dashed opacity:0.65`);
+>   (b) any viewer without a name MATCHES the "you" fallback → a fresh NON-AUTHOR opening the
+>   creator's event sees "Proposed by you" (Elena) — backwards.
+>   - **Establish a stable participant ID at trip-create / first event, EVEN WHEN NO NAME IS
+>     SET.** Persist it in localStorage keyed by the trip secret (e.g. `ts_participant_<secret>`).
+>     The name (if/when given) attaches to that id; the id exists with or without a name.
+>   - **Stamp every event's `authorId` and every confirm's `confirmerId` with that device id.**
+>     Compare by ID, NEVER by name string.
+>   - `isOwnEvent = event.authorId === this device's participantId` — not a name comparison.
+>   - **Attribution display:** show "you" ONLY when the actor's id === this device's id.
+>     Otherwise show the actor's NAME; if the actor has no name yet, show a NEUTRAL label —
+>     "the organizer" for the trip creator, "a guest"/"someone" otherwise — NEVER "you" for a
+>     non-self actor. So a fresh viewer sees "Proposed by the organizer", never "Proposed by you".
+>   - **This MUST work for the UNNAMED solo creator (the cold default)** — that empty/no-name
+>     case is exactly what the R2 verifier gate missed and where all three regressions live.
+>   - **Checkable:** solo creator with NO name set creates an event → `isOwnEvent` is true (own
+>     id matches) → it reads as theirs, not "proposed", and renders solid (R3-2). A FRESH viewer
+>     (different device, no name) opening the creator's event reads "Proposed by the organizer",
+>     never "Proposed by you", and is not falsely attributed.
+>
+> - **R3-2 (P0 — root styling; Marcus, Aisha, Dana-partial) — OWN events render SOLID border +
+>   FULL opacity at EVERY breakpoint and view.** A creator's OWN events must render SOLID border
+>   + full opacity (DROP `opacity:0.65` and `border-dashed` for own events) on desktop AND
+>   mobile, in Day AND Week. Dashed + faded is reserved ONLY for ANOTHER person's unconfirmed-
+>   proposed event. This MUST be driven by the id-based `isOwnEvent` from R3-1 so it actually
+>   applies to the unnamed solo creator. (R2 claimed this landed but it did NOT — Marcus's
+>   computed styles prove own events are still dashed/faded.)
+>   - **Checkable:** the unnamed solo creator's own event computes a SOLID border + opacity 1 on
+>     1280px AND 390px, in Day AND Week. Another participant's unconfirmed-proposed event still
+>     computes dashed + reduced opacity. Verified via getComputedStyle, not eyeballs.
+>
+> - **R3-3 (Aisha — exact prescription) — ONE event-style source of truth across Day/Week ×
+>   desktop/mobile.** The SAME logical state must render the SAME fill color and the SAME
+>   dashed(other-proposed)/solid(own-or-confirmed) rule in ALL FOUR view×breakpoint combos.
+>   Eliminate the cross-breakpoint color split: an own event computes mint-green
+>   `rgba(168,213,186)` on 390px Day vs blue `rgba(181,200,232)` on desktop — pick ONE palette
+>   and apply it everywhere. No single state may render three different ways (today an own
+>   unconfirmed event renders desktop-Day dashed/blue, mobile-Day solid/green-no-label,
+>   mobile-Week dashed/blue).
+>   - **Checkable:** one and the same event computes IDENTICAL fill color and the same dashed/
+>     solid treatment at 390px and 1280px, in Day and Week — four readouts, one result.
+>
+> - **R3-4 (Aisha) — restore the CUSTOM time pickers; zero native `<select>` in the editor.**
+>   Native `<select>` time pickers reappeared in the drag-create/edit editor (they were custom-
+>   styled and praised in R2). Restore the custom styling.
+>   - **Checkable:** the create/edit editor contains ZERO native `<select>` elements; time is
+>     chosen via the custom-styled control.
+>
+> - **Minor / NO-FIX (note only):** Dana value=No is the ONE allowable miss (per-type color/
+>   icons/imagery is the visual overhaul we are NOT chasing — R3-2/R3-3 give her consistent
+>   finished styling, not the colorful Canva-grade overhaul). Sam/Elena bulk "add whole trip to
+>   Google Calendar" = known limitation (GCal render URLs are per-event; .ics is the bulk path,
+>   no OAuth) — not addressed; both at/near bar. Jules's "Untitled Trip" naming nudge + Week-view
+>   add affordance are nits on a PASSING tester — skip to avoid regression risk.
+
+> ## ROUND-2 FIXES (add-feature panel R2: 8/10 at advocacy≥9. Clarity 10/10, value 9/10)
+> Eight testers cleared the bar (≥9 ∧ clarity ∧ value). TWO misses: Rob 7 (a real
+> confirm-attribution correctness bug, REGRESSED 8→7 — the bar-clearer) and Dana 5 (value=No,
+> Canva-grade visual holdout — the ONE allowable miss). Strategy: fix Rob's bug → 9 = 9/10 with
+> Dana as the allowable miss; fold in the genuine regressions (R2-2, R2-3) + two low-risk
+> legibility fixes (R2-4, R2-5). **Do NOT touch surfaces that would regress the 8 passers:** no
+> broad event re-theme (Marcus/Aisha like current styling), no name wall before a SOLO creator's
+> first create (protected R1 win — Elena/Jules/Sam), and KEEP dashed-border = another person's
+> unconfirmed-proposed event (Aisha explicitly approved this semantics).
+>
+> **DECISION — Dana's value=No (not screenshot/Canva-grade) is the ONE ALLOWABLE MISS.** We are
+> NOT chasing the full visual overhaul this round; per-type colors / icons / cover imagery /
+> theming risk regressing the 8 passing testers for one holdout. We take ONLY the targeted,
+> low-risk slice of her feedback (R2-5) plus her two genuine regressions (R2-2, R2-3).
+>
+> - **R2-1 (P0 — THE BAR-CLEARER; Rob, the regression 8→7) — every CONFIRM and PROPOSE must
+>   carry the actor's real identity, displayed relative to the viewer.** Bug: when a SECOND
+>   person (a friend on the shared link) confirms an event, the confirmation is not stamped with
+>   THEIR identity — on the owner's reload it reads "Confirmed by you" though the owner never
+>   confirmed; the friend is never asked their name and confirmations carry no identity. For a
+>   tool whose whole point is "who has confirmed they're in," this is trust-breaking and worse
+>   than R1's anonymous "Someone" (it's misleading, not just blank).
+>   - **ONE identity source drives BOTH propose AND confirm** (attribution-must-reuse-one-identity):
+>     there must NOT be a parallel/anonymous path for confirm. Give each participant a lightweight
+>     per-device identity (a name) for the trip; stamp EVERY propose and EVERY confirm with that
+>     participant's name.
+>   - **Display attribution relative to the VIEWER:** your own actions read "you"; everyone
+>     else's read their actual name. Owner sees "Confirmed by Dana"; Dana sees "Confirmed by you."
+>     Same rule for "Added/Proposed by you" vs "Added/Proposed by <name>".
+>   - **Capture a collaborator's name LAZILY, at their first ATTRIBUTING action on a shared link**
+>     — e.g. an inline "Confirm as <name>" with a one-time name field, or a single lightweight
+>     prompt on first confirm/add. Ask ONCE, then reuse for all their subsequent actions.
+>   - **Do NOT reintroduce a blocking name wall before a SOLO creator's first create** (the
+>     non-blocking R1 behavior loved by Elena/Jules/Sam — protect it). Net: solo creators are
+>     never interrupted; a collaborator is asked once at the moment they attribute.
+>   - **Checkable:** in a SECOND browser context (genuine friend, no shared storage), confirming
+>     an event prompts for that friend's name ONCE, stamps the confirmation with it, and persists.
+>     On the OWNER's reload that event reads "Confirmed by <friend>", NOT "Confirmed by you". In
+>     the friend's view it reads "Confirmed by you". A SOLO creator still adds + saves their first
+>     event with NO blocking name prompt.
+>
+> - **R2-2 (regression; Dana) — mobile Week view must be legible at 390px.** A NEW regression the
+>   R1 3-column Week view introduced: at 390px every event title truncates ("6:00pm Chec...",
+>   "10:00am Bea..."), unreadable without tapping.
+>   - At 390px do NOT cram 3+ columns that shred titles — either reduce the column count / allow
+>     horizontal scroll per the design, OR let titles wrap / ellipsize gracefully so they're
+>     readable. (Mobile Day view is already clean — don't touch it.)
+>   - **Checkable:** at 390px in Week view, event titles are readable (full or graceful wrap), not
+>     truncated mid-word to "...".
+>
+> - **R2-3 (general friction; Dana) — don't re-open the paste panel on a normal reload.**
+>   Reloading the trip re-appends `?paste=1` and pops the paste panel OVER the calendar.
+>   - Don't auto-open the paste panel on a normal reload; strip/ignore the `?paste` param after
+>     first use so reload returns to the calendar.
+>   - **Checkable:** load a trip, reload it → the calendar is shown, the paste panel does NOT
+>     auto-open; the URL no longer carries a stale `?paste=1`.
+>
+> - **R2-4 (single-persona polish; Sam) — create inherits the VIEWED date, not today.** On mobile
+>   the "+ Add event" form defaults its Date to today even when the "Go to:" navigator shows a
+>   future date (e.g. Aug 1) — risking events saved on the wrong day.
+>   - The add-event form AND tap/click-to-create inherit the CURRENTLY-VIEWED date, not today's.
+>   - **Checkable:** navigate "Go to:" Aug 1, open "+ Add event" → the form's Date defaults to
+>     Aug 1; saving lands the event on Aug 1, not today.
+>
+> - **R2-5 (targeted legibility, low-risk; Dana "events read like a wireframe") — a SOLO
+>   creator's OWN events render SOLID/finished, not dashed.** Keep dashed border = ANOTHER
+>   person's unconfirmed-proposed event (Aisha confirmed this is good semantics). But a solo
+>   creator's own events ("Added by you") should render solid/finished, not dashed-wireframe.
+>   - **Styling only — do NOT broadly re-theme event colors** (the 8 passers are happy; this is
+>     the targeted slice of Dana's feedback, NOT the visual overhaul). Other people's proposed
+>     events keep dashed.
+>   - **Checkable:** on a solo trip, the creator's own events have a SOLID border and finished
+>     fill (no dashed-wireframe look); a DIFFERENT participant's unconfirmed event still renders
+>     dashed (Aisha's semantics intact).
+
+> ## ROUND-1 FIXES (add-feature panel R1: 1/10 at advocacy≥9 — only Wen. Clarity 10/10, value 9/10)
+> Eight testers sit at 8 with concrete fixable complaints; Tomás at 7 (date-nav near-blocker); Dana
+> at 5 (value=No, Canva-grade visual bar — the ONE allowable miss). Fixing R1-1…R1-8 cleanly should
+> lift all eight 8s + Tomás to ≥9 and clear the bar. R1-9 (visual lift) is best-effort. Fix in
+> priority order; R1-1, R1-2, R1-3, R1-4 are the dominant recurring causes. Do NOT regress any prior
+> win (parser correctness + preview, no-login share round-trip, mobile scroll/auto-scroll, immediate
+> save flush, optional/skippable name, full ".ics" label, the two co-equal start cards).
+>
+> - **R1-1 (P0 — dominant new-feature flaw; recurs 4×: Priya, Marcus, Tomás, Aisha) — make resize
+>   discoverable and the three grid gestures unambiguous.** Today there is no visible grip and no
+>   resize cursor; grabbing near the bottom edge MOVES the whole block by an hour (Marcus, Tomás) or
+>   STARTS A NEW EVENT (Aisha) instead of resizing — "friends will think resize is broken" (Priya).
+>   - **Visible handle:** render a clearly visible drag handle on the event block's BOTTOM edge (and
+>     ideally the TOP edge) — e.g. a small centered grip/bar that appears on hover/selection — with
+>     an adequate hit-target (≥6–8px tall zone, not a 2px hairline) and `cursor: ns-resize` (or
+>     `s-resize`) on hover over that zone.
+>   - **Unambiguous, non-overlapping gesture map (fine pointer):** EDGE-drag (within the handle
+>     zone) = RESIZE (changes duration only, other end fixed); BODY-drag (anywhere else on the
+>     block) = MOVE (preserves duration); EMPTY-grid-drag = CREATE. These three must not overlap:
+>     a drag that begins inside an existing block NEVER creates a new event; a drag inside the
+>     bottom-handle zone NEVER moves the block; a body-drag NEVER resizes.
+>   - **Cursor signals intent:** body of block = `grab`/`move` cursor; handle zone = resize cursor;
+>     empty slot = `cell` cursor (already specced AF-2). The cursor must change as the pointer
+>     crosses the handle boundary so the user can SEE which gesture they'll get before pressing.
+>   - **Checkable:** hovering an event's bottom edge shows a visible handle + resize cursor;
+>     dragging that handle changes ONLY the event's end time (start fixed), 15-min snap; dragging the
+>     block body moves it preserving duration; a drag starting on a block never creates a second
+>     event; resize never fires a move. Verify on desktop (fine pointer).
+>
+> - **R1-2 (P0 — recurs 5×: Priya, Jules, Elena, Sam, Rob) — never let the name prompt block the
+>   first create.** The "What's your name?" modal currently fires on/before the first add-event (and
+>   on the first mobile "+" tap) and modal-blocks the most important action — a detour on a 30-second
+>   budget (Elena, Sam), a friction speed-bump (Jules), an interrupt right when grabbing the share
+>   link (Priya).
+>   - **Let the user create immediately:** opening the quick-create popover / add-event sheet and
+>     SAVING the first event must NOT require or trigger a blocking name modal. The user types a
+>     title and saves; the event lands.
+>   - **Capture the name lazily and non-blockingly:** ask for the name only when it actually matters
+>     for attribution — e.g. when the user CONFIRMS another person's proposed event, or as an
+>     OPTIONAL inline field (a small header "Set your name" chip / an unobtrusive inline field in the
+>     sheet), never a full-screen modal that intercepts taps. If ever shown, it is dismissible by
+>     tapping away and asked at most once per session (per prior R4-4 / R5-2 — do not regress; this
+>     extends the same lazy-name rule to the blank-calendar create path).
+>   - **Checkable:** on a fresh blank calendar (desktop drag-create AND mobile "+" tap), creating and
+>     saving the first event happens with NO blocking name modal; the event renders and persists; any
+>     name affordance is optional/inline and tap-away-dismissible.
+>
+> - **R1-3 (P0 — recurs 3×: Elena, Sam, Rob; coupled to R1-2) — the creator's own events read as
+>   already theirs.** On a solo/own trip the creator's freshly-added events show "Proposed by
+>   Someone/Guest" + a Confirm button — "I never proposed anything to anyone; 'Someone' reads like a
+>   bug" (Elena); anonymous "Someone" undercuts who-did-what trust (Rob).
+>   - **Default attribution is the creator's own:** an event the current device/participant just
+>     created reads as ALREADY THEIRS (e.g. "Added by you", or simply no proposed/confirm chrome) —
+>     NOT "Proposed by Someone" and NOT showing a Confirm button to its own author.
+>   - **Proposed/Confirm chrome appears only for genuine multi-person collaboration:** show the
+>     "Proposed by <other>" + Confirm affordance on an event ONLY when a DIFFERENT participant created
+>     it (i.e. there is real cross-person collaboration), never on the viewer's own events.
+>   - Tie to R1-2's deferred name: before a name is set, the creator's own events still read cleanly
+>     as theirs (e.g. "Added by you"), not "Someone."
+>   - **Checkable:** on a solo trip, every event the sole user creates shows NO "Proposed by Someone"
+>     and NO Confirm-your-own-event button — it reads as already theirs. Opening as a SECOND
+>     participant (different device), that participant sees the first user's events as proposed/
+>     confirmable; each viewer's OWN events never show proposed/confirm to themselves.
+>
+> - **R1-4 (P0 — recurs 4×: Tomás near-blocker, Sam, Dana, Rob adjacent) — never strand a
+>   blank-calendar user on today.** Starting blank for a future trip (e.g. August) leaves the user
+>   stuck on today: Month view has no prev/next arrows and there is no date picker until after an
+>   event exists (Tomás — the single thing holding him at 7). Paste-path users get silently mapped to
+>   THIS weekend (Sam/Dana) with no chance to set real trip dates.
+>   - **Reach any date (both required where applicable):** add prev/next navigation arrows to the
+>     Day, Week, AND Month views so the user can move forward/back through dates from an empty
+>     calendar; AND/OR add a lightweight upfront "When is your trip?" start-date affordance on the
+>     blank-start flow (a single date picker that sets the calendar's initial day) — keep it
+>     lightweight: no signup, no multi-step wizard, skippable (defaults to today).
+>   - At minimum the blank-calendar flow MUST offer a way to reach a future month BEFORE creating any
+>     event (do not require an event to exist before navigation/date-picking is available).
+>   - **Checkable:** starting a blank calendar today (Jun 15), the user can navigate to or pick a date
+>     in August and create an event there — without first creating a dummy event. Month/Week/Day each
+>     have visible prev/next controls (or an equivalent date picker reaches them).
+>
+> - **R1-5 (recurs 2×: Tomás, Marcus) — Week view reliably renders the multi-day spread.** Tomás saw
+>   Week view collapse to a SINGLE day (odd for a week-named tool); Marcus saw the correct Sat+Sun
+>   side-by-side — so it renders inconsistently.
+>   - Week view must always show the trip's multiple days as side-by-side day columns (a 7-day
+>     spread, or at least the trip's days), never collapse to one day regardless of how the trip was
+>     started (paste vs blank) or how many days have events.
+>   - **Checkable:** with a trip spanning ≥2 days, Week view shows those days as side-by-side columns
+>     every time (paste-started and blank-started); it never renders a single day in Week mode.
+>
+> - **R1-6 (recurs 2×: Jules, Aisha) — fix mobile create affordance.** The on-grid hint reads desktop
+>   language ("Drag down the grid… or click a slot") on touch (Jules — "you tap" on a phone); the
+>   mobile "+ Add event" FAB is a bare icon with no visible label, easy to miss on an empty blank
+>   calendar (Jules, Aisha); the mobile blank empty-state has NO guidance while desktop does (Aisha —
+>   empty-state parity).
+>   - **Touch-correct copy:** on `(pointer: coarse)` the grid hint says "Tap a slot to add an event"
+>     (or "Tap the + to add an event") — never "drag"/"click" wording.
+>   - **Labeled create control:** the mobile "+ Add event" FAB shows a visible "Add event" label (text
+>     beside the icon, or a labeled pill) — not a bare "+" that reads as decoration on an empty grid.
+>   - **Mobile empty-state parity:** the mobile blank empty calendar shows the same kind of helpful
+>     guidance the desktop blank grid shows (an inline hint pointing to tap-a-slot / the + button).
+>   - **Checkable:** at 390px on an empty blank calendar, the create hint uses "tap" wording, the
+>     "+ Add event" control shows a visible text label, and a guidance hint is present (parity with
+>     desktop's empty-state hint).
+>
+> - **R1-7 (recurs 2×: Aisha, Marcus) — consistent, finished saved-event styling.** Saved events look
+>   pale blue on desktop but PINK with a DASHED border on mobile (dashed reads as "draft/unsaved" even
+>   though the header says "Saved" — Aisha); anonymous/guest events render washed-out grey and look
+>   unfinished (Marcus, Aisha).
+>   - **Consistent across breakpoints:** a SAVED event uses the SAME fill/treatment on mobile and
+>     desktop (pick one saved style); reserve the dashed/translucent style EXCLUSIVELY for the
+>     in-progress drag preview and for genuinely-proposed-by-others events (per existing proposed
+>     spec) — a saved, owned event has a SOLID border.
+>   - **Owned events look finished:** the creator's own events must not render washed-out/grey/
+>     unfinished (ties to R1-3 default attribution — an owned event gets a real author color, not the
+>     anonymous grey).
+>   - **Checkable:** the same saved event renders with identical styling at 390px and 1280px; saved
+>     owned events have a SOLID (not dashed) border and a non-washed-out fill; dashed appears only for
+>     the live drag preview / others' proposed events.
+>
+> - **R1-8 (single-persona: Rob; cheap polish) — blank grid defaults scroll to morning.** The
+>   blank-calendar grid loads scrolled to ~noon, hiding 9–10am morning arrivals below the fold.
+>   - On a fresh blank calendar with no events, default the grid scroll to early morning (~8am); once
+>     events exist, scroll to the earliest event (consistent with the existing cold-open auto-scroll,
+>     CAUSE B).
+>   - **Checkable:** opening a blank calendar shows ~8am at/near the top of the grid (the 9–10am rows
+>     are visible without scrolling); a calendar with events scrolls to the earliest event.
+>
+> - **R1-9 (best-effort visual lift — Dana value=No adv5 the allowable miss; also resolves Aisha +
+>   Marcus color complaints) — make the "visual calendar" promise feel real.** Week view reads as a
+>   "plain beige agenda list with pale-green pills" — not screenshot-worthy / not Canva-grade (Dana).
+>   - Add reasonable event COLOR differentiation (distinct, pleasant author/event colors — not a
+>     single flat pale-green) and a cleaner, more calendar-like Week/Day rendering (less flat/beige
+>     background, clearer day-column structure, polished event chips with readable contrast).
+>   - Best-effort: Dana's Canva-grade bar (cover image / theming / icons) may remain unmet and she
+>     stays the one allowable miss — but this lift MUST resolve Aisha's pink/dashed and Marcus's
+>     washed-out-grey color complaints (R1-7) and make Week/Day look like a polished calendar, not a
+>     stripped-down agenda list.
+>   - **Checkable:** Week/Day views show differentiated event colors and a cleaner non-beige
+>     calendar-style layout; saved/owned events look finished (no washed-out grey, no stray dashed).
+>
+> - **Minor / NO-FIX (note only):** Marcus — Day/Week/Month toggle is a styled div not a real
+>   `<button>` (cheap a11y fix, fold in if easy; doesn't gate). Wen (already 9) — CSV export and
+>   surfacing the assumed YEAR like day/date mismatches are nice-to-haves toward a 10. Aisha — native
+>   `<select>` time pickers are cosmetic. Elena/Sam — one-click bulk "add whole trip to Google
+>   Calendar" needs OAuth = out of scope; .ics is the honest bulk path (prior H4 decision, do not
+>   regress). Rob/Sam — parser pickiness on natural formats is prior-round parser scope, not this
+>   feature.
+
+> ## ADD-FEATURE (2026-06-15) — TWO equal start options + Google-Calendar drag-to-create
+> Spec checks 7–14. The parser is UNCHANGED and stays a first-class path. Five risks, each a
+> paid friction lesson — bake the fix in. Do NOT regress any resolved round-history below.
+>
+> - **AF-1 — TWO CO-EQUAL START OPTIONS (lesson: added-feature-buried).** A new option bolted
+>   onto an existing landing gets visually subordinated and the panel burns rounds finding it.
+>   The landing must read, in 5s, as "two ways in" — NEITHER is the lone primary button.
+>   - **Exact layout.** Keep "Name your trip" input at top (pre-focused). BELOW it, TWO cards
+>     SIDE-BY-SIDE on desktop (≥640px: a 2-col grid, equal width), STACKED full-width on mobile
+>     (<640px) — same card chrome, same border, same padding, same height, same heading weight.
+>     Each card: an icon (A: clipboard/document; B: grid/calendar), a bold ~text-lg title, and
+>     ONE plain subtitle line. The CTA button inside each card has IDENTICAL styling (same color,
+>     size, weight) — do not give one the dark filled button and the other a ghost/text link.
+>     - Card A — **"Paste an itinerary"** · subtitle "Already have a plan in a doc? Paste it and
+>       we'll turn it into a calendar." · button "Paste an itinerary".
+>     - Card B — **"Start from a blank calendar"** · subtitle "Prefer to build it yourself? Drag
+>       on the grid to add events." · button "Start blank".
+>   - Both buttons require a trip name (reuse the existing create call); A then opens the paste
+>     panel, B mints an empty trip and lands on `/t/<secret>` with the grid ready (paste panel
+>     does NOT auto-take-over — spec check 8).
+>   - **Checkable:** at 360–1280px wide both options are visible above the fold with equal visual
+>     weight; neither is hidden in a menu or rendered as the sole primary button (check 7).
+>
+> - **AF-2 — DRAG-CREATE DISCOVERABILITY + AFFORDANCE (desktop primary).** Drag-to-create is
+>   invisible until found — signal it; never make the user guess.
+>   - **Hover affordance:** on a mouse/fine-pointer viewport, hovering an empty grid slot shows a
+>     `cursor: cell` (crosshair-style) cursor and a faint slot highlight, signalling "press and
+>     drag here."
+>   - **One-time hint:** the FIRST time a desktop user lands on an EMPTY blank-calendar grid, show
+>     a single dismissible inline hint near the grid — "Drag down the grid to block out time, or
+>     click a slot for a 1-hour event." Dismiss on first drag/click or an × ; remember dismissal
+>     in localStorage (per device, not per trip). Do not re-show once used.
+>   - **Live feedback DURING drag:** as the user presses and drags, render a translucent
+>     in-progress block that grows with the pointer and shows the live start–end time (e.g.
+>     "9:00 – 11:00") at its edge, snapped to 15-min. Release commits the block.
+>   - **Quick-create popover (GCal-style):** on release (or single-click default 1h block), open
+>     a small popover anchored to the new block with: a pre-focused Title field, the resolved
+>     time range (editable via the existing time selects), and "More options" (opens the full
+>     EventEditSheet for location/notes/link/date). Enter = save; Esc or click-outside = dismiss.
+>     If dismissed with an empty title, save as "(New event)" — never silently discard the block
+>     the user just dragged (don't repeat the R4 "previewed event vanishes" class).
+>   - **Checkable:** drag 9:00→11:00 creates startMinutes=540/endMinutes=660 + popover (check 9);
+>     single click = start+60 default, drag-resizable (check 10); move = body-drag, resize =
+>     edge-drag, 15-min snap (check 11).
+>
+> - **AF-3 — DESKTOP vs TOUCH SPLIT (be explicit; detect by pointer, not just width).** Use
+>   `matchMedia("(pointer: fine)")` for desktop-drag behavior and `(pointer: coarse)` for touch,
+>   not width alone (a narrow desktop window must still get drag-create; a wide tablet must not).
+>   - **Fine pointer (desktop):** drag-to-create is the PRIMARY path; the "+ Add event" FAB is
+>     HIDDEN. Hover affordance + one-time hint per AF-2.
+>   - **Coarse pointer (touch):** drag-to-create is DISABLED (When2meet's fatal flaw). Tap an
+>     empty slot = default 1-hour block + quick-create; a visible "+ Add event" button/FAB is the
+>     explicit create path. A plain vertical swipe ALWAYS scrolls (never creates/moves). Moving or
+>     resizing an EXISTING event needs an explicit drag-handle or long-press (~400ms) — keep this
+>     working on touch if feasible, but it is NOT the create path.
+>   - **Checkable:** desktop = no FAB, drag creates; 390px touch = drag-create off, tap creates a
+>     1h block, "+ Add event" present, swipe scrolls (check 13).
+>
+> - **AF-4 — NO HORIZONTAL OVERFLOW at 390px (lesson: container-resize-leaves-hardcoded-width-
+>   children — THIS app burned FOUR rounds on a clipped chip).** Any new control must not push the
+>   toolbar/grid into horizontal scroll on a 390px phone. Fix the CONTAINER, not the symptom.
+>   - The "+ Add event" FAB is `position: fixed` bottom-right (or its own full-width row) — it does
+>     NOT join the Day/Week/Month toggle row and cannot widen it.
+>   - The quick-create popover renders in a PORTAL with fixed/absolute positioning at the document
+>     level so the scrollable grid never clips it; if it would overflow the right/bottom edge,
+>     flip its anchor to stay fully within the 390px viewport.
+>   - Keep every toolbar row full-width; no new element extends past 390px (right edge ≤390px).
+>   - **Checkable:** at 390px loaded-trip state, no element's right edge exceeds 390px; the popover
+>     is fully visible (not clipped by the grid's overflow), no new horizontal scrollbar appears.
+>
+> - **AF-5 — DRAG-CREATED EVENT IS IDENTICAL TO A PARSED EVENT (no second-class styling).** A
+>   grid-created event uses the same `TripEvent` shape, proposed status, author color, dashed/
+>   translucent proposed style, "Proposed" tag, confirm flow, per-event Add-to-Google-Calendar,
+>   and bulk .ics inclusion as a parsed event. There is NO "parsed vs manual" visual or behavioral
+>   distinction.
+>   - **Checkable:** a dragged event is proposed by default, exposes Add-to-Google-Calendar, and
+>     appears as a VEVENT in the bulk .ics — indistinguishable in behavior from a parsed one
+>     (check 12).
+>
 > ## ROUND-5 FIXES (panel R4: 6/10 at advocacy ≥9 — DOWN from 7; R4's date "fix" was wrong and regressed Rob 9→5)
 > Two clean 10s (Wen, Elena) + four carried 9s (Priya, Tomás, Jules, Sam). Sub-bar: Aisha 5,
 > Marcus 8, Dana 8, Rob 5. Fix in priority order; R5-1 is the gate and the regression.
@@ -214,9 +643,12 @@ itinerary and watch it become a visual hourly calendar." Do NOT claim bulk Googl
 
 ## 2. Primary user action
 OPEN a shared trip link on a phone and SEE today's plan at a glance (Emily's "just look").
-The creator's primary action is SEED: paste a written itinerary and watch it become the
-calendar. Landing-for-a-shared-link always renders the calendar first; landing-for-a-creator
-renders the paste box pre-filled with the sample so the outcome is visible before typing.
+The creator's primary action is SEED a trip, now via TWO co-equal paths (AF-1): (A) PASTE a
+written itinerary and watch it become the calendar, or (B) START BLANK and build directly on
+the grid — desktop primary = Google-Calendar press-and-drag on the hourly grid (AF-2), touch =
+tap-a-slot + "+ Add event" (AF-3). Landing-for-a-shared-link always renders the calendar first.
+Landing-for-a-creator shows the two start cards; the paste path pre-fills the sample so the
+outcome is visible before typing, the blank path drops onto a grid that signals how to drag.
 
 ## 3. Emotional tone
 Calm, warm, trustworthy — "your trip is in good hands." Friendly humanist sans (Inter), warm
@@ -228,10 +660,15 @@ touch targets, not dense spreadsheet rows). Author colors are soft saturated pas
   Trip Details card, and the hourly grid with events. NO edit toolbar, NO drag handles, NO
   confirm buttons until you tap an event (opens a bottom sheet with Edit / Confirm / Add-to-
   Calendar) or tap an empty slot (adds an event). Collab chrome never sits on top of the grid.
-- **D2 — Empty trip = the paste box IS the hero**, not a blank calendar. A single large textarea
-  reading "Paste your itinerary here," a "Load sample itinerary" link beneath it, and a Parse
-  button. Parsing opens a PREVIEW (events bucketed by day + a "Details" bucket) with Confirm /
-  Cancel — nothing is written to the server until Confirm.
+- **D2 — Empty trip via PASTE = the paste box IS the hero** (the paste-chosen path), not a blank
+  calendar. A single large textarea reading "Paste your itinerary here," a "Load sample itinerary"
+  link beneath it, and a Parse button. Parsing opens a PREVIEW (events bucketed by day + a
+  "Details" bucket) with Confirm / Cancel — nothing is written to the server until Confirm. (The
+  BLANK-calendar path skips this and lands on the grid — see AF-1/AF-2.)
+- **D5 — Drag-to-create feels like Google Calendar (AF-2).** On the blank-calendar grid a desktop
+  user presses, drags a growing live-time block, releases, and types a title in an inline
+  popover — the event is on the calendar in one fluid gesture, no form-first detour. The grid
+  invites the drag (hover cursor + a one-time hint) so the gesture is discovered, not guessed.
   - **CAUSE D — the preview is honest and editable.** Each day bucket shows the RESOLVED date +
     weekday it will be placed on (so Wen sees "Sat, Aug 9" vs "Sun, Aug 9" and catches a
     mismatch). When an explicit weekday word is typed, RESPECT it (don't silently move it). Lines
@@ -253,7 +690,16 @@ touch targets, not dense spreadsheet rows). Author colors are soft saturated pas
   server has the trip. If clipboard is blocked it reveals a pre-selected read-only input with
   "Copy failed — select and copy this link." State is owned by the button, so re-render keeps it.
 
-## 5. The 5-second check (cold visitor, shared link, 390px phone, ABOVE THE FOLD)
+## 5. The 5-second check
+### 5a. Creator landing (cold visitor, ABOVE THE FOLD) — the dual entry (AF-1)
+1. **Headline:** "Turn a messy itinerary into a shared day-by-day calendar — no app, no login."
+2. **Subtitle:** "One link, open and edit on any phone. Add events to Google Calendar or .ics."
+3. **Pre-focused "Name your trip" input** with placeholder "Joanne visits — July".
+4. **TWO co-equal start cards** (side-by-side desktop / stacked mobile, identical chrome):
+   "Paste an itinerary" (already wrote a plan) and "Start from a blank calendar" (build it
+   yourself). A cold visitor sees, in 5s, that there are two ways in and what each does.
+
+### 5b. Shared-link / loaded trip (cold visitor, 390px phone, ABOVE THE FOLD)
 1. **Headline area (sticky, compact):** trip name ("Joanne visits — July") + a horizontal
    scrollable date strip with the current/first day selected. Height ≤ ~96px so it never buries
    the grid; it must NOT overlap grid tap targets (see Layout rules).
@@ -334,6 +780,25 @@ touch targets, not dense spreadsheet rows). Author colors are soft saturated pas
   Moving/resizing an EVENT requires an explicit drag-handle (small grip on the block) OR a
   long-press (~400ms) that visibly "lifts" the block before any move. Never bind move/resize to a
   bare touchstart+drag. Verified on a real 390px touch viewport, not desktop drag.
+
+### Drag-to-create on the day/week grid (AF-2/AF-3 — desktop primary)
+- **Pointer gate:** drag-create binds to MOUSE events on `(pointer: fine)` only. On
+  `(pointer: coarse)` it is OFF — touch uses tap-to-create + the "+ Add event" FAB.
+- **Empty-slot affordance (fine pointer):** hovering an empty slot shows `cursor: cell` and a
+  faint slot highlight. First empty-blank-calendar visit shows the one-time dismissible drag hint
+  (localStorage-remembered).
+- **Drag gesture:** mousedown on an empty slot → as the pointer moves, draw a translucent
+  in-progress block from the start minute to the current minute (15-min snap) showing live
+  "H:MM – H:MM" at its edge → mouseup commits the block. A mousedown+mouseup with no movement =
+  default 1-hour block (start+60), then drag-resizable.
+- **Quick-create popover:** opens anchored to the committed block (PORTAL/fixed so the grid's
+  overflow can't clip it — AF-4); pre-focused Title field + editable time range + "More options"
+  (→ EventEditSheet); Enter saves, Esc/click-outside dismisses. Empty title saves "(New event)" —
+  never discards the dragged block.
+- **Existing events:** body-drag to MOVE, edge-drag to RESIZE, 15-min snap (desktop); the new
+  event is written as a normal proposed `TripEvent` (AF-5).
+- **"+ Add event" FAB:** rendered ONLY on `(pointer: coarse)`; `position: fixed` bottom-right so
+  it never widens the toolbar row (AF-4). Hidden on desktop.
 
 ### Identity
 - No name prompt on load — browse first. On the FIRST write interaction (add/edit/confirm),

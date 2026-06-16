@@ -1,19 +1,49 @@
 Name: Jules
-Round: 2 | Persona: content/community marketer, 50/50 desktop+mobile, allergic to logins. Organizing a friends' camping trip; wants a no-login link to a visual schedule.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: all
 
-PRIOR CONCERNS RE-CHECKED:
-1. [share race] RESOLVED. Committed the sample, hit "Copy invite link" the instant events appeared. The button now flushes-then-confirms: label flips to "Saving…" immediately, then "Copied!" only after the save lands. I copied the URL the same instant and opened it in a fresh browser 9ms later — the friend saw all 12 events (full Week view), NOT "No dates yet". The empty-trip race I hit in R1 is gone.
-2. [mobile day view buried] RESOLVED. Cold-opened the share link at 390px in Day view: the grid auto-scrolled (scrollTop 330) past the empty morning hours and landed on 12pm with "Emily lands" (first event) right at the top of the viewport. No more scrolling past 6 dead AM hours. Inner grid scrolls fine.
-3. [clipped Day/Week/Month toggle @390px] MOSTLY RESOLVED. All three buttons now sit fully inside the 390px width and are tappable/readable. There's still a tiny cosmetic black sliver to the right of "Month", but it clips no content. Minor.
+I came back to this with one job in mind — a no-login link to a visual schedule for my friends'
+camping trip — and a checklist of the three mobile rough edges I dinged it for last round. All three
+are genuinely fixed, and on a 390px viewport this now feels right for a phone instead of a desktop app
+squeezed onto one.
 
-CLARITY: Yes. Headline "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" + "Anyone with this link can view & edit" told me what it is and that it's login-free instantly.
+PRIOR CONCERNS — re-checked first, on a real 390px mobile viewport:
+1. FIXED. The on-grid hint pill now reads "Tap a slot to add an event, or use the + button below."
+   That's correct phone language. (Desktop separately still says "Drag down the grid... or click a
+   slot for a 1-hour event" — which is right for a mouse. So the copy is now device-aware, exactly
+   the fix I asked for.)
+2. FIXED. The floating add button is no longer a bare icon — it's a black pill reading "+ Add event"
+   with visible text, sitting bottom-right. On the empty calendar it reads as an obvious action, not
+   decoration. A casual friend cannot miss how to add the first event now.
+3. FIXED, and better than I expected. No "What's your name?" modal blocked me at all. I tapped
+   "Add event," the "New event" bottom-sheet opened straight away, I filled a title and hit Save —
+   no interrupting dialog before, during, or after. The app just quietly assigned me a "you" chip in
+   the top corner. That's the no-friction behavior I wanted.
 
-VALUE: Yes. Pasted our messy itinerary, it parsed 12 events across 2 days correctly, kept times, and the no-login share link genuinely lets friends Confirm and "Add to Google Calendar" after just typing a name (event even shows "Proposed by Jules"). Bulk "Download all (.ics)" covers non-Google friends. Faster than hand-building a Notion table; this is the small-job tool I wanted, and now the two things that made me nervous to actually SHARE the link are fixed.
+CLARITY — Yes. Same strong landing as before: headline "...shared day-by-day calendar — no app, no
+login," two labeled cards ("Paste an itinerary" / "Start from a blank calendar"), footer "Anyone with
+the link can view and edit... No account or email required." Cold-read in seconds.
 
-ADVOCACY: 9. The two issues that capped me at 7 in R1 — sharing a blank trip, and a phone view that opened on dead hours — are both fixed, and those were the exact moments I'd have lost a friend. I'd bring this up unprompted to anyone planning a group trip. Holding back a 10 only for the cosmetic toggle sliver and that I haven't stress-tested two people editing live at once.
+VALUE — Yes. Today I'd paste this into a Discord pin or Notion page that nobody reads on a phone. The
+killer test still passes and is the whole reason I'd use it: I created a blank trip, added "Leave
+Friday — depart 5pm," copied the invite link, opened it in a FRESH mobile browser with no login, and
+immediately saw the event, the Jun 15 day tab, and a "Save to calendar (.ics)" link. No sign-in wall.
+That is my exact requirement, met in one tap. Copy invite link worked (returned a real URL).
 
-LIKES: Copy now guards the save (Saving…→Copied!). Mobile lands on the first event. Smart paste-parser. Bottom-sheet with Confirm / Add to Google Calendar / Edit / Delete + "Proposed by" attribution. No-login link that friends can actually edit. .ics bulk export.
+REMAINING FRICTION (minor, why not a 10): on the trip screen the title still shows "Untitled Trip"
+even though the landing page offered a "Name your trip" field — I clicked Start blank without typing a
+name and it didn't nudge me to name it, so a shared link could land friends on an "Untitled Trip."
+Not blocking, just slightly unpolished for sharing.
+
+BLOCKING ISSUE: none. Zero console errors on every flow, no horizontal scroll at 390px anywhere,
+share link opens cleanly with no login.
+
+Recommend? Yes — this is now a 9. The mobile affordances that made me hesitate last round are gone,
+and the no-login share genuinely works on a phone. I'd bring it up unprompted to friends planning a
+trip; the only thing keeping it off a 10 is the "Untitled Trip" naming nudge.
 
 ```json
-{"tester": 6, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Cosmetic black sliver right of the Month toggle at 390px (no content clipped)", "Have not verified simultaneous live multi-editor behavior"], "priorConcernsAddressed": "all"}
+{"tester": 6, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Trip can be shared as 'Untitled Trip' — no nudge to name it before sharing"], "priorConcernsAddressed": "all"}
 ```

@@ -1,28 +1,54 @@
 Name: Rob
-Role: Freelance brand/visual designer. Splitting a ski-trip rental with 3 friends; want ONE link everyone adds arrival times to and confirms, instead of me babysitting a master plan everyone ignores.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-## Clarity: Yes
-Within 5s I got it: "No app, no login. Paste an itinerary and watch it become a visual hourly calendar. Add events straight to Google Calendar." The "Anyone with the link can view and edit — share only with your travel companions. No account or email required" line nailed the no-login pitch. The headline itself is a run-on mouthful ("Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link") — I understood it, but it tries to say 4 things at once. Subhead does the real work.
+I'm Rob — freelance brand designer, splitting a ski cabin with three friends, sick of being
+the guy who manually maintains a master plan nobody reads. Tested on desktop at 1280px.
 
-## Value: Yes (desktop) — this is exactly my workflow today
-Today I keep a Google Doc / group text that nobody updates, and I retype it into my own calendar. Here: pasted itinerary → "12 events across 2 days" parsed cleanly, grouped by day, time ranges + a link extracted, even pulled a trip-details/weather panel out. Friend opened the link with NO login, hit Confirm, was asked "What's your name?", and the event showed "✓ Marco" — that confirm-what-you're-in-for loop is the whole reason I'd use this. "Add all confirmed (.ics)" + per-event "Add to Google Calendar" close the loop into my real calendar. On desktop this genuinely saves me the master-plan grunt work.
+CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no
+app, no login" plus "no account or email required" told me exactly what it is in under 5
+seconds. The two cards ("Paste an itinerary" / "Start from a blank calendar — Drag on the
+grid to add events") made the two ways to start obvious. I knew where to click immediately.
 
-## Advocacy: 5/10
-The idea and desktop execution are a real 8 for me. It drops to 5 because the ONE thing the homepage promises — "phone-friendly day-by-day calendar" — is broken on a phone, and that's where my friends will open it. I can't recommend a "send your friends a link" tool whose mobile day view doesn't work.
+VALUE — Yes, this actually fits my situation. The blank-calendar drag flow is the real win:
+I named the trip, hit "Start blank," click-dragged on the hourly grid and got a clean
+12:00pm–2:00pm block with a Google-Calendar-style popover (title field + two time dropdowns
++ Save). Single-click made a 1h block, and I dragged the event to move it (2pm→4pm, time
+relabeled correctly). It feels like GCal, which I know. The killer part for MY problem: I
+opened the share link in a totally separate browser as a "friend" and it instantly saw my
+event — no login, no prompt. Friend could open an event and there's a green CONFIRM button
+plus "Add to Google Calendar / Edit / Delete." When I confirmed, it asked "What's your
+name?" and then the block showed a green check "Confirmed by Rob" — and the friend's browser
+saw "Confirmed by Rob" too. That's exactly the "everyone adds their arrival and confirms
+what they're in for" thing I wanted, and the .ics / Add-to-Google-Calendar export means it
+lands in the calendar people actually live in. Today I do this in a Google Doc + a group
+text that everyone ignores; this is genuinely less work.
 
-## Concerns (ordered)
-1. CRITICAL / MOBILE: At 390px, Day view's hourly grid is `overflow-y: hidden` (content 1080px clipped to ~643px) — it CANNOT scroll. El Chato (8:30pm) sits at y=1077, totally unreachable. Vertical swipe / wheel does nothing (page body == viewport, inner grid clipped). All evening events — après-ski dinners, bars, the stuff friends care about — are invisible and untappable on a phone.
-2. MOBILE: Cold phone open lands on EMPTY morning hours (5am–12pm); first event (12:30pm) is below the fold and there's no auto-scroll to the first event. You open the headline view and see nothing.
-3. MOBILE: The Day/Week/Month toggle row is clipped on the right — a day-tab (May 1/May 2) is cut off behind the refresh button at 390px.
-4. Headline copy is a run-on; tighten it.
-5. "Add to Google Calendar" is labeled per-event but bulk is an .ics download ("Add all confirmed (.ics)") — fine for me, but the label promises Google specifically.
+TOP LIKES
+- Drag-to-create on the grid behaves like Google Calendar; zero learning curve.
+- Confirm + "Confirmed by Rob" attribution synced across two separate browsers, no login.
+- Copy invite link worked (clipboard got a clean /t/<id> URL, button flipped to "Copied!"),
+  and it strips the ?blank= param — the link you share looks right.
 
-## Likes
-- True no-login collaboration: friend confirmed an event and got name-attributed (✓ Marco) with zero account.
-- Paste parser is impressively good (12 events, day grouping, link + weather panel extraction).
-- Desktop Day view is a proper hourly calendar with side-by-side overlap handling; "Saving…" + your-name badge are reassuring.
-- "Copied!" confirmation is clear and the clipboard held the correct trip URL.
+TOP DISLIKES / FRICTION
+- Name is captured LAZILY, only on your first confirm/edit. Until then every event reads
+  "Proposed by Someone" / "Confirmed by Someone." For a 4-person trip where the whole point
+  is "who's arriving when," I'd rather it ask my name once up front so nothing is anonymous.
+- The grid loads scrolled to ~noon. To add a morning arrival (9–10am) I had to scroll up;
+  not obvious, and a friend on a quick phone glance might miss the morning entirely.
+- Paste-itinerary is picky: my natural paste "Fri 6pm Drive up to Tahoe / Sat 9am Lift
+  opens" was rejected ("Couldn't find any timed events"); it wants "Day 1" headers and
+  "9:00 AM" formats. Good error message + sample link, but most real pastes won't match.
+
+BLOCKING ISSUE — None. Full create→share→add→confirm→export loop worked across two browsers
+with no JS errors. (Copy verified visually; clipboard read worked in my test env.)
+
+ADVOCACY — 8. I'd actually send this to my cabin group chat this week. It's not a 9–10 only
+because (a) anonymous "Someone" attribution until you act undercuts the trust the whole tool
+is selling, and (b) the morning events sit below the fold on load. Fix the name-up-front and
+default-scroll-to-trip-start and it's a 9.
 
 ```json
-{"tester": 8, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 5, "topComplaints": ["Mobile Day view grid is overflow-hidden — evening events unreachable, no swipe scroll", "Mobile cold open lands on empty morning hours, no auto-scroll to first event", "Mobile toggle row clips a day-tab behind the refresh button"], "priorConcernsAddressed": "n/a"}
+{"tester": 8, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Author shows as 'Someone' until you act — no upfront name prompt undercuts who-did-what trust", "Grid loads scrolled to noon; morning arrival events sit below the fold", "Paste-itinerary parser rejects natural formats like 'Fri 6pm Drive up'"], "priorConcernsAddressed": "n/a"}
 ```

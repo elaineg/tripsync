@@ -1,25 +1,52 @@
 Name: Marcus
-Round: 4 | Frontend eng, 2yr, Chrome+devtools, notices janky CSS instantly. Hosting 2 college friends; want the weekend plan to live as a phone-glanceable shared calendar, not a dead Google Doc.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: all (own-event washed-out/dashed look FIXED, computed-style verified)
 
-## My ONE round-3 holdback — re-checked first
-**Black CSS sliver beside the Day/Week/Month toggle at 390px → STILL NOT FIXED (4th round).**
-Committed the SF sample, Day view, 390px: right after "Month", before the refresh icon, a clipped black rounded nub showing just "J" still bleeds into the toolbar (toolbar-zoom.png is unambiguous). I inspected it: it's a `Jun 15` date-filter chip, `background: rgb(26,26,26)`, sitting in an `overflow:auto` strip clipped to ~17px wide — so all you see is a dark sliver, same eyesore I flagged rounds 1/2/3. The strip didn't get removed; it got hidden behind an overflow that clips the black chip. Not resolved.
+I'm a frontend eng, devtools open, hosting two friends this weekend. Rounds 2-3 my ONE
+residual nit was that my OWN saved events rendered as a 35%-transparent dashed "proposed"
+draft (`event-proposed border-2 border-dashed`, opacity 0.65). Round 3 I gave a 7 because it
+was still unfixed and there was no way to reach a "solid" state. I re-checked that first this
+round with getComputedStyle, two browser contexts — not eyeballs.
 
-## Quick re-walk — nothing else regressed
-paste→Parse→Add committed cleanly; Skip on the name modal kept all events. Day grid scrolled fine (Coffee/Lunch/Golden Gate Park render). Copy invite → friend opened the link in a fresh 390px context in 553ms, no blank flash. .ics exported with all 6 VEVENTs (correct summaries). 0 console errors. Core loop is solid.
+PRIOR CONCERN — FIXED, ROOT-CAUSE CONFIRMED. I started a blank trip, set NO name (creator
+stays "Untitled Trip" / "Set name"), drag-created and saved a titled event "Brunch at
+Tartine". getComputedStyle on my own committed event:
+  OWNER DAY:  class "absolute rounded-lg px-2 select-none border-l-4"
+              borderStyle: SOLID, borderWidth 0 0 0 4px, opacity: 1, bg rgba(181,200,232,0.867)
+  OWNER WEEK: solid blue chip, opacity 1 (screenshot r4-owner-week.png) — bold title, no dashes
+No `event-proposed`, no `border-dashed`, no 0.65. That is exactly the solid/finished look I
+asked for, on an UNNAMED solo creator's own event — proving the ownership is keyed off a
+stable per-device id, not a name.
 
-## Clarity — Yes
-H1 "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" still lands in 5s.
+I then opened the SAME trip in a fresh second context (a friend, no localStorage):
+  FRIEND DAY: class "...border-2 border-dashed", borderStyle: DASHED, opacity: 0.65,
+              bg rgba(181,200,232,0.533)
+So the split the team described is real and correct: my own events = solid/opaque; an event
+authored by someone else = dashed/proposed. Clean dashed CSS, deliberate, not broken.
 
-## Value — Yes
-Beats the dead Google Doc: paste→parse→share-link→friend-glances-on-phone, plus clean .ics. This is the workflow I wanted.
+JANK SWEEP: zero console errors across start-blank / drag-create / save / Day↔Week switch /
+friend-view. "Saved" confirmation fires green. Edit modal fields are clean, native date/time
+selects, no overflow at 1280px. No layout jank, no hydration flashes.
 
-## Advocacy — 8/10
-Same 8 as round 3, and for the SAME reason: the black-sliver CSS bug I reported FOUR rounds running is still on screen at 390px. I was told it was restructured to fit with "no dark bleed at the toggle edge" — the bleed is still there. As a frontend eng, a trivial visual bug surviving four "fixed it" claims actively erodes my confidence in the team's polish, which is exactly what decides whether I evangelize. Kill that clipped black chip (or unclip the strip so it reads as a real control) and it's an instant 9.
+CLARITY (Yes): H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no
+login" + Paste/Start-blank cards land in ~3s. Unchanged, still crisp.
 
-## Likes
-Commit-then-optional-name order is right. Friend instant-open, no login, no flash. .ics clean with full event count. Day grid is genuinely glanceable.
+VALUE (Yes): Beats my Google Doc that friends never open + me re-typing into my calendar.
+Drag-create, Week view, no-login share link, .ics export — and now a glanceable calendar
+where MY plans actually look finalized, not ghosted.
+
+ADVOCACY 9 (up from 7): the one thing capping me for two rounds is genuinely gone, verified
+at the computed-style level. My finalized weekend now renders as a clean solid calendar I'd
+actually send two friends. Not a 10 only because the friend's view still shows everything I
+added as faded/dashed "proposed" until they (presumably) confirm — for a pure "here's the
+plan" share that reads slightly draft-y on their end; it's a defensible design choice now,
+not a bug, so it doesn't cap below 9. I'd bring this up unprompted to anyone hosting people.
+Blocking issue: none.
 
 ```json
-{"tester": 2, "round": 4, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Black date-chip CSS sliver STILL bleeds past the Day/Week/Month toggle at 390px (4th round unfixed; rgb(26,26,26) Jun-15 chip clipped to ~17px in an overflow:auto strip)"], "priorConcernsAddressed": "none"}
+{"tester": 2, "round": 4, "clarity": "Yes", "value": "Yes", "advocacy": 9,
+ "topComplaints": ["Friend/non-owner view still renders every event I added as dashed+opacity-0.65 'proposed' until confirmed — defensible design now, but a pure share-the-plan recipient sees a slightly draft-looking calendar", "Minor: no inline way to see 'this event is mine vs theirs' beyond the style difference; an explicit owner/confirm affordance would make the dashed-vs-solid intent obvious to a first-time friend"],
+ "priorConcernsAddressed": "all"}
 ```

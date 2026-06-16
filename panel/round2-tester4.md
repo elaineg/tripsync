@@ -1,31 +1,47 @@
 Name: Tomás
-Role: Operations analyst, medium-tech, Edge on a corporate Windows laptop. Coordinating a multi-family beach house week; need ONE link relatives of all ages open with no signup/install.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: All three fixed (future-month nav, multi-day Week view, resize)
 
-## Round-1 dealbreakers — re-checked first
-1. MOBILE DAY VIEW DOESN'T SCROLL — **RESOLVED.** At 390px there's now a real `day-grid-scroll` container (scrollHeight 1080 > viewport 693). Cold-open auto-scrolls to the first event (lands at ~12pm where "Emily lands 12:30pm" sits, not blank 6am). I can swipe down to 7:30pm arcana walk, 8:30pm El Chato, all the way to 11pm — every evening event reachable. Next-day nav (May 2) loads all of Saturday: wake up, brunch, Haight, Bansang, Bar Part Time. The thing the product is named after finally works on a phone.
-2. CROSS-DEVICE SYNC RACE — **RESOLVED.** Committed the sample, "Saved" appeared, copied the /t/ link (clipboard returned the real URL), opened it in a fresh context immediately: friend saw all 5+ events at 400ms, never "No dates yet," and still solid at 2.4s. No empty-trip handoff.
+I'm an ops analyst — Excel/Tableau/Jira all day, IT blocks installs, wary of pasting data
+into random sites — but this is a personal beach-house week, browser-only, no login, so it
+fits. Last round I gave a 7 with a near-blocker. I re-checked exactly what I complained about.
 
-## Clarity — Yes
-Same crisp headline: "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" + "One link, open on any phone." 5-second test passes; this is exactly my job.
+PRIOR CONCERNS — RE-VERIFIED:
+1. "Couldn't reach a future month from a blank calendar (defaulted to today)." FIXED, cleanly.
+   "Start blank" now opens with a "Go to:" date picker AND prev/next arrows. I typed 2026-08-08
+   and landed straight on August; Month view shows "August 2026" with working "Previous month"/
+   "Next month" arrows. My real use case (an August trip from scratch) now works end to end.
+2. "Week view showed a single day." FIXED. Week view now renders separate day COLUMNS — I had
+   events on Aug 8 and Aug 9 and saw two side-by-side columns ("Sat, Aug 8" / "Sun, Aug 9")
+   each with its event. No longer the one-day bug.
+3. "Bottom-edge resize felt like a move." FIXED. I grabbed the bottom nub of "Welcome BBQ" and
+   dragged down: it went from 10:00am–1:00pm to 10:00am–3:00pm — start stayed put, only the end
+   extended. That's a real resize, with visible handles top and bottom (Google-Calendar style).
 
-## Value — Yes
-Today I do this in a shared Sheet + Teams thread that half my relatives never open. Paste-import parsed 12 events across 2 days into an hourly grid AND auto-built a trip-details panel (weather/jacket/bring ID). Now that mobile actually scrolls, I'd confidently send this to Grandma's phone — that was the whole blocker last round. Per-event "Add to Google Calendar" and "Download all (.ics)" bulk export both present, so relatives can pull it into their own calendar.
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no
+login" + "Anyone with the link can view and edit. No account or email required" told me what it
+is and that I can send it to relatives, in seconds. Two labeled start cards (Paste / Start blank)
+make the two paths obvious.
 
-## Advocacy — 8/10
-Up from 4. Both dealbreakers fixed; mobile day view is genuinely good and the no-race share is trustworthy. Holding back the last 2 points: the no-login link is still "anyone with the link can view AND edit" with no view-only option, no edit lock, and no undo I can find — for family it's acceptable but one forwarded link gives a stranger delete rights, and as an ops analyst I'd never paste company data here. Give me a "view-only link" toggle and I'm at 9–10.
+VALUE — Yes, and now it actually covers MY scenario. Today I use a shared Google Sheet plus a
+long Teams thread; half my relatives can't read the sheet on a phone. Here I built a future
+August week from blank, dragged out events, hit "Copy invite link" (copied a clean URL with NO
+?blank param), and opened it in a fresh browser as a relative — it loaded straight onto Aug 8
+Day view showing "Welcome BBQ 11:00am–1:00pm" with the trip name on top, editable, no login. The
+link even lands them on the trip DATE, not today — Grandma sees the event without navigating.
+Renders fine at 375px too. That is the single link I can send the whole family.
 
-## Concerns (ordered)
-1. (RESOLVED) Mobile day-view scroll + auto-scroll to first event.
-2. (RESOLVED) Cross-device sync race on quick share.
-3. (UNCHANGED) No view-only / read-only link option; edit+delete open to anyone with the link, no undo. Trust ceiling for anything beyond family.
-4. (MINOR) Sample is still a SF city trip, not beach-house flavored — didn't sell my exact case, but didn't block me.
+ADVOCACY — 9. Last round's blocker is gone and the fixes are genuinely good, so I'd bring this
+up unprompted to anyone coordinating a group trip. Not a 10 only because of one polish gap:
+Week view shows just the days with content / a narrow window (Aug 8–11), not a fixed Sun–Sat
+7-day grid — for a tool named for a "week" I'd like to see all 7 columns at a glance, including
+empty days, so I can plan into them. Minor, not blocking; I can plan in Day/Month meanwhile.
 
-## Likes
-- Mobile day view now scrolls cleanly and opens on the first event — the fix landed.
-- Instant, race-free share: fresh-context friend saw the full week immediately.
-- Paste-to-calendar parsing + auto trip-details panel remains the magic.
-- Both Google Calendar (per event) and .ics bulk download for relatives' own calendars.
+Remaining friction: Week view isn't a full 7-column week. Blocking issue: none.
+(Copy verified: clipboard read returned the clean invite URL in my test setup.)
 
 ```json
-{"tester": 4, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["No view-only/read-only link option — anyone with the link can edit and delete, no undo, trust ceiling beyond family", "Sample itinerary is a SF city trip, not beach-house flavored"], "priorConcernsAddressed": "all"}
+{"tester": 4, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Week view shows a narrow window (Aug 8–11), not a fixed Sun–Sat 7-day grid including empty days"], "priorConcernsAddressed": "all"}
 ```

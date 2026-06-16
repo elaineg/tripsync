@@ -1,28 +1,40 @@
 Name: Elena
-Round 2 — Engineering manager, lives in Google Calendar, 30-sec patience, phone between meetings (tested at 390px).
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: 2 of 3 fixed (name-modal gone, solo attribution fixed); no bulk-Google add yet
 
-PRIOR P0 (persistence) RE-CHECK — RESOLVED. I re-ran my exact round-1 trace:
-- On commit, a `PUT /api/trip/<id>` fires IMMEDIATELY (+517ms, not on idle delay). The "Saved" badge is now real, not a lie.
-- Reload SAME browser: events persist ("Emily lands" visible, not "No dates yet").
-- Open invite link on a FRESH context immediately: full day-grid with all 12 events renders. Sharing-by-link finally works — this is the whole product.
-- One gotcha that fooled my first re-run: commit pops a "What's your name?" modal; the save only fires after you enter a name + Continue. That's a reasonable gate, not a bug — but it means a no-name bail loses the import.
+Round 2, tested at 390px mobile on the real prod build. EM, half my day in meetings, I live
+in Google Calendar and check plans on my phone.
 
-ALSO PERSISTS IMMEDIATELY (PUT each time, survives reload): Confirm an event, Delete an event (after reload it's gone). Add path I trust by extension.
+PRIOR CONCERNS — re-checked first:
+1. Name modal before first add — FIXED. I named the trip "Family weekend", hit Start blank,
+   tapped the floating "Add event" and went STRAIGHT into the New event form. No "What's your
+   name?" wall. The top-right just shows a "you" chip; it never interrupted my most important
+   action. This was my main gripe and it's gone.
+2. "Proposed by Someone / Confirm" on a solo event — FIXED. My saved event's detail sheet
+   reads "Added by you" in green, with Add to Google Calendar / Edit / Delete. No "Proposed by
+   Someone", no stray Confirm button. Reads exactly like my own event should. Verified in the
+   DOM too: zero "proposed by" anywhere.
+3. One-tap add-the-whole-trip to Google Calendar — NOT addressed. Still per-event for Google;
+   bulk is only "Save to calendar (.ics)" in the header. For an 8-event weekend I'd still tap
+   Google 8 times or fall back to the clunkier .ics on mobile.
 
-CLARITY: Yes. Headline + "Add individual events to Google Calendar or download the whole trip as a .ics file" tells me what it is in 5 sec.
+CLARITY — Yes. Same strong headline ("Turn a messy itinerary into a shared day-by-day calendar
+— no app, no login") and the two start cards. I could explain it to a friend in one breath:
+"shared trip calendar, no login, one-tap each plan into your Google Calendar."
 
-VALUE: Yes. TODAY I hand-type my sister's itinerary text into Google Calendar event by event. Paste → Parse → preview (12 events, correct Fri/Sat times) → Add → it's saved and she sees it on her phone. Per-event "Add to Google Calendar" opens a genuine calendar.google.com/render URL — my one-tap dream. This actually saves me the retyping now that it persists.
+VALUE — Yes. The blank start is instant, the Day view is genuinely glanceable on phone (clean
+"Jun 15" pill, the 9–10am block readable, nothing cut off). The payoff held up: the Add to
+Google Calendar button opens the real GCal render template, correctly prefilled
+(text=Lunch+with+Grandma, dates=20260615T090000/100000, ctz set) — on my logged-in phone that's
+a true one-tap into the calendar that runs my life. Beats retyping family plans from a group
+text. No console or page errors the whole session.
 
-ADVOCACY: 8/10. Up from 2. It does the job and survives a reload and a fresh device — I'd send this to my family. Held back from 9: (1) bulk is "Download all (.ics)" — fine and now honestly labeled, but on my phone I still want a bulk one-tap-to-Google, the .ics download/import is friction mid-meeting; (2) the name-gate on commit is a silent failure mode (bail = lose import) and should auto-save a draft; (3) parser still overlaps 4:30–5:30 walk vs 5:15 dinner — sloppy but tolerable.
+ADVOCACY — 9 (up from 8). Both speed-bumps I named are gone, so I'd now bring this up unprompted
+to anyone planning a group trip: "no login, one-tap each thing into Google Calendar." The single
+thing keeping it off a 10 is the missing bulk "add whole trip to Google Calendar" — for a real
+weekend with 8 events, tapping Google per-event is the last bit of friction; an "Add all to
+Google Calendar" (or at least add-all-for-this-day) would make it a no-caveats 10.
 
-CONCERNS (ordered):
-1. RESOLVED — round-1 persistence/data-loss P0 is fixed (PUT on commit, reload + fresh device both show events).
-2. Bulk export is .ics download only, not bulk one-tap Google Calendar (per-event Google works).
-3. Name-gate on commit: bailing the modal silently discards the parsed import.
-4. Minor: parser overlaps adjacent events.
-
-LIKES: Persistence now real (green "Saved" badge); paste→parse→preview still the killer interaction; day grid scrolls and auto-scrolls to the first event (scrollTop=330, not stuck at midnight); per-event Google Calendar link is the real deal; clean, fast, zero console errors, truly no-login.
-
-```json
-{"tester": 9, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Bulk action is .ics download, not bulk one-tap-to-Google Calendar", "Commit name-gate silently discards the parsed import if you bail the modal", "Parser overlaps adjacent events (4:30-5:30 vs 5:15)"], "priorConcernsAddressed": "all"}
-```
+BLOCKING: none. Mobile was fast, no errors, nothing cut off at 390px.

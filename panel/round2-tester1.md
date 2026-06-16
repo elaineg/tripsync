@@ -1,28 +1,56 @@
 Name: Priya
-Round 2 re-test (mobile, 390px, hasTouch). My round-1 dealbreaker was the mobile day grid not scrolling.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: Both fixed (resize + snapping)
 
-clarity: Yes
-Same strong headline ("Paste a trip itinerary, get a shared day-by-day calendar — no app, no login"). Nothing regressed; I knew what it was in seconds.
+I'm a backend eng, keyboard-first, allergic to signups. Round 1 I gave this an 8 and named
+exactly two things: (1) the resize handle was invisible/undiscoverable and my first resize
+did nothing, and (2) drag-to-create snapping was coarse/imprecise. I re-tested both first,
+in a real headless Chromium, at the DOM level.
 
-value: Yes
-Paste-import still nails messy text (ranges, maps link, trip details), and now the WHOLE day is usable on a phone. This genuinely beats my group-chat + Google-Doc habit because my non-technical friends can actually open the link, scroll the day, and confirm/export — no account.
+## Did my prior concerns get fixed? Yes, both — verified.
+RESIZE — FIXED, and done right. The event block now has two VISIBLE pill grips
+(`rounded-full`, 24x3px) centered on the top and bottom edges — you can see them in the
+block as little horizontal handles. Hovering the bottom edge gives `cursor: ns-resize`
+(I checked elementFromPoint). Dragging that bottom handle down 120px changed DURATION ONLY:
+11:00am–2:00pm became 11:00am–4:00pm, the top stayed pinned, height grew 180→300px. It
+resized; it did not move or spawn a new event. That was my whole complaint and it's gone.
 
-advocacy: 8 (was 5)
-The headline feature now works on the device it's sold for. Held back from 9 only because the friend still hits a "What's your name?" modal on first confirm (fine, but it's a small speed bump) and Add-to-Google-Calendar routes through a Google sign-in screen rather than straight to the event (Google's behavior, not theirs, but a friend might pause). No longer a "cautious" rec — I'd bring it up.
+SNAPPING — improved. My drag-create landed on clean 10:00am–1:00pm hour boundaries this
+round, not the awkward 10:45–1:00 I got last time. Resize snapped to clean hours too. The
+new inline hint "Drag down the grid to block out time, or click a slot for a 1-hour event"
+also tells you what to do before you flail.
 
-PRIOR CONCERNS (round 1):
-1. RESOLVED — Day grid scrolls. There's now a real `.day-grid-scroll overflow-y-auto` container (scrollHeight 1080 > clientHeight 691). El Chato 8:30pm is reachable: after scrolling it sits at y=640 inside the 844 viewport.
-2. RESOLVED — Cold open auto-scrolls past empty morning hours: fresh load lands with scrollTop=330, first event (Emily lands 12:30pm) near the top, not behind 7 empty 6–11am rows.
-3. RESOLVED — Vertical swipe scrolls (scrollTop 0→330) and creates NO event (add-event/name modal count=0 after the swipe gesture). The scroll-creates-events bug is gone.
-4. RESOLVED enough — Commit now clearly shows the name modal then "Saved" with day tabs + events; I no longer wonder if Add did nothing.
-5. RESOLVED — Preview is much clearer: shows resolved dates ("Friday May 1 → Fri, May 1"), per-event editable times, and discloses assumptions ("End time assumed (1h)…").
+## Everything else, re-checked fresh
+- MOVE: dragging the body shifted 10am–1pm to 11am–2pm, duration preserved. Correct.
+- PASTE: my cabin-weekend group-chat plan parsed to "6 events across 3 days," still flags
+  its own assumptions ("end time assumed (1h)") AND still caught my weekday error:
+  "Friday July 11 → Sat, Jul 11 (you wrote Fri; Jul 11 is a Sat)." That correctness check
+  is the thing that earns my trust.
+- SHARE: "Copy invite link" put a real http://localhost:3099/t/<id> URL on the clipboard,
+  label flipped to "Copied!". Opened that link in a FRESH context on a 390px iPhone
+  viewport — HTTP 200, events render (dinner 6–7pm, bonfire 9–10pm), day tabs Jul 11/12/13,
+  NO login/signup anywhere. That is exactly my use case delivered.
+- .ics "Save to calendar" present on desktop and mobile.
+- Zero console/page errors across create, move, resize, paste, share, and stranger-open.
 
-likes:
-- Mobile day view is now the strength instead of the bug — full 12pm→11pm scroll, events at correct hours.
-- Copy invite link confirms "Copied!" with the correct /t/<id> after saving; opened it as a no-login friend ("Maya"), saw all events, confirmed El Chato → "Confirmed by Maya".
-- Bulk export downloads Cabin-Weekend.ics with all 12 VEVENTs (El Chato included); per-event "Add to Google Calendar" opens a real calendar.google.com link.
-- Preview-before-commit + assumption disclosure is exactly the trust signal a skeptic wants.
+## Top remaining friction (minor)
+- The resize grips are subtle on a busy day — fine for me, but a non-technical friend might
+  still not realize an event is draggable until they hover. A one-time "drag edges to
+  change length" tooltip on first event would close that.
+- When I drag-created and typed a title too fast, focus can land on the trip-name field
+  instead of the event title if you don't click into "Event title" first. Edge case.
 
-```json
-{"tester": 1, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Friend hits a 'What's your name?' modal on first confirm — small speed bump for a no-login share", "Add to Google Calendar routes through Google sign-in rather than straight to the prefilled event"], "priorConcernsAddressed": "all"}
-```
+## Blocking issues
+None. Nothing made me abandon; every flow worked.
+
+## The three answers
+1. CLARITY — Yes. Headline + two start cards + "No account or email required" told me what
+   and who in seconds, same as before.
+2. VALUE — Yes. Beats my real alternative (a shared Google Doc nobody can read on a phone,
+   or a Google Calendar everyone has to join). Paste-and-correct saves real retyping and
+   the share link works for a stranger with nothing installed.
+3. ADVOCACY — 9. Both polish gaps that capped me at 8 are fixed and I verified the fixes
+   myself. It's a 9 not a 10 only because resize discoverability still leans on hover with
+   no first-run hint — but I'd now bring this up unprompted to friends planning a trip.

@@ -1,20 +1,43 @@
 Name: Elena
-Round 1 — Engineering manager, lives in Google Calendar, 30-sec patience, phone between meetings.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-CLARITY: Yes. Headline "Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link" + "No app, no login. Paste an itinerary... Add events straight to Google Calendar" told me exactly what it is in 5 sec. Name+Create flow obvious.
+I'm an EM, half my day in meetings, I live in Google Calendar and check things on my phone
+between standups. I've used TripSync before; this round I tested the new blank-calendar start
+on a 390px phone viewport.
 
-VALUE: No — and it hurts to say, because the pitch is exactly my problem. TODAY my sister texts me a wall of itinerary text and I hand-type each line into Google Calendar. This promises to kill that. The paste-import IS great: "Load sample" → Parse → preview ("12 events across 2 days will be added", grouped Fri/Sat with correct times) → "Add to <trip>". Day-hourly view renders events as time-positioned blocks. Per-event "Add to Google Calendar" opens a real calendar.google event-create URL — my one-tap dream. BUT the whole thing is built on sand (see #1).
+CLARITY — Yes. In ~5s the headline told me exactly what it is: "Turn a messy itinerary into a
+shared day-by-day calendar — no app, no login," and the subline "Add events to Google Calendar
+or download the whole trip as a .ics" is the line that made me lean in. The two start cards
+("Paste an itinerary" / "Start from a blank calendar — Start blank") are unambiguous. I knew
+how to start without thinking.
 
-ADVOCACY: 2/10. The headline feature — "open and edit from one link" — is broken. I'd be embarrassed to send my family a link that shows them nothing.
+VALUE — Yes, this is built for my exact situation. I named the trip "Family weekend", hit
+Start blank, tapped the floating +, added "Lunch with Grandma" 9–10am, and it landed on a
+clean Day view with a "Jun 15" date pill — glanceable, nothing cut off, event block readable.
+Then the payoff: tapping the event gives me "Add to Google Calendar" right there. I verified
+the button opens Google's real prefilled template (text=Lunch+with+Grandma,
+dates=20260615T090000/100000, ctz set) — on my phone where I'm already signed in, that's a
+genuine one-tap into the calendar that runs my life. That is THE feature for me. Desktop
+drag-to-create also works like Google Calendar (dragged a span, got an 11–1 event + form).
+This beats my current habit (retyping family plans from a group text into my own calendar).
 
-CONCERNS (severity order):
-1. P0 DATA LOSS / SHARING BROKEN. After I commit imported events, they are NEVER saved. Reloading the SAME browser shows "No dates yet. Paste an itinerary." A fresh device (my sister opening the invite link) sees an empty paste screen — zero events. Network trace: on commit there is NO save request (only POST /api/trip-create + a GET); localStorage holds no events. The "Saving... Elena" badge is a lie — nothing persists. This is the entire product; it does not work.
-2. Bulk action is "Add all confirmed (.ics)" — an .ics DOWNLOAD, not one-tap into Google Calendar. On my phone between meetings, downloading an .ics and importing it is friction; I want the per-event Google flow for all events. Mislabeled vs the homepage promise.
-3. Bulk button only appears after I manually Confirm events — not obvious that's the gate.
-4. Minor: parser overlaps events (4:30–5:30 walk vs 5:15–6:15 dinner) — sloppy but tolerable.
+ADVOCACY — 8. I'd bring this up to friends planning a group trip, specifically "you can one-tap
+each thing into your own Google Calendar, no login." What keeps it off a 9/10:
+- The very first + tap interrupts with a "What's your name?" modal before I can add anything.
+  I get why (multi-editor attribution), but for someone solo on a 30-sec budget it's a speed
+  bump on the most important action. Default it to skipped or ask after the first save.
+- The saved event opened with "Proposed by Someone / Confirm" — I never proposed anything to
+  anyone, it's my own solo trip. That proposed/confirm framing is confusing when there's one
+  user; "Someone" reads like a bug.
+- It's a per-event "Add to Google Calendar." For a weekend with 8 events I'd want one tap to
+  push the whole day/trip at once. The .ics download covers bulk, but .ics is more friction on
+  mobile than the slick per-event Google button.
 
-LIKES: Paste→Parse→preview is genuinely the killer interaction; copy-invite-link confirms cleanly (clipboard had the /t/ URL); zero console errors; clean, fast, truly no-login. If persistence worked this is a 7–8.
-
-```json
-{"tester": 9, "round": 1, "clarity": "Yes", "value": "No", "advocacy": 2, "topComplaints": ["P0: committed events never persist — reload/fresh device shows empty 'No dates yet'; no save API call on commit, so sharing-by-link is completely broken", "Bulk 'Add all confirmed' is an .ics download, not one-tap Google Calendar as the homepage promises", "Bulk add only appears after manually confirming each event"], "priorConcernsAddressed": "n/a"}
-```
+Top likes: instant no-login start; Add-to-Google-Calendar opens a correctly-prefilled real
+GCal event; Day view is genuinely glanceable on phone with a clear date pill; desktop
+drag-to-create matches Google Calendar muscle memory.
+Top friction: name-prompt before first event; "Proposed by Someone/Confirm" on a solo trip;
+no bulk add-all-to-Google-Calendar.
+BLOCKING: none. Mobile was fast, no console/page errors, nothing cut off at 390px.

@@ -1,42 +1,43 @@
 Name: Elena
-Round 3 — Engineering manager, lives in Google Calendar, 30-sec patience, phone between meetings (tested at 390px).
+Clarity: Yes
+Value: Yes
+Advocacy: 8
+PriorConcernsAddressed: protected win survived (no name modal, "Added by you" intact); new viewer-side attribution bug found
 
-ROUND-2 HOLDBACKS RE-CHECKED:
-1. Name-gate silently discarded the import on bail — RESOLVED. I paste-committed the sample, the "What's your name?"
-   modal popped (now copy reads "You can always set this later" + a "Skip" link), I hit Skip with NO name. The 12 events
-   committed, a PUT fired immediately, and after a full reload "Emily lands" + all 7 time blocks were still there
-   ("No dates yet" gone). A fresh incognito context on the invite link also rendered every event. Import is NOT lost.
-   I also confirmed Confirm and Delete: each pops the name modal once, but skipping it still fires a PUT and the change
-   survives reload (deleted event stays gone). The modal went from a data-loss trap to a skippable attribution nicety.
-2. Wanted bulk one-tap-to-Google instead of .ics — PARTIALLY ADDRESSED + I now accept it. The primary bulk action is
-   "Save to calendar (.ics)" — clicking it downloaded Family-weekend.ics cleanly. A true bulk one-tap Google add needs
-   OAuth/login, which would break the entire "no account, no email" promise this tool sells. For a no-login tool, .ics
-   (which imports into Google/Apple/anything) is the honest, correct tradeoff. Per-event "Add to Google Calendar" is
-   still there for the one event I want mid-meeting. I'm no longer holding this against the score.
+Round 3, 390px mobile, real prod build. EM, in meetings all day, I live in Google Calendar
+and one-tap family plans from my phone.
 
-CLARITY: Yes. Subhead "Add individual events to Google Calendar or download the whole trip as a .ics file for any
-calendar app" + "no app, no login" tells me what it is and the tradeoff in 5 seconds.
+PROTECTED WIN — re-checked FIRST, and it SURVIVED:
+- No blocking name modal. Named the trip "Family weekend", tapped "Start blank", landed on a
+  clean Day view. Tapped the floating "Add event", filled "Lunch with Grandma", hit Save —
+  went straight through. ZERO name prompt before, during, or after my first add. Verified in
+  the DOM at every step: name-modal count = 0.
+- My own event reads "Added by you" (green) in the detail sheet, with Add to Google Calendar
+  / Edit / Delete / Close. No "Proposed by", no stray Confirm button on MY event. Exactly as
+  it should. The win the team told me to protect is fully intact.
 
-VALUE: Yes. TODAY I hand-type my sister's itinerary into Google Calendar line by line. Paste → Parse → preview →
-Add → it's saved, shareable by link, survives reload, and I can one-tap each event into my calendar. Real time saved.
+CLARITY — Yes. Headline still "Turn a messy itinerary into a shared day-by-day calendar — no
+app, no login", two start cards, name field. One breath to a friend: "shared trip calendar,
+no login, one-tap each plan into your Google Calendar."
 
-ADVOCACY: 9/10. Up from 8. The data-loss footgun that capped me last round is gone — skip-the-name is safe and
-everything persists, on my own reload AND on a fresh device. The .ics-vs-OAuth call is the right one for a no-login
-tool, so I won't dock it. Held off a 10 only because the name modal still interrupts the FIRST edit (Confirm/Delete)
-even after I dismissed it once on the import — make it ask at most once per session — and the parser still overlaps
-4:30–5:30 walk vs 5:15 dinner. Both are polish, not blockers. I'd send this to my family unprompted.
+VALUE — Yes. Blank start is instant; Day view is glanceable on phone (Jun 15 pill, 9–10am
+block clean, nothing cut off at 390px). The payoff held: "Add to Google Calendar" builds the
+correct render template — text=Lunch+with+Grandma, dates=20260615T090000/100000, ctz set
+(it bounced through Google sign-in only because my test browser isn't logged in; on my real
+phone it's a true one-tap). Beats retyping plans from a group text. No console errors all session.
 
-CONCERNS:
-1. RESOLVED — paste-commit no longer loses the import when the name prompt is skipped (PUT on commit; reload + fresh
-   context both show events).
-2. RESOLVED-as-designed — bulk path is .ics (honest, no-login-correct); per-event Google one-tap still present.
-3. Minor — name modal re-prompts on the first Confirm/Delete after a skipped import; should ask once per session.
-4. Minor — parser overlaps adjacent events (4:30–5:30 vs 5:15).
+ADVOCACY — 8 (down 1 from 9). The drop is NOT my protected flow — that's perfect. It's the
+NEW collaborate change I was asked to spot-check, and it has a real bug: I opened my own share
+link in a FRESH viewer (a different "person"), tapped the event, and it said "Proposed by you"
+with a Confirm button. That viewer never proposed anything — the creator did. So a family
+member opening my link will think they added the plan. That's exactly the confusing
+viewer-relative attribution the team was reworking, and it's still wrong-way-round for a
+non-author viewer. (Side note: confirming did NOT trigger a name prompt — fine by me, less
+friction — but the label is misleading.)
 
-LIKES: Skip-the-name is genuinely safe now (green "Saved" badge is real); paste→parse→preview→add still the killer
-interaction; reload + fresh-device persistence solid; clean .ics download; per-event Google Calendar link; day grid
-auto-scrolls to first event, zero horizontal overflow at 390px, no console errors, truly no-login.
+What keeps it off a 10: (1) the "Proposed by you" mislabel for a viewer who isn't the author —
+quote it, it's literally on screen; (2) still no bulk "Add whole trip to Google Calendar" — for
+an 8-event weekend I tap Google per-event.
 
-```json
-{"tester": 9, "round": 3, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Name modal re-prompts on first Confirm/Delete after a skipped import — should ask at most once per session", "Parser overlaps adjacent events (4:30-5:30 walk vs 5:15 dinner)"], "priorConcernsAddressed": "all"}
-```
+BLOCKING: none for me. My solo flow is clean and fast. The attribution mislabel is a clarity
+bug for collaborators, not a blocker for the creator.

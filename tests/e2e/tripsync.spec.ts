@@ -365,10 +365,10 @@ test("SC-8: confirming event as Joanne shows 'Confirmed by Joanne' on event", as
   // Confirm button
   await page.getByRole("button", { name: "Confirm" }).click();
 
-  // Event should now show confirmed styling on calendar
-  // After confirm the sheet closes, event block on calendar should show "Confirmed by Joanne"
-  // The "Confirmed by" text appears inside the event block (in the day grid)
-  await expect(page.locator("text=Confirmed by Joanne").first()).toBeVisible({ timeout: 5000 });
+  // Event should now show confirmed styling on calendar.
+  // R2-1: In Joanne's own view, she sees "Confirmed by you" (viewer-relative display).
+  // The API stores confirmedBy: "Joanne"; the UI shows "you" to the confirmer themselves.
+  await expect(page.locator("text=Confirmed by you").first()).toBeVisible({ timeout: 5000 });
 
   // Verify via API that the event is now confirmed
   // Debounce is 2.5s. Trigger flush by: waiting for "Saved" indicator, or by waiting 4s
@@ -698,16 +698,51 @@ test("All referenced /_next/static chunks return HTTP 200", async ({ page }) => 
   expect(chunkUrls.length).toBeGreaterThan(0);
 });
 
-// ── Landing page: create trip → /t/<secret> ──────────────────────────────────
-test("SC-1 flow: create trip from landing page → redirects to /t/<secret>", async ({ page }) => {
+// ── Landing page: create trip via "Paste an itinerary" → /t/<secret> ────────
+test("SC-1 flow: create trip from landing page (paste path) → redirects to /t/<secret>", async ({ page }) => {
   await page.goto(`${BASE}/`);
   await expect(page.locator("h1").first()).toBeVisible();
 
   const tripNameInput = page.getByLabel("Trip name");
   await tripNameInput.fill("Joanne visits — July");
-  await page.getByRole("button", { name: /Create shared trip/i }).click();
+  // Two co-equal start options: "Paste an itinerary" and "Start blank"
+  await page.getByRole("button", { name: /Paste an itinerary/i }).first().click();
 
   // Should redirect to /t/<secret>
   await expect(page).toHaveURL(/\/t\/[A-Za-z0-9\-_]{22,}/, { timeout: 10000 });
   await expect(page.locator("text=Loading trip")).not.toBeVisible({ timeout: 8000 });
+});
+
+// ── SC-7/8: Landing shows TWO co-equal start cards ───────────────────────────
+test("SC-7: landing shows two co-equal start options — paste and blank calendar", async ({ page }) => {
+  await page.goto(`${BASE}/`);
+  await expect(page.locator("h1").first()).toBeVisible();
+
+  // Both options must be present with equal weight (neither hidden)
+  await expect(page.getByRole("button", { name: /Paste an itinerary/i }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Start blank/i })).toBeVisible();
+
+  // Both cards should have the same visual structure (both have h2 headings)
+  await expect(page.locator("h2").filter({ hasText: "Paste an itinerary" })).toBeVisible();
+  await expect(page.locator("h2").filter({ hasText: "Start from a blank calendar" })).toBeVisible();
+});
+
+// ── SC-8: blank-calendar path creates empty trip and lands on grid ────────────
+test("SC-8: blank-calendar start mints empty trip and lands on calendar grid (not paste panel)", async ({ page }) => {
+  await page.goto(`${BASE}/`);
+  await expect(page.locator("h1").first()).toBeVisible();
+
+  const tripNameInput = page.getByLabel("Trip name");
+  await tripNameInput.fill("Blank Calendar Test");
+  await page.getByRole("button", { name: /Start blank/i }).click();
+
+  // Should redirect to /t/<secret>
+  await expect(page).toHaveURL(/\/t\/[A-Za-z0-9\-_]{22,}/, { timeout: 10000 });
+  await expect(page.locator("text=Loading trip")).not.toBeVisible({ timeout: 8000 });
+
+  // Paste panel must NOT auto-take-over (spec check 8)
+  await expect(page.locator("text=Paste your itinerary")).not.toBeVisible({ timeout: 3000 });
+
+  // The day grid should be ready (even if empty)
+  await expect(page.locator('[aria-label="Day schedule"]')).toBeVisible({ timeout: 5000 });
 });

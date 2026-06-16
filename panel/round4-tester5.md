@@ -1,18 +1,29 @@
 Name: Dana
-Role: Demand-gen marketer, ruthless about time; screenshots tools she likes for the team channel. MacBook + phone, tested at 390px in the REAL loaded-trip state (Create → Load sample → Parse → Add to trip, modal dismissed, 8 events on grid).
+Clarity: Yes
+Value: No
+Advocacy: 6
+PriorConcernsAddressed: some — consistency + name-persist fixed; flat single color and no Confirm-all remain
 
-**Round-3 nits — re-checked at 390px with events present:**
-1. (Black sliver/box poking right of Day/Week/Month toggle) — **NOT RESOLVED.** No horizontal page overflow now (scrollWidth==390), but the day-jump chips "May 1"(165–214) / "May 2"(218–271) render on the SAME ROW as the view toggle and now OVERLAP the refresh button (190–218) and "Copy invite link"(222–374). The active "May 1" chip is dark (bg rgb(26,26,26)) and gets covered by the refresh control, so all I see is a black box reading "M" jammed right after "Month" — verbatim the "wait, is that broken?" sliver from R1/R2/R3. It's not clipped by an overflow ancestor; it's a collision between the day-chip selector and the action controls. Screenshot: 71-togglerow.png.
-2. ("Save to calendar (.ics)" truncating to "Save to cale…") — **RESOLVED.** Now a link-style action in the strip, full label "Save to calendar (.ics)" visible (left 251, right 378, within 390, no clipping ancestor). The "(.ics)" is on-screen. .ics actually downloaded ("Untitled-Trip.ics"). Nit gone.
+I'm Dana, demand-gen marketer, Canva bar, I screenshot tools I love into my team channel. I re-ran my Charleston girls' weekend (9 events, 3 days), 1280px Mac and 390px phone, opened the share link as a viewer, set my name, and re-checked the two things I griped about last round.
 
-**Clarity: Yes.** H1 "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" + honest sub nail it in 5 sec. Unchanged.
+RE-CHECK OF MY ROUND-3 CONCERNS:
+1. Cross-breakpoint consistency / finished look — FIXED, and it's a real improvement. Desktop Week and 390px Week now render the SAME pill style; mobile titles wrap in full ("Check-in at The Dewberry", "Cocktails at The Gin Joint", "Brunch at Poogan's Porch") with zero truncation. The 3-column grid with the navy "today" header (Tue, Jun 16) is clean and tidy on both. This is the most screenshot-worthy the layout has ever been. Credit where due.
+2. Name persistence — FIXED. Set name once ("What's your name?" → Continue); the toolbar button changed from "Set name" to "Dana" and stayed. No more repeat prompts.
+3. Per-type color/icons/imagery — NOT added (I was told it was a scope call). Every one of my 9 events is the IDENTICAL pale sage-green pill. Brunch, Spa, Beach day, Dinner all look the same.
+4. Confirm-all / auto-confirm creator — NOT added. A fresh pasted trip lands as DASHED pale "proposed" pills, and even after I set my name they stay dashed until I open and tap Confirm on each event one by one. There is no "Confirm all" button (I looked). So my OWN trip looks like an unfinished draft.
 
-**Value: Yes.** Re-walked cold: create with no name → real /t/ URL; Load sample → Parse → 8 events across 2 days; grid auto-opens at 12pm with "Emily lands 12:30pm" right at top (no dead morning); Trip Details extracted weather/what-to-bring; Copy invite link copied the real /t/ URL; .ics downloaded; zero console errors. Still beats my Notion+Canva+group-text.
+CLARITY — Yes, unchanged and strong. "Turn a messy itinerary into a shared day-by-day calendar — no app, no login", two clear cards, "No account or email required." Got it in 5 seconds.
 
-**Advocacy: 8.** Unchanged. The ICS label fix is real and I appreciate it — but the ONE thing I screenshot to the group is a clean phone view, and there's still a black "M" box colliding with the toggle in the exact loaded state friends will see. Core value is a 9; one persistent 390px collision keeps it at 8. Make the day-chips wrap to their own row (or hide on Day view) so they stop overlapping the toggle/refresh/Copy controls and it's a 9.
+VALUE — still No, for MY specific job. Functionally it's all there: parser caught all 9 events, editable preview, "Add to Girls' Weekend" commit, per-event Add-to-Google-Calendar, Save-to-calendar (.ics), clean reload. But value=Yes means it REPLACES my Canva itinerary, and two things still stop that:
+- It's monochrome. One flat sage pill for everything. The pitch word is "visual," and a single-color grid isn't visual to me — I'd still build the cute color-coded version in Canva, so this is double work.
+- The shared link shows DASHED pale pills to viewers. When I drop the link in my team channel, my friends open it and see what looks like a draft wireframe, not a finished plan — and I can't one-click make it look solid. That's the opposite of "polished enough to screenshot."
 
-**Likes:** ICS label now fully visible + actually downloads; auto-scroll to first event; name-optional create; honest subtitle; editable parse preview with "end time assumed" notes; Trip Details extraction; instant copy-invite; one-link friend open; zero console errors.
+WHAT WOULD FLIP ME TO VALUE=YES: (a) per-type or rotating color so the grid actually reads as visual; AND (b) auto-confirm the creator's pasted events (or a "Confirm all") so the trip looks finished/solid the instant it's shared — no 9 manual taps, no dashed draft for my viewers. Do both and I'm at 8 and screenshotting it.
+
+BLOCKING: none functional — every action worked end to end, 0 console errors. The block is purely visual/state: flat single color + a shared link that renders as dashed "proposed" draft.
+
+ADVOCACY — 6, held honestly (not bumped to be nice). The consistency and name-persist fixes are real and remove old winces, but neither moved the two things that keep me out: the flat color and the draft-looking shared state. A 7 here would be a polite lie — it's a 6 because the headline is "visual trip calendar" and what I'd screenshot is a one-color grid of dashed pills. I'd mention it only if a friend asked "how do I share an itinerary?", not unprompted.
 
 ```json
-{"tester": 5, "round": 4, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Day-jump chips (active 'May 1' is dark) overlap the refresh + Copy-invite controls on the toggle row at 390px, so a black 'M' box still pokes out right of Day/Week/Month — same 'is this broken?' glitch", "Day-chip selector and view-toggle/action controls share one row and collide on a phone instead of wrapping"], "priorConcernsAddressed": "some"}
+{"tester": 5, "round": 4, "clarity": "Yes", "value": "No", "advocacy": 6, "topComplaints": ["Still one flat sage-green pill for all 9 events — no per-type/rotating color or icons; 'visual trip calendar' reads monochrome, so I'd still build the pretty version in Canva", "Shared link shows DASHED pale 'proposed' pills to viewers and to the creator until each event is manually confirmed; no Confirm-all/auto-confirm, so my own trip looks like an unfinished draft when I screenshot it"], "priorConcernsAddressed": "some"}
 ```

@@ -1,27 +1,53 @@
 Name: Marcus
-Round: 1 | Persona: Marcus — frontend engineer, 2yr, Chrome+devtools, notices janky CSS instantly. Hosting 2 college friends; tired of the plan living in a dead Google Doc, wants a share link that becomes a phone-glanceable calendar.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-## Clarity — Yes
-H1 "Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link" + sub "No app, no login. Paste an itinerary and watch it become a visual hourly calendar." nailed it in 5s. I'd tell a friend: "paste your messy itinerary, it becomes a shared visual day calendar, send the link, no signup." "No account or email required" closed the deal.
+I'm a frontend eng (2 yrs), Chrome + devtools open, and I came in already wanting exactly
+this: my weekend plan for two visiting friends lives in a Google Doc nobody opens on their
+phone. I want a share link that turns into a clean glanceable calendar.
 
-## Value — Yes (desktop), shaky on the one thing I came for (mobile)
-Today I use a Google Doc nobody opens on their phone. The paste-import is genuinely impressive: "Load sample itinerary" → Parse → "12 events across 2 days" preview, even extracted a trip-details note (weather/what to bring) and a link. Commit prompted "What's your name?", events landed on a real hourly grid. The collaborative loop is the best part: friend opened the link with NO login, tapped an event, hit Confirm, typed "Jordan" — and the event now reads "✓ Jordan". Per-event "Add to Google Calendar" + bulk "Add all confirmed (.ics)" both present. Week view (two days side-by-side) is clean.
+CLARITY (Yes): The H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no
+login" plus the subline about Google Calendar / .ics nailed it in ~3s. Two cards — "Paste an
+itinerary" vs "Start from a blank calendar (Drag on the grid to add events)" — made the two
+paths obvious. "Anyone with the link can view and edit — No account or email required" is the
+line that made me trust it. Zero console errors on load.
 
-## Advocacy — 6/10
-Desktop earns an 8, but two things gut my confidence for MY use case (friends on phones):
-1. SYNC RACE — when I committed then immediately opened the link in a fresh "friend" browser (<~1s, exactly what happens when you paste the link in Slack), the friend saw an EMPTY trip — trip name but zero events. At ~1.5s+ it loads fine. No error, just an async-save lag. For a share-link product, "my friend opened it and it was blank" is the worst possible first impression and I can't recommend until that's bulletproof.
-2. MOBILE DAY VIEW (the headline) is weak on a cold phone open. At 390px the day view lands scrolled to ~6am–12pm — a wall of EMPTY morning hours; the first event (12:30pm) barely peeks at the very bottom. No auto-scroll to the first event / "now". Worse, the sticky toolbar + TRIP DETAILS panel + orange "anyone with this link" banner eat ~half the 664px screen, so almost no calendar shows. This is the exact "glance on your phone" moment that's supposed to be the whole point.
+VALUE (Yes): Today I keep a Google Doc and re-type the plan into my own calendar. TripSync
+beat that on both fronts. I pasted a 2-day SF itinerary and the parser nailed 7 events across
+2 days, mapped "Saturday July 18" → "Sat, Jul 18", defaulted missing end times to 1h (flagged
+"end time assumed"), and gave me an editable preview before committing. The WEEK view — Sat
+and Sun side-by-side as clean event chips — is the exact glanceable thing my friends would
+actually open. The share link round-trips: I opened it in a fresh browser (no localStorage)
+and saw the full trip + title. The .ics export is a real VCALENDAR (correct TZID, DTSTART/
+DTEND) that drops straight into Google Calendar. That's the doc-replacement I wanted.
 
-## Concerns (severity order)
-1. Sync race: fast friend open after commit = blank trip (no events). Core promise breaks intermittently.
-2. Mobile cold-open day view shows empty hours, not the plan; no auto-scroll to first event.
-3. Mobile sticky header stack (toolbar + details + banner) consumes >half the viewport, squeezing the calendar.
-4. Janky CSS (I notice these): the May1/May2 day-chip selector is clipped — a black sliver overflows between "Month" and the refresh icon at 390px.
-5. Saw one transient 405 (Method Not Allowed) in console on mobile load; didn't recur — flag, not a blocker.
+DRAG CRAFT (the part I judged hardest): genuinely Google-Calendar-grade. Click-drag down the
+grid shows a live preview block with a running "10:00am – 12:00pm" label, snaps cleanly to the
+hour, and on release pops an inline editor with the title auto-focused and start/end pre-filled.
+Single-click made a tidy 1h block. Move worked — dragged a 2h event from 10am to 1pm and it
+kept its duration. No layout shift, no jank, smooth at 60fps. "Saved" + author color-coding
+(my events went rose once I set my name) is a thoughtful collab touch.
 
-## Likes
-Paste-parser is genuinely magic (extracted times, details, links). No-login friend confirm with name attribution ("✓ Jordan") is exactly the collaborative feel I wanted. Week view + .ics bulk export. Copy invite link shows "Copied!" (clipboard read blocked in test env; verified visually — not a regression).
+TOP LIKES: parser quality + editable preview; the Week side-by-side view; no-login share link
+that truly round-trips; polished drag-create with live time label; valid .ics export.
+
+DISLIKES / FRICTION: (1) The Day/Week/Month switcher isn't a real <button> — it's a styled
+div with no button/ARIA role, so it's not keyboard-focusable. Works on mouse click, but as a
+frontend eng that's a visible a11y gap. (2) In the anonymous "Guest" blank-calendar flow,
+events render washed-out grey until you set a name — looked unfinished until I realized color =
+author. (3) Resizing: when I grabbed near the bottom edge the whole block translated by an hour
+instead of just extending — the resize hit-area feels thin / easy to miss vs Google Cal.
+(4) Minor: the header view toggle is unresponsive while the parse-preview screen is open.
+
+BLOCKING ISSUE: none. Everything core worked end to end.
+
+Why 8 and not 9: I'd share this in team Slack — it's that good and the "free, no login" hook is
+real. It's not a 9/10 yet because the resize handle is fiddly and the view toggle's missing
+button semantics are the kind of thing I notice immediately. Tighten those and it's a 9.
 
 ```json
-{"tester": 2, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 6, "topComplaints": ["Sync race: friend opening link <~1s after commit sees a blank trip (no events)", "Mobile day cold-open lands on empty morning hours, no auto-scroll to first event; sticky header stack eats half the screen", "Clipped day-chip selector overflows toolbar at 390px (janky CSS)"], "priorConcernsAddressed": "n/a"}
+{"tester": 2, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8,
+ "topComplaints": ["Resize hit-area too thin — grabbing the bottom edge moves the whole event instead of resizing", "Day/Week/Month toggle isn't a real button (no ARIA/keyboard focus)", "Anonymous Guest events render washed-out grey until you set a name"],
+ "priorConcernsAddressed": "n/a"}
 ```

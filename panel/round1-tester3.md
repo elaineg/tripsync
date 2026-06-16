@@ -1,23 +1,57 @@
 Name: Wen
-Role: Marketing data analyst | high-medium tech | desktop, two monitors | round 1
+Clarity: Yes
+Value: Yes
+Advocacy: 9
 
-# Verdict
-**Clarity: Yes.** Within 5 seconds the headline ("phone-friendly day-by-day calendar you can both open and edit from one link") plus the subline "Paste an itinerary and watch it become a visual hourly calendar. No app, no login" told me exactly what it is and that it's for sharing a trip plan with companions. "Name your trip" + "Create shared trip" needed zero thought.
+I'm a marketing data analyst; I live in BigQuery/Sheets/Looker and I distrust tools that
+transform my data invisibly. My job here: paste the tidy day-by-day itinerary I already
+typed for a family reunion and get a correct calendar without re-keying every time/place.
 
-**Value: Yes.** Today I keep my family-reunion itinerary in a Google Doc and manually re-key each line into Google Calendar — tedious and once-per-event. Here I pasted my own tidy itinerary (not just the sample) and it parsed all 7 events across 2 days correctly into an hourly day view, with a faithful PREVIEW before commit. That preview is what wins me over: I distrust tools that transform data invisibly, and this shows me the parse before I accept it. Real time saved over hand-entry.
+PARSER REGRESSION CHECK (my must-pass): NOT regressed. It is better than I remembered.
+I pasted a 3-day, 10-line itinerary (mixed AM/PM, venue names, an apostrophe in "Nonna's").
+- "Parse →" gave a "Preview parsed events" step FIRST: "10 events across 3 days will be
+  added. Edit titles or times below before confirming." Correct count, correct times
+  (3:00pm, 6:30pm, 9:00am, 10:30am, 1:00pm, 3:30pm, 7:00pm, 8:00am, 10:00am, 12:30pm).
+- It flagged my day/date mismatches in orange: "(you wrote Fri; Jul 11 is a Sat)". It
+  surfaced the discrepancy instead of silently "fixing" it. As a data-hygiene person this
+  is exactly the behavior that earns my trust.
+- Every inferred end time is labeled "end time assumed (1h)". No hidden transforms.
+- Confirmed -> all 3 day tabs (Jul 11/12/13) created, events placed at right times.
+- "Save to calendar (.ics)" exported clean ICS: 10 VEVENTs, TZID America/Los_Angeles,
+  correct DTSTART/DTEND, SUMMARY preserved incl. the apostrophe, UID per event. This is
+  real, importable data out — it's what I actually need.
 
-**Advocacy: 7/10.** Genuinely useful and the share-by-link + no-login collaboration actually works (I opened the link in a clean browser AND mobile — events were there; a "friend" confirmed an event and got ✓-attributed by name). It loses points on data-hygiene trust, my core value, not on function.
+NEW BLANK PATH: Works like Google Calendar. Drag down the grid -> "(New event) 11:45am –
+2:00pm" with a popover (title field, start/end dropdowns, Save / More). Single-click made a
+clean 1h block (6:30–7:30pm). Smooth, no console errors anywhere.
 
-# Concerns (ordered)
-1. **Silent transforms I can't correct in the preview.** Open-ended lines ("9:00 AM Grandma arrives", no end time) were auto-given a 1-hr block (9–10am). It also overrode my typed weekday — I wrote "Saturday August 9", it silently placed it on "Sun, Aug 9" (correct for 2026, but never flagged my mistake). The preview is read-only: I can only Add or Cancel, not fix a time/duration before committing. As an analyst I want to edit rows IN the preview and a note like "end time assumed."
-2. **Bulk export is .ics, not "Add all to Google Calendar," and only appears AFTER something is confirmed.** Per-event "Add to Google Calendar" builds a correct render?action=TEMPLATE URL (verified). But I hunted for a bulk Google add and there isn't one — it's "Add all confirmed (.ics)," which is hidden until an event is confirmed. Fine once understood; confusing at first.
-3. **Mobile (~390px):** PASSED. Cold friend-open lands on the day timeline with events visible above the fold (Grandma 9am, Brunch, Check-in all in view), tap opens a clean bottom-sheet (Confirm / Add to Google Calendar / Edit / Delete), not covered by sticky bars. Grid scrolls inside its own pane. One initial load looked empty for me but a clean re-run showed events — possible first-paint hydration flake worth watching.
+SHARE: Copy invite link gives /t/<id>; a fresh no-login browser opened it and saw the
+events. "Saved" + "Guest" badges, "Anyone with this link can view & edit." Good.
 
-# Likes
-- Faithful, legible parse preview before commit — exactly my trust requirement.
-- True no-login share: link works in a fresh browser and on phone; name-on-first-edit attribution (✓ Cousin Mei) is tasteful.
-- Day/Week/Month all render correctly; "Saving…/Saved" + identity chip give me confidence it persisted.
+CLARITY (Yes): Landing says "Turn a messy itinerary into a shared day-by-day calendar — no
+app, no login" with two clearly-labeled cards: "Paste an itinerary" vs "Start from a blank
+calendar." Two ways in is obvious, not confusing.
 
-```json
-{"tester": 3, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 7, "topComplaints": ["Read-only parse preview hides/auto-assigns end times & silently overrides typed weekday — can't edit before commit", "No bulk Google-Calendar add; bulk option is .ics and hidden until an event is confirmed", "One mobile cold-open rendered empty before a clean retry showed events (possible hydration flake)"], "priorConcernsAddressed": "n/a"}
-```
+VALUE (Yes): Today I'd hand-type events into Google Calendar one by one, or fight a clunky
+CSV import. This took one paste + one confirm to get all 10 events with a clean .ics I can
+import anywhere. That's a real time save and I'd reach for it every trip.
+
+TOP LIKES: day-of-week mismatch warnings; "end time assumed" honesty; preview-before-commit;
+clean spec-correct ICS with apostrophe intact; no-login share link works.
+
+TOP DISLIKES / FRICTION:
+- Export is .ics only. I'd love a CSV option too (my whole stack is CSV-in/out); ICS does
+  the Google Calendar job, so minor.
+- No year in my itinerary -> it assumed 2026 silently. Reasonable, but it warns me about
+  day/date mismatches, so it should also surface the assumed YEAR the same way.
+- Minor confusion in blank mode: when I had a new-event title field focused, my typed title
+  appeared to land on the TRIP NAME at top-left rather than the event, while the event
+  stayed "(New event)". Could be my own focus slip, but the two title fields are easy to
+  confuse — worth tightening.
+
+BLOCKING ISSUE: None. Zero console errors across paste, parse, confirm, drag-create,
+single-click, ICS export, and friend share-link load.
+
+Advocacy 9: It nails the one thing I came for and respects my data. Not a 10 only because
+of CSV-out absence and the title-focus ambiguity in blank mode. I'd bring this up unprompted
+to anyone planning a group trip.

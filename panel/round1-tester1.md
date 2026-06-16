@@ -1,28 +1,61 @@
 Name: Priya
-Role: Senior backend engineer; skeptical of new tools, hates signups, abandons anything slower than a CLI. Driving to a friend's cabin, wants to drop the group-chat plan somewhere her non-technical friends open on their phones with no account.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-clarity: Yes
-The headline ("Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link") plus "No app, no login. Paste an itinerary..." told me exactly what it is in ~3 seconds. "No account or email required" under the create button is exactly the line that lowers my guard. I checked the network tab out of habit — create just hits its own backend, no third-party trackers, no auth redirect. Good.
+I'm a backend eng who lives in a terminal and bounces off anything that smells like a
+signup. I cold-loaded localhost:3099 and gave it the cabin-weekend test for real.
 
-value: Yes (with one mobile caveat below)
-Today I dump the plan into the group chat and it scrolls away, or I make a Google Doc nobody opens on their phone. Pasting the raw "Friday May 1 / 12:30PM Emily lands / 1-2PM Uber..." text and getting "12 events across 2 days will be added" parsed into an hourly calendar is genuinely better than re-typing into a Doc. The paste-import is the real time-saver and it nailed messy input including a ranged time and a link. No-login share link is the whole reason I'd pick this over Notion (my friends won't make a Notion account).
+## 5-second read
+Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login"
+plus two clearly-labeled cards (Paste an itinerary / Start from a blank calendar) and the
+"No account or email required" line. I knew exactly what it was and how to start before I
+finished reading. As a skeptic, "no login / no account or email" up front is the thing
+that made me keep going instead of closing the tab.
 
-advocacy: 5
-I'd recommend it cautiously, not unprompted — and the thing holding it back is the exact feature it's sold on: the mobile day view. The desktop flow is clean, but my friends are on phones, and that's where it stumbles.
+## What I actually did
+- Start blank: dragged on the hourly grid -> got an inline editor with a title field and
+  two time dropdowns + Save/More. Single-click made a ~1h block. Dragged an event to move
+  it (worked), dragged the bottom edge to resize (105px -> 225px, label updated to the new
+  time). Feels like Google Calendar, which is the right thing to copy.
+- Paste: dropped my group-chat-style itinerary in. The parser is genuinely good — it
+  showed "8 events across 3 days," defaulted missing end times to 1h (and labeled them
+  "end time assumed"), and CAUGHT my wrong weekdays: "Friday July 11 -> Sat, Jul 11 (you
+  wrote Fri; Jul 11 is a Sat)." That correctness check earned trust fast.
+- Share: "Copy invite link" copied a clean /t/<id> URL; opened it in a fresh browser with
+  no login and it showed every event. That IS my use case — non-technical friends opening
+  it on a phone with nothing installed.
+- .ics export is a valid VCALENDAR with proper TZID. I'd actually import this.
+- Zero console errors in any flow. I checked.
 
-concerns (ordered by severity):
-1. CRITICAL / mobile: the day grid does not scroll. At 390px the column is fixed to viewport height (page height == 844, scrollTop stays 0 after wheel AND after a touch swipe-up). The last event "El Chato 8:30pm" sits at y=1077, well below the fold and unreachable. So on a phone you can see lunch but the entire afternoon/evening is hidden with no way to reach it. For a "phone-first day-by-day calendar" this is the headline feature broken.
-2. Mobile cold-open wastes the fold: the grid opens at ~6am and the first real event (12:30pm) is in the bottom third behind ~7 empty morning hours. I land on empty grid and have to hunt downward (which then fails per #1). It should open scrolled to the first event.
-3. Swiping/tapping an empty hour pops "What's your name?" / an add-event prompt — easy to trigger by accident while trying to scroll, which compounds #1 (a normal scroll gesture creates events instead).
-4. Commit gate timing: "Add to <trip>" doesn't add anything until you pass a "What's your name?" modal. Minor, but I clicked Add and nothing visibly happened the first time.
-5. Empty calendar before parsing says "No dates yet" — fine, but the Parse button looks disabled (grey) until you realize the textarea must have content; took a beat.
+## Top likes
+- No login, and it means it. The "What's your name?" prompt has a Skip and says "you can
+  set this later" — optional, no email. That's the difference between trust and a closed tab.
+- Paste parser flags its own assumptions instead of silently guessing.
+- Share link works for a stranger with no account. Core promise delivered.
+- Valid .ics export. I'm not locked into their UI.
 
-likes:
-- Paste-to-calendar parsing is the star: handled ranges, a maps link, and trip details ("weather 10-20deg, bring ID") correctly; preview-before-commit is the right call.
-- Truly no login. "Copied!" confirmation on the invite button with the correct /t/<id> URL in the clipboard — zero friction to share.
-- Event detail modal is excellent and friend-ready: big Confirm, Add to Google Calendar, Edit, Delete, no auth wall. A non-technical friend opening the link can confirm or add an event and just types their name once.
-- Day/Week/Month + per-day tabs, events placed at correct hours, autosave ("Saved"), proposer name shown. Solid on desktop.
+## Top dislikes / friction
+- The bottom-edge resize handle isn't discoverable. My first resize attempt did nothing
+  because the event was in a selected/dashed state and there's no visible grip; I had to
+  hover the exact edge. Friends will think resize is broken.
+- Drag-to-create snapped to 10:45am–1:00pm when I dragged a cleaner range — the snap
+  granularity is coarse and a little imprecise. Fine because the dropdowns let me fix it,
+  but the first drag rarely lands where you expect.
+- The "What's your name?" modal auto-pops right after committing a pasted itinerary and
+  intercepts every click until you Skip/Escape. Minor, but it interrupts the moment you
+  just want to grab the share link.
 
-```json
-{"tester": 1, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 5, "topComplaints": ["Mobile day grid does not scroll — afternoon/evening events (e.g. El Chato 8:30pm) sit below the fold and are unreachable on a 390px phone", "Mobile cold-open lands on empty 6am-noon hours; first event is in the bottom third instead of scrolled into view", "A normal vertical swipe on the grid triggers an add-event/name prompt instead of scrolling"], "priorConcernsAddressed": "n/a"}
-```
+## Blocking issues
+None. Nothing made me abandon. Everything I tried worked.
+
+## The three answers
+1. CLARITY — Yes. Headline + two start cards + "no login" told me what and how in seconds.
+2. VALUE — Yes. For dropping a loose group-chat plan into something friends open on a phone
+   with no app and no account, this beats what I'd do today (a shared Google Doc that
+   nobody can read on a phone, or a Google Calendar that requires everyone to have/join an
+   account). The paste-and-correct flow saved me real retyping.
+3. ADVOCACY — 8. I'd recommend it for exactly this scenario. It's not a 9/10 because the
+   resize handle is invisible and the drag snapping is imprecise — small polish gaps that
+   a non-technical friend would stumble on and ping me about. Fix the resize affordance and
+   tighten drag snapping and this is a 9 I'd bring up unprompted.

@@ -1,44 +1,52 @@
 Name: Sam
-Role: PM, the friend who organizes the bachelor-party weekend. Mobile-heavy, won't debug. Round 2.
+Clarity: Yes
+Value: Yes
+Advocacy: 9
+PriorConcernsAddressed: most (2 of 3 fixed; 1 by design)
 
-ROUND-1 DEALBREAKER — RESOLVED. At 390px the committed day grid now lives in a real overflow
-container (`day-grid-scroll overflow-y-auto`, scrollHeight 1080 > clientHeight 709). It scrolls.
-Cold-open auto-scrolls to the first event: scrollTop=120 on load, grid opens on 9am (coffee at
-Cafe Central visible) — NOT the empty 6am hours. Dinner 5:15pm at Botin is on screen at open;
-drinks 8:30pm El Chato and 11pm club night sit below the fold but are FULLY REACHABLE by scroll
-(I scrolled to them, both visible). My exact complaint — "friends can't see the evening plans on
-their phone" — is gone. The crowded top bar (concern #2) is also better: Day/Week/Month is its
-own row, Copy invite link is separated. The mid-flow name prompt (concern #3) still fires on
-first confirm, but it's a one-line dialog and persists — fine.
+I came back to re-test the three things I griped about last round, building a real FUTURE trip
+("Dave's Bachelor Weekend", Aug 1 2026, ~6.5 weeks out) on both laptop (1280px) and phone (390px).
 
-CLARITY: Yes. H1 "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login"
-plus "Add individual events to Google Calendar or download the whole trip as a .ics" is my use
-case said back to me in 5 seconds.
+PRIOR CONCERN 1 — no upfront date picker, weekdays silently mapped to THIS weekend: FIXED for the
+flow I actually use. The trip view now has a "Go to:" date field with prev/next arrows and Day/Week/Month
+tabs. I navigated to 2026-08-01, clicked a grid slot, and the event landed on Aug 1 — the header read
+"Aug 1", not Jun 15. The .ics proves it: DTSTART;TZID=America/Los_Angeles:20260801T200000. The
+per-event "Add to Google Calendar" link also carried dates=20260801... So the dangerous "wrong dates"
+trap is gone for grid-built trips. ONE residual: on mobile, tapping the "+" Add event button opens a New
+event form whose Date defaults to TODAY (2026-06-15) even though the "Go to:" bar above it clearly shows
+2026-08-01. It's a dropdown so I can fix it, but the default ignores the date I'm looking at — exactly the
+kind of thing I'd miss between meetings and accidentally save onto today. Make the + form inherit the
+viewed date and this is a non-issue.
 
-VALUE: Yes. Beats my Notion-page-plus-dead-group-chat habit. Paste read all 6 events correctly
-("6 events across 1 day"), times right, end-times inferred and labeled "end time assumed."
-A friend opening the link COLD on a phone (fresh context, no login) saw every event instantly.
-"Download all (.ics)" gave a real 6-VEVENT file (Botin included); per-event "Add to Google
-Calendar" opens a genuine calendar.google.com/calendar/render URL. That's the thing that makes
-me look organized — and now it works on the phone everyone will actually open it on.
+PRIOR CONCERN 2 — mobile "+" popped a "What's your name?" dialog before the form: FIXED. Name is now a
+non-blocking "Name your trip" field right on the landing page (placeholder "Joanne visits — July"), and on
+mobile the "Add event" button goes STRAIGHT to the New event form (Title / Date / Start / End / Location /
+Link / Notes). No name prompt, no detour. Clean.
 
-ADVOCACY: 9/10. Last round I was a 6 purely because of the mobile scroll. That's fixed, so I'd
-send this to my group today. Not a 10 only because the Add-to-Google-Calendar bounces through a
-Google sign-in before the event prefills — true for any such link, but a non-techy friend might
-bail there; the .ics export is the safer share.
+PRIOR CONCERN 3 — no one-click "add the WHOLE trip to Google Calendar": NOT addressed; still .ics for the
+bulk path and Google add per-event. I get that .ics is the universal bulk route and it works (real valid
+VCALENDAR), but for a 10-event weekend I'd still be clicking "Add to Google Calendar" ten times if my
+crew lives in Google. This is the one thing keeping me from a 10 — a "Send all to Google Calendar" would
+be the chef's kiss.
 
-CONCERNS (ordered):
-1. RESOLVED — mobile day view scrolls, auto-opens on first event, evening events reachable.
-2. Minor: Add-to-Google-Calendar requires being signed into Google first; lead with .ics for
-   friends who aren't.
-3. Minor: name prompt still appears mid-flow on first confirm rather than at trip creation.
+CLARITY (Yes): same strong headline — "Turn a messy itinerary into a shared day-by-day calendar — no app,
+no login" + "One link, open and edit on any phone... download the whole trip as a .ics." Two start cards,
+the name field up top, and "Anyone with the link can view and edit — no account or email required."
 
-LIKES: Accurate paste parsing. Real hourly day grid with auto-scroll to first event. Cold link
-opens instantly for friends, no login. Both per-event Google Calendar and bulk .ics work. Clean,
-honest copy. Top bar de-cluttered since round 1.
+VALUE (Yes): today I do this in Notion + a group text and nag people to add things themselves. Here I
+built a future-dated trip, got one no-login link, and a fresh phone opened it showing "Dave's Bachelor
+Weekend / Casino night, 8-9pm" on Aug 1 with Confirm + export — no sign-in wall, no errors anywhere.
+That's the whole job done, and it makes me look organized.
+
+ADVOCACY (9): up from 8. Two of my three complaints are genuinely fixed and the future-date risk that
+scared me is resolved. I'd bring this up unprompted next time someone's planning a trip. The 10 is held
+back only by (a) no bulk "add whole trip to Google Calendar" and (b) the mobile + form defaulting to
+today's date instead of the date I'm viewing.
+
+BLOCKING ISSUE: None. Built trips on desktop and mobile, set a future date, added events that landed on
+the right day, downloaded a valid future-dated .ics, opened the share link cold on a clean phone, and the
+Google add opened the real calendar URL. Zero console/page errors.
 
 ```json
-{"tester": 10, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9,
- "topComplaints": ["Add-to-Google-Calendar bounces through Google sign-in before prefill; non-techy friends may bail (lead with .ics)", "Name prompt fires mid-flow on first confirm rather than at trip creation"],
- "priorConcernsAddressed": "all"}
+{"tester": 10, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["No one-click 'add whole trip to Google Calendar' — .ics is bulk but Google is still per-event (tedious for a 10-event weekend)", "Mobile '+' Add event form defaults Date to today (Jun 15) instead of the date shown in the 'Go to:' bar above it — easy to save onto the wrong day"], "priorConcernsAddressed": "some"}
 ```

@@ -1,20 +1,54 @@
 Name: Jules
-Round: 1 | Persona: content/community marketer, 50/50 desktop+mobile, allergic to logins. Organizing a friends' camping trip; wants a no-login link to a visual schedule.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-CLARITY: Yes. Headline "Your friend's trip plan, as a phone-friendly day-by-day calendar you can both open and edit from one link" + subhead "No app, no login. Paste an itinerary..." told me exactly what it is in 5 sec. "No account or email required" under the create button is the line that made me trust it. Named my trip and hit "Create shared trip" with zero friction.
+I run a community and I'm planning a real friends' camping trip, and my one hard rule is: nobody
+creates an account just to see when we leave Friday. TripSync nails that rule.
 
-VALUE: Yes. Today I'd dump this in a Notion page or a group chat and nobody can see "when do we leave Friday" at a glance. Pasting our messy itinerary and watching it become a real hourly calendar (it correctly parsed 12 events across 2 days, gave each a sensible time block, even kept the partiful link) is genuinely faster than me hand-building a Notion table. Per-event "Add to Google Calendar" hits a real google render-template URL, and there's a bulk "Add all confirmed (.ics)" so non-Google friends work too. This is the small-job tool I wanted.
+CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no app,
+no login" plus the footer "Anyone with the link can view and edit... No account or email required"
+told me exactly what it is in under 5 seconds. Two clearly labeled cards — "Paste an itinerary"
+(I have a plan in a doc) vs "Start from a blank calendar" (build it myself) — meant I knew how to
+start without thinking. This is the rare landing page that doesn't make me guess.
 
-ADVOCACY: 7. I want to love it, but two things hold it back from a 9. (1) RACE ON SHARE: the first time I opened my own invite link in a second browser a beat after committing, the friend saw "No dates yet. Paste an itinerary" — an EMPTY trip with my paste UI. Wait for the tiny "Saved" and it's fine, but a normal person copies the link the instant the events appear and will share a blank trip. There's no "wait, still saving" guard on Copy. (2) MOBILE day grid starts at 6am with ~6 empty hours before the first event — it does NOT auto-scroll to my events, so a cold phone open lands on blank morning hours and I have to scroll down past 6am-12pm to find anything. Events ARE tappable and the bottom-sheet (Confirm / Add to Google Calendar / Edit / Delete) is great, but the headline mobile view buries the content.
+VALUE — Yes, real. Today I'd dump this into a Notion page or a Discord pinned message and people
+either ignore it or can't read it on a phone. TripSync beats both:
+- Paste flow is the standout. I pasted a rough Friday/Saturday itinerary and it correctly read
+  "Friday → Jun 15", "Saturday → Jun 16", parsed all 6 lines into titled events, assumed 1h end
+  times, and gave me a PREVIEW with editable time dropdowns before committing. That's genuinely
+  smart and saved me retyping.
+- Desktop blank flow works like Google Calendar: drag created a 12–2pm block, single-click made a
+  ~1h block, and I could grab a block and drag it from 2pm to 4pm. Felt familiar instantly.
+- Mobile (390px): no horizontal scroll anywhere, nothing cut off. Tap-to-create opens a full
+  bottom-sheet (Title/Date/Start/End/Location/Link/Notes). There's a floating round "+" button.
+- The actual test that matters: I copied the invite link, opened it in a FRESH mobile browser with
+  no login, and immediately saw the events and the Jun 15 / Jun 16 day tabs. That's my whole use
+  case in one tap. Copy invite link worked on both desktop and mobile (button flips to "Copied!").
 
-CONCERNS (ordered):
-1. [share race] Copy invite link is clickable before the trip is persisted; a friend opening too early gets an empty trip. Gate Copy on "Saved" or warn.
-2. [MOBILE, headline] Day view opens at 6am on empty hours; doesn't scroll to first event. Wasted above-the-fold. (Vertical scroll works, but inside the grid not the page.)
-3. [MOBILE] Header is cramped at 390px — a black sliver of the Day/Week/Month toggle is clipped next to Refresh + Copy.
-4. Friend inherits whatever view the host last used (I left Week, friend opened Week) — minor, but "day view is the headline" gets lost.
+TOP LIKES: paste-parser is borderline magic; true no-login share that opens straight to the
+schedule on a phone; .ics export so people can drop it into their own calendar; clean, no horizontal
+scroll on mobile.
 
-LIKES: No-login share link actually works and friends can confirm/add events after just typing a name. Paste-parser is genuinely smart on messy text. Bottom-sheet event actions on mobile. .ics bulk export, not Google-only. "Saved" indicator.
+TOP DISLIKES / FRICTION (why it's an 8, not a 9-10):
+1. The on-grid hint on MOBILE still reads "Drag down the grid to block out time, or click a slot" —
+   that's desktop language. On a phone you tap; "drag/click" is confusing and wrong for the device.
+2. The "Add event" button on mobile is icon-only (a bare "+", aria-label "Add event" but no visible
+   text), and on the empty blank calendar I didn't notice it at first — it reads as decoration until
+   you have events. New-to-blank mobile users may not realize how to add the first event besides
+   tapping the grid.
+3. The "What's your name?" dialog fires the moment you first interact/commit and it modal-blocks the
+   screen. It has a Skip, which is good, but as someone allergic to friction it's an unexpected
+   speed bump right when I'm trying to drop in an event. I'd make it dismissable-by-tapping-away.
+
+BLOCKING ISSUE: none. Everything I tried worked on both viewports; share link opened cleanly with
+no login; no console errors.
+
+Would I recommend it? Yes — I'd send it to friends planning a trip. It's an 8 because the mobile
+copy/affordance rough edges (desktop "drag" wording, the easily-missed "+" on an empty calendar)
+are exactly the small things that make a casual friend say "wait, how do I add anything?" Fix those
+and it's a 9 I'd post about unprompted.
 
 ```json
-{"tester": 6, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 7, "topComplaints": ["Copy invite link works before trip is saved -> friend can open an empty trip (share race)", "Mobile day view opens on empty 6am hours, doesn't auto-scroll to first event", "Cramped/clipped Day-Week-Month toggle at 390px header"], "priorConcernsAddressed": "n/a"}
+{"tester": 6, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Mobile grid hint says desktop 'drag/click' wording instead of 'tap'", "Mobile 'Add event' is an icon-only '+' that's easy to miss on an empty calendar", "'What's your name?' modal interrupts the first event-add (has Skip, but blocks)"], "priorConcernsAddressed": "n/a"}
 ```

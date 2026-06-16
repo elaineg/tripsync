@@ -1,1 +1,1 @@
-PASSED 2026-06-15 round 5 — 10/10 testers advocacy>=9, clarity=Yes, value=Yes (Aisha9 Rob9 Marcus9 Dana9 Wen10 Elena10 + carried Priya9 Tomas9 Jules9 Sam9). Arc 0->3->7->6->10.
+PASSED 2026-06-15 round5 — 9/10 at bar (adv>=9, clarity=Yes, value=Yes): Priya, Marcus, Wen, Tomas, Jules, Aisha, Rob, Elena, Sam all 9; Dana 6 value=No (allowable miss, Canva-grade visual bar). Run 20260615-142347-daily, add-feature: Google-Calendar drag-create + blank-calendar start option. Arc 1->8->6->8->9.

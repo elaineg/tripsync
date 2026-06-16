@@ -1,44 +1,28 @@
 Name: Sam
-Role: PM, the friend who organizes the bachelor-party weekend. Mobile-heavy, won't debug. Round 1.
+Clarity: Yes
+Value: Yes
+Advocacy: 8
 
-CLARITY: Yes. In 5 seconds I knew exactly what it is: "Paste a rough itinerary, it becomes
-a shared visual day-by-day calendar with one link, no login, and people can add it to their
-own Google Calendar." The H1 + "No app, no login. Paste an itinerary... Add events straight
-to Google Calendar" nailed it. This is literally my use case worded back to me.
+I'm the guy who always ends up running the bachelor weekend, so I came in skeptical. This is the closest thing I've seen to "paste the rough plan, send one link, done."
 
-VALUE: Yes — over my current habit (a Notion page + a group chat where nobody reads it, then
-re-typing times into my own calendar). Paste import is the killer: I dropped a messy plan and
-got "12 events across 2 days," correct times, overlaps shown side-by-side, even a "bring ID /
-weather" details panel and a venue link auto-extracted. Per-event "Add to Google Calendar"
-opened a real calendar.google render URL, and "Add all confirmed (.ics)" gives everyone a
-one-tap export. That's the thing that makes me look organized.
+CLARITY (Yes). The headline nails it in under 5s: "Turn a messy itinerary into a shared day-by-day calendar — no app, no login," plus the subline "One link... Add events to Google Calendar or download the whole trip as a .ics." Two clearly labeled start cards — "Paste an itinerary" and "Start from a blank calendar" — so I knew exactly what to do. The "Anyone with the link can view and edit — no account or email required" footer is what made me trust it.
 
-ADVOCACY: 6/10. Desktop, this is a 9 — I'd send it to my group today. But the headline is the
-MOBILE day view, and that's where it breaks, and most of my friends will open my link on a
-phone. Holding it back: the mobile scroll bug below. I won't recommend something where my
-friends "can't see the evening plans on their phone" — that makes ME look disorganized.
+VALUE (Yes). Today I do this in a Notion doc + a group text + nagging people to add things to their own calendars, and half of them never do. Here I pasted my rough Fri/Sat/Sun plan, it parsed 7 events across 3 days into an editable preview ("end time assumed" flags were a nice touch), I hit Add, got a share link, and a fresh phone opened that link with NO login and saw "Mike's Weekend / Casino night." Per-event "Confirm (Proposed by Guest)" is exactly the confirm flow I want so I can see who's in. And both export paths actually work: the .ics downloaded as a real valid file (VCALENDAR, 2 VEVENTs, correct times/timezone), and "Add to Google Calendar" opens the real calendar.google.com prefilled-event link. That's the whole reason I'd use it.
 
-CONCERNS (severity order):
-1. MOBILE DAY VIEW DOES NOT SCROLL — dealbreaker. At 390px the day grid cold-opens on empty
-   6–7am hours; the first event (12:30pm) barely peeks at the bottom. Worse: document height
-   == viewport height (844px), scrollY is stuck at 0, no inner scroll container — so evening
-   events render BELOW the fold and are UNREACHABLE (dinner 5:15pm at y=882, El Chato 8:30pm
-   at y=1077, both off-screen with nothing to scroll). A friend opening my link on their phone
-   sees empty morning and literally cannot get to the night plans. Fix: make the page/grid
-   scrollable on mobile AND auto-scroll the day to the first event (or "now") on open.
-   (Tested headless Chromium, but docH==winH is a layout overflow bug, not an input artifact.)
-2. Top of mobile is crowded: Day/Week/Month tabs + a clipped element + refresh + "Copy invite
-   link" all crammed in ~one row, and two banners (TRIP DETAILS + the share notice) eat sticky
-   space above the calendar before any event shows.
-3. Name prompt fires on first confirm/import action rather than at trip creation; mildly
-   surprising mid-flow, though it does persist for the session after that (good).
+ADVOCACY (8). It genuinely does the job and I'd bring it up next time someone's organizing a trip — but a few things keep it off a 9/10.
 
-LIKES: Paste-to-calendar parsing is excellent and accurate. Real hourly day grid with overlap
-handling. Clean copy that states the value plainly. No login, instant shared link. Both
-per-event Google Calendar and bulk .ics export work. Month/Week views are crisp on desktop.
+TOP LIKES:
+- One no-login link that a friend opens on their phone and immediately sees the trip. Core promise delivered.
+- Paste parser is smart (mapped "Friday/Saturday/Sunday" to real dates Jun 15-17, defaulted 1h durations, let me edit before committing).
+- Both exports work for real: .ics download AND per-event Add to Google Calendar. That's what makes me look organized.
+
+TOP DISLIKES / FRICTION:
+- It silently assigned my "Friday/Saturday/Sunday" to Jun 15/16/17 (this coming weekend) with no date picker shown up front. For a trip 6 weeks out I'd paste, not notice, and send the wrong dates. I want to set/confirm the trip's start date before or during parse.
+- Tapping the mobile "+" the first time popped a "What's your name?" dialog instead of the add-event form — felt like a detour. Minor, but on mobile between meetings every extra tap counts.
+- The whole trip .ics is one download; some friends will want "add EVERYTHING to my Google Calendar" in one click, not per-event. Per-event Google add is great but tedious for a 10-event weekend.
+
+BLOCKING ISSUE: None. Created trips both ways, added events on desktop and mobile, shared link loaded in a clean browser, both exports produced real output. No console/page errors anywhere.
 
 ```json
-{"tester": 10, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 6,
- "topComplaints": ["Mobile day view does not scroll; evening events render below fold and are unreachable (docH==winH, scrollY stuck 0)", "Cold mobile day lands on empty morning hours instead of auto-scrolling to first event", "Crowded mobile top bar / two sticky banners eat space above the calendar"],
- "priorConcernsAddressed": "n/a"}
+{"tester": 10, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["No upfront trip-date picker — Friday/Sat/Sun silently mapped to THIS weekend (Jun 15-17), risking wrong dates for a future trip", "Mobile + button shows name prompt before the add-event form, an extra detour", "No one-click 'add whole trip to Google Calendar' — .ics is all-at-once but Google add is per-event only"], "priorConcernsAddressed": "n/a"}
 ```

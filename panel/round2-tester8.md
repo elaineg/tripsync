@@ -1,28 +1,60 @@
 Name: Rob
-Role: Freelance brand/visual designer. Splitting a ski-trip rental with 3 friends; want ONE link everyone adds arrival times to and confirms, instead of babysitting a master plan nobody updates. My friends open the link on PHONES.
+Clarity: Yes
+Value: Yes
+Advocacy: 7
+PriorConcernsAddressed: some (2 of 3 fixed; confirm-attribution still anonymous)
 
-## Round-1 concerns — re-checked first
-1. CRITICAL/MOBILE — Day grid couldn't scroll at 390px (8:30pm El Chato unreachable): **RESOLVED.** Container is now `day-grid-scroll overflow-y-auto h-full` (scrollHeight 1080 > client 691, overflowY=auto; zero overflow-hidden clipped containers). I scrolled down and El Chato 8:30pm–9:30pm renders fully tappable; opening it gives Confirm / Add to Google Calendar / Edit. This was my dealbreaker and it's fixed.
-2. MOBILE cold-open landed on empty 5am–12pm, no auto-scroll: **RESOLVED.** Fresh load auto-scrolls so the first event (Emily lands 12:30pm) sits at the top; visible labels start ~10am, not dead morning hours.
-3. MOBILE toggle row clipped a day-tab behind refresh: **RESOLVED.** Day/Week/Month + May 1/May 2 tabs all sit inside 390px, none clipped.
-4. Run-on headline: **RESOLVED.** Now "Paste a trip itinerary, get a shared day-by-day calendar — no app, no login" — one clean idea, not four.
-5. Bulk "Add to Google Calendar" was really an .ics: still .ics ("Download confirmed (.ics)"), but per-event "Add to Google Calendar" is a genuine button in the event modal. Fine — minor.
+I'm Rob — freelance brand designer splitting a Tahoe ski cabin with three friends. I want
+one link where everyone adds their arrival and CONFIRMS, so I stop being the master-plan guy.
+Re-tested on desktop 1280px. Drove two real browser contexts (me + a "friend").
 
-## Clarity: Yes
-Tighter headline + "One link, open on any phone... Add individual events to Google Calendar or download the whole trip as a .ics" — I got it in 5 seconds.
+PRIOR CONCERNS — re-checked first:
+1) "Proposed by Someone" on my own events — FIXED. I made a 9am event and opened it: it reads
+   "Proposed by you," and on the grid it's clearly mine. No anonymous "Someone" for my own
+   stuff anymore. Good.
+2) Grid loaded scrolled to noon, morning below the fold — FIXED. On load the grid sits near
+   the top: 6am at the header and 9am/10am render at y≈214/274, fully above the fold (800px
+   tall). My "Rob arrives 9am" block was visible the instant I made it, no scrolling. This
+   was my biggest functional gripe and it's gone.
+3) Paste parser too picky — NOT addressed. My natural paste "Fri 6pm Drive up to Tahoe / Sat
+   9am Lift opens / Sat 7pm Dinner" was still rejected: "Couldn't find any timed events. Try
+   lines like: 9:00 AM Coffee / 14:30 Lunch." Most real pastes won't match. (I get this
+   round was about collaborate, so I'm not weighting it heavily — but it's still true.)
 
-## Value: Yes
-Today I keep a Google Doc + group text nobody updates, then retype into my calendar. Re-walked it: create trip → Paste itinerary (sample) → Parse → preview → Add → name prompt → events on calendar. Copy invite link put the correct /t/ URL on the clipboard; friend opened it in a fresh browser (no login, no shared storage) and saw every event in ~1s; confirmed El Chato as "Marco" → "✓ Marco" attribution appeared. .ics downloaded as valid VCALENDAR with the confirmed VEVENT. This is exactly my ski-trip workflow, and now it works where it matters — the phone.
+COLLABORATE FLOW — the real test, and where the new problem is.
+I opened the share link in a SECOND, separate browser context (no shared storage = a genuine
+friend). The friend instantly saw "Rob arrives 9am, 9:00am–10:00am," no login, no scroll —
+sync across browsers is solid. The friend hit the green Confirm.
 
-## Advocacy: 8/10
-Up from 5. The mobile dealbreaker is gone, so I'd actually send this to my three friends. Not a 9 because: (a) my own pasted itinerary parsed to "0 events" — only the built-in sample parsed cleanly, so the parser is picky about date format and a real user pasting a messy group-text could hit the same wall and bounce; (b) bulk export says "Add to Google Calendar" pitch up top but the whole-trip action is a .ics file. Fix the paste-anything robustness and I'm at 9.
+But here's the miss: the friend was NEVER asked their name. No name prompt fired on confirm
+(0 name inputs), the identity is just a generic "you" pill. And the confirmation reads
+"Confirmed by you" to EVERYONE. After the friend confirmed, I (Rob, the owner) reloaded and
+opened my OWN event — it says "Confirmed by you." But I never confirmed it; my friend did.
+From my seat it looks like I confirmed my own arrival. For a 4-person trip whose ENTIRE
+point is "who has confirmed they're in," I literally cannot tell who confirmed what. The
+friend's own event reads "Added by you" in their view too — same anonymous model.
 
-## Likes
-- Mobile Day grid now scrolls smoothly all the way to 11pm — evening bars/dinners reachable.
-- No-login friend confirm with name attribution (✓ Marco) is still the killer feature.
-- Cold-open auto-scroll to the first event — you land on content, not empty hours.
-- Copy invite returns the correct trip URL; clean per-event Confirm / Add to Google Calendar / Edit / Delete modal.
+So you fixed the anonymous-author problem on PROPOSE ("by you" now) but the same trust gap
+moved to CONFIRM: there's no name attached to a confirmation, and "Confirmed by you" is
+shown to people who didn't do it. That's worse for my use case than the round-1 "Someone,"
+because it's not just blank — it's misleading.
+
+CLARITY — Yes. Headline + the two start cards still explain it in 5 seconds.
+
+VALUE — Yes. The create→share→two-browser→export loop works with zero login, and morning
+arrivals are now visible. Today I do this in a Google Doc + ignored group text; this is less
+work. The drag-to-create still feels exactly like Google Calendar.
+
+ADVOCACY — 7 (down from 8, and I mean the real number, not a polite one). Two of my three
+gripes are genuinely fixed, which I respect. But the headline feature for MY situation —
+seeing WHO has confirmed — is now anonymous and even mislabeled ("Confirmed by you" on an
+event a friend confirmed). I'd still send it to my cabin group, but I'd have to warn them
+"you can't actually tell who confirmed," which kills the unprompted-recommend energy. Ask
+each person their name ONCE on first open and stamp "Confirmed by Dana" everywhere, and this
+is a 9. Blocking issue for the use case: confirmation carries no identity.
+
+(No JS/console errors across either context. Share link now strips ?blank= and looks clean.)
 
 ```json
-{"tester": 8, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["My own pasted itinerary parsed to 0 events; only the built-in sample parsed cleanly — parser too picky for messy real-world paste", "Bulk export is a .ics download though the homepage leads with 'Add to Google Calendar'"], "priorConcernsAddressed": "all"}
+{"tester": 8, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 7, "topComplaints": ["Confirmations are anonymous — no name captured; 'Confirmed by you' shows to people who didn't confirm, so I can't tell who's actually in (the whole point)", "Friend is never asked their name on first open/confirm — identity is a generic 'you'", "Paste parser still rejects natural pastes like 'Fri 6pm Drive up to Tahoe'"], "priorConcernsAddressed": "some"}
 ```

@@ -1,21 +1,15 @@
-# Dana — round 2
+NAME: Dana
 
-**Prior concerns re-checked (my round-1 flags):**
-- Tiny icon-only rename/delete on recent rows → FIXED. Rows now show "Rename" (pencil), grey "Remove from my list", and red "Delete for everyone" (trash) — all labeled text, ~44px targets, plus a scope caption "Remove = this device only · Delete = everyone with the link." On mobile they wrap cleanly, no clipping.
-- "Create New" on trip page → clear: labeled 44px pill top-left ("Create New" desktop, compact "+ New" mobile).
-- Header relabel → confirmed, the field reads "Your name."
-- Calendar visual restyle / per-category color → unchanged, as expected (known deferred).
+{"name":"Dana","clarity":"Yes","value":"Yes","advocacy":9,"view_only_clear":"Yes","prior_concern_addressed":"Yes","complaints":["General calendar aesthetic is competent-utilitarian (dusty-pink event chips, plain grid), not Canva-screenshot-pretty — does NOT touch the view-only feature, which is clean; it's the only thing keeping me off a 10."]}
 
-**1. CLARITY — Yes.** Same strong one-scroll pitch: "Turn a messy itinerary into a shared day-by-day calendar — no app, no login," two labeled cards, "No account or email required." Nothing confused me in 10 seconds.
+PRIOR CONCERNS RECHECK
+- Defect #1 (empty-day read-only copy leak): FIXED. Navigated view-only (/v/) to an empty day — the grid shows only the yellow "View-only — you can't edit this trip. Ask the trip owner for the edit link" banner + "Download .ics". No "Tap a slot…", no "+ button", no "add an event", no "drag the grid" copy anywhere. Clicking an empty slot opens no editor. Days WITH events also clean.
+- Defect #2 (general aesthetic): NOT addressed, and correctly flagged out of scope for this view-only round.
 
-**2. VALUE — Yes.** Beats my Notion-doc-plus-nagging workflow: paste→parse→per-event "Add to Google Calendar" means nobody misses the brunch reservation, and the shared link + .ics covers the group. The management UI is now genuinely polished — labeled destructive actions with an explicit scope caption is better hygiene than most paid tools I use.
+CLARITY — Yes. New landing splits into "Paste an itinerary" vs "Start from a blank calendar" cards, H1 unchanged and still crystal: "Turn a messy itinerary into a shared day-by-day calendar — no app, no login." The two share rows read perfectly: "Edit link — anyone can edit" vs "View-only link — read-only," with the "Edit = companions… · View-only = anyone you just want to show" tiebreaker. Zero confusion.
 
-**3. ADVOCACY — 8.** Up from 7. The management UI is no longer a nit — clean, legible, mobile-friendly — so my round-1 management complaint is fully resolved. The only thing keeping me off a 9 is the deferred calendar visual restyle: it's still a flat-purple work-calendar look, not the Canva-grade, color-coded, screenshot-worthy vibe I'd post in the group chat. That's a joy gap, not a function gap, and not the management feature this round touched.
+VALUE — Yes. Today I'd type the plan in Notion, drop it in a group text, and re-key events so people can add them to their calendar. Here: pasted my Tahoe itinerary, it parsed "5 events across 3 days" with an editable confirm preview, gave me two distinct links (/t/… edit, /v/… view-only — verified different tokens). View-only recipients get per-event "Add to Google Calendar" + whole-trip "Download .ics" and literally cannot break my plan. That's my exact girls'-weekend AND work-offsite flow — recurring.
 
-**Biggest blocker:** Calendar visual polish (flat purple, no per-day/category color or cover) — the deferred item.
+VIEW-ONLY FEATURE (on its own) — Strong, ships clean. Two links genuinely distinct; /v/ is truly read-only (no date picker, no Create New, no Day-edit toolbar affordances, event popup shows only Add-to-Google-Calendar + Close, no Edit/Delete/Save). Personal export (.ics + add-to-GCal) works in view-only. Edit link confirmed FULL edit (popup: Save .ics / Add to Google Calendar / Edit / Delete / Close).
 
-**Is the remaining blocker the deferred calendar restyle or the new management UI?** The deferred calendar restyle. The new management UI is polished and fully resolved my round-1 flags.
-
-```json
-{"tester": 5, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Calendar still flat-purple GCal-clone, no Canva-grade per-day/category color or cover (deferred item, not the management UI)"], "priorConcernsAddressed": "all"}
-```
+ADVOCACY — 9. Up from 8: my copy-leak defect is gone, so the view-only feature now earns its own 9 cleanly and I'd bring up the edit/view split unprompted. Held off 10 ONLY by the general calendar visual styling (not the view-only feature) — to be explicit: nothing about THIS round's feature holds the score; the missing point is purely the Canva-grade restyle that was intentionally out of scope.

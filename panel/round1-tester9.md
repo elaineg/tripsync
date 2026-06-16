@@ -1,37 +1,9 @@
-# Elena — round 1 (returning look)
+NAME: Elena
 
-Re-checking my 3 prior complaints (390px phone):
-- Name-prompt before first event: FIXED. Tapping a slot on a blank trip goes straight to an
-  Event-title/time form, Save — no "what's your name?" speed bump. 
-- "Proposed by Someone / Confirm" on a solo trip: FIXED. My saved event now reads "Added by
-  you" — no fake proposed/confirm framing. 
-- Bulk add-all-to-Google-Calendar: NOT addressed. Still per-event "Add to Google Calendar";
-  whole-trip push is only via the .ics download.
+{"name":"Elena","clarity":"Yes","value":"Yes","advocacy":8,"view_only_clear":"Yes","complaints":["View-only link opens on today's date (2026-06-16) with an EMPTY grid — my trip is Jun 20-21, so first impression is a blank calendar until I expand Trip Details to find the day chips. Should land on the first trip day.","Killer feature (Download .ics / Add to Google Calendar) is hidden behind the collapsed 'Trip Details ▼' panel — I almost missed it in my 30s.","An edit-mode hint bubble ('Tap a slot to add an event, or use the + button below') leaks onto the view-only page right under the read-only banner — contradicts 'you can't edit'."]}
 
-**1. CLARITY: Yes.** Same strong headline — "Turn a messy itinerary into a shared day-by-day
-calendar — no app, no login" + the "Add events to Google Calendar / .ics" subline. Two start
-cards. Cold-readable in ~5 seconds.
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus "Add events to Google Calendar or download as .ics" told me in 10s exactly what it is and that it speaks my language (Google Calendar). I'd tell a friend: "paste your trip plan, get a shared calendar, and one-tap each event into your own Google Calendar — no signup."
 
-**2. VALUE: Yes.** I'd otherwise retype family plans from a group text into Google Calendar.
-I pasted a doc, hit Parse → "Add to Family weekend," tapped an event, and "Add to Google
-Calendar" opened a real prefilled GCal template (text, dates 20260501T123000, ctz set). On my
-signed-in phone that's the one-tap-into-the-calendar-that-runs-my-life flow I wanted.
+VALUE — Yes, more than once. Today I copy itinerary lines out of a Google Doc and hand-create calendar events one by one before a family weekend — tedious on my phone between meetings. The two share links are genuinely distinct and discoverable: "Edit link — anyone can edit" (Copy invite link) vs "View-only link — read-only" (Copy), each with a one-line explanation. View-only is truly read-only: banner present, event sheet has zero editable fields, no dead edit buttons. And the killer feature SURVIVES on the view-only link — "Download .ics" gave me Family-long-weekend.ics, and "Add to Google Calendar" opened a real calendar.google.com/render link. That's the thing I wanted: glance + one-tap into my calendar with no risk of editing the shared plan. I'd reach for this every trip and share view-only with relatives.
 
-**3. ADVOCACY: 8.** I'd recommend it for group-trip planning. Two fixes landed, which helps.
-Held off 9 by: tiny mobile tap targets on trip management, and still no bulk add-to-Google
-(8 events = 8 taps).
-
-**Biggest blocker:** Recent-trips row icons — Rename (pencil) and Delete (trash) are only
-~26x26px and right next to each other, well under the 44px thumb standard. Between meetings I'd
-fear hitting "Delete trip for everyone" instead of Rename, and that delete has no confirm step.
-
-**Management-feature notes:**
-- Removal wording is clear and distinct: "Remove from my list" (text link) vs trash labeled
-  "Delete trip for everyone." I knew which was which instantly — good.
-- Trip-page header stays clean at 390px: home / title+pencil (rename) / "Saved" / Set name /
-  "..." (Trip options w/ Delete) / "Create new trip." Not crowded.
-- Fix the 26px pencil/trash targets + add a confirm on "Delete trip for everyone."
-
-```json
-{"tester": 9, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Recent-trips Rename/Delete icons ~26px, too small/close for confident thumb taps", "'Delete trip for everyone' is destructive with no confirm step", "Still no bulk add-all-to-Google-Calendar (8 events = 8 taps)"], "priorConcernsAddressed": "some"}
-```
+ADVOCACY — 8. It nails my exact job and the no-login/no-setup bar is met. Two things keep it off a 9: (1) the view-only link lands on an empty today-grid, so a non-techy relative I share it with sees a blank calendar and may think it's broken before discovering the Jun 20/21 chips inside "Trip Details ▼"; (2) the personal export — the whole reason I'd use the view-only link — is buried in that collapsed panel and shadowed by a leftover "tap to add an event" hint that says I CAN edit. Surface the day on the trip's first event and put "Add to Google Calendar / .ics" above the fold on view-only, and this is a 9-10 I'd bring up unprompted.

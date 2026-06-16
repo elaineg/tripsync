@@ -1,20 +1,13 @@
-# Marcus — round 1
+NAME: Marcus
 
-**1. CLARITY — Yes.** H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" + the two labeled cards ("Paste an itinerary" / "Start from a blank calendar") told me what it is and how to start in well under 30s. "Anyone with the link can view and edit — No account or email required" nailed the no-login hook. Zero console errors on load.
+{"name":"Marcus","clarity":"Yes","value":"Yes","advocacy":8,"view_only_clear":"Yes","complaints":["Empty view-only trip still shows the 'Tap a slot to add an event, or use the + button below.' hint — an edit prompt leaking into read-only mode (gone once events exist, but a half-built shared trip shows it)","'Saturday' label in my paste parsed to a Monday date (Sat→Mon, Jun 15) — day-name to date mapping is off","Two share links share one collapsible panel; the View-only 'Copy' button is visually quieter than 'Copy invite link' — almost missed it on first scan"]}
 
-**2. VALUE — Yes.** Today my weekend plan for two visiting friends rots in a Google Doc nobody opens on their phone. I pasted my notes, got a "Preview parsed events" confirm step ("12 events across 2 days will be added", times editable before committing), then a genuinely clean visual day calendar with side-by-side overlap layout, a Copy invite link that worked (clipboard had the /t/ URL, button flipped to "Copied!"), and a valid "Save to calendar (.ics)". This is the glanceable share link I wanted.
+CLARITY — Yes. Inside 10s the H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two cards (Paste an itinerary / Start from a blank calendar) told me exactly what it is and who it's for. This is the Google-Doc-nobody-opens problem I literally have for my friends' visit. Zero ramp-up.
 
-**3. ADVOCACY — 8/10.** I'd drop this in team Slack — polished, no-login, parser + .ics is the kind of thing FE folks love. Not a 9 because the parser is only proven on the clean sample (unsure on truly messy real input) and one rename quirk (below) reads as a small bug, which I notice instantly.
+VALUE — Yes. Today the plan rots in a Google Doc; nobody opens it on mobile. This gives a clean visual calendar + a share link + per-event "Add to Google Calendar"/.ics. I'd use it every time friends visit and for team offsites. The Edit/View split is the exact thing a Doc can't do cleanly — I can send the read-only link to the friend who just wants to show up, and the edit link to the co-planner.
 
-**Biggest blocker:** Renaming a trip from the landing list via the pencil, then pressing Enter, commits the rename BUT also navigates me INTO that trip. Enter should save and keep me on the list. Minor, but it's a jank I'd flag in a PR review.
+SHARE UI / TWO LINKS — Discoverable and clearly distinct. "Edit link — anyone can edit" and "View-only link — read-only" with one-line explainers ("Edit = companions who plan with you · View = anyone you just want to show"). Copy worked, label flipped to "Copied ✓". View link is a distinct /v/ path vs edit /t/. Banner in view: "View-only — you can't edit this trip. Ask the trip owner for the edit link to make changes." Solid.
 
-**Management-feature notes:**
-- Remove vs Delete distinction is excellent — tooltips spell it out: "Remove from my list (device-only; trip stays on the server)" vs "Delete for everyone with the link". Could tell them apart instantly.
-- Delete = proper custom confirm modal ("...for everyone with the link? This can't be undone." red Delete / Cancel, dimmed backdrop) — no native alert(), no jank. Remove has no confirm, which is correct (non-destructive).
-- Inline rename UI (row → text input with ✓/✕) is clean, on both the landing list and the header ⋯ menu ("Rename trip" / red "Delete trip" with trash icon).
-- "Create New" (header, home icon) is a link to "/" — clearly nav, not add-event. No ambiguity for me.
-- Core still solid: paste→sample→Parse→editable preview→"Add to <name>"→calendar; drag-on-grid opens a Start/End/Save quick editor; "Saved" indicator reassures. Both paste and blank flows landed me on a working trip page.
+READ-ONLY INTEGRITY — Genuine. View-only had NO edit/create/confirm/manage/delete controls, no textareas, no selects, no dead buttons, 0 console errors. Event modal = "Add to Google Calendar" + "Close" only, "Proposed by the organizer". Top-bar "Download .ics" preserved. Personal export fully works in view-only. EDIT link = no regression: events intact, no readonly banner, share-edit-link present, event modal has Edit/Delete/Save .ics/Add to Google Calendar.
 
-```json
-{"tester": 2, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Enter in landing inline-rename saves but also navigates into the trip — should stay on the list", "Parser only exercised on the clean built-in sample; unclear how it copes with genuinely messy pasted notes"], "priorConcernsAddressed": "n/a"}
-```
+WHAT HOLDS IT BACK FROM A 9/10 — As a frontend eng three things bug me: (1) the empty-state "Tap a slot to add an event…" hint shows in read-only mode — that's a leaked edit affordance even though it's harmless. (2) "Saturday" parsed to Monday — date mapping needs to honor weekday names or it'll confuse non-engineers. (3) The View-only copy button is lower-contrast than the edit one; bump its weight so people don't grab the wrong link. Fix those and I'm sharing it in team Slack unprompted. Polish is otherwise genuinely good — rounded cards, consistent spacing, no janky CSS, clean modal.

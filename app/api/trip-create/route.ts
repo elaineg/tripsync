@@ -25,13 +25,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const id = generateId();
+  const viewToken = generateId(); // Distinct from the edit secret
   const trip = emptyTrip(name);
   const now = Date.now();
 
   const db = await getDb();
   await db.execute({
-    sql: "INSERT INTO trips (id, data, created_at, updated_at) VALUES (?, ?, ?, ?)",
-    args: [id, JSON.stringify(trip), now, now],
+    sql: "INSERT INTO trips (id, data, created_at, updated_at, view_token) VALUES (?, ?, ?, ?, ?)",
+    args: [id, JSON.stringify(trip), now, now, viewToken],
   });
 
   return NextResponse.json({ id }, { status: 201 });

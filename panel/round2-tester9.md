@@ -1,34 +1,16 @@
-# Elena — round 2
+NAME: Elena
 
-Re-checked my two round-1 mobile blockers at 390px:
-- Tap targets on recent-trips rows: FIXED. Destructive action is now a labeled red
-  "Delete for everyone" button (149x44px), grey "Remove from my list" text, and an
-  always-visible caption "Remove = this device only · Delete = everyone with the link."
-  No more 26px pencil/trash sitting side-by-side. (Rename pencil is 30x44 — narrow but
-  now full-height and well clear of the destructive button, so I won't misfire.)
-- Delete confirm: FIXED + verified on phone. Tapping "Delete for everyone" opens a modal:
-  "Delete this trip for everyone with the link? This can't be undone." with red Delete +
-  Cancel. Reliable on mobile now.
+{"name":"Elena","clarity":"Yes","value":"Yes","advocacy":9,"view_only_clear":"Yes","prior_concern_addressed":"Yes","complaints":["Whole-trip 'Download .ics' is above the fold on view-only, but a per-event '.ics' option only exists via the whole-trip button — minor; the per-event sheet (correctly) offers only Google Calendar."]}
 
-**1. CLARITY: Yes.** Same strong headline + "Add events to Google Calendar / .ics" subline,
-two start cards, cold-readable in ~5s. Trip title now wraps/truncates cleanly ("Team offsi...").
+ROUND-1 HOLDBACKS — all three FIXED (re-checked first, on 375px mobile):
+1. Blank-grid landing: RESOLVED. The /v/ view-only link opens on Jun 20 — the trip's FIRST event day — with "Breakfast at the cabin" and "Hike to the falls" visible in the grid, and Jun 20 | Jun 21 day chips right under the header. No expanding Trip Details, no blank today-grid. A relative I share this with sees a populated calendar instantly.
+2. Buried export: RESOLVED. The share block (Edit link / View-only link) and "Download .ics" both sit ABOVE the collapsed "TRIP DETAILS ▼" — reachable with zero expansion above the fold.
+3. Leftover edit hint: RESOLVED. Searched the read-only page text — no "Tap a slot to add an event" / "use the + button". Banner reads "View-only — you can't edit this trip. Ask the trip owner for the edit link to make changes." Tapping an event opens a sheet with NO editable fields, just the title/time, "Proposed by the organizer", "Add to Google Calendar", and "Close".
 
-**2. VALUE: Yes.** I'd otherwise retype plans from a group text into Google Calendar. Tapping
-an event opens a clean sheet with a big "Add to Google Calendar" button (336x46) + "Added by
-you" — exactly the one-tap-into-my-calendar flow I wanted. Whole-trip .ics is there too.
+KILLER FEATURE — INTACT on the view-only link. "Download .ics" produced a valid VCALENDAR with every event (DTSTART/DTEND/SUMMARY all correct, TZID America/Los_Angeles). "Add to Google Calendar" opens a real calendar.google.com/calendar/render?action=TEMPLATE&text=Breakfast+at+the+cabin&dates=20260620T090000/20260620T100000 link. This is exactly my job: glance at the shared plan, one-tap each event into MY Google Calendar, zero risk of editing the shared trip.
 
-**3. ADVOCACY: 9.** Both mobile blockers landed and the destructive flow is now safe between
-meetings — I'd bring it up to my team unprompted. Held off 10 by: parser rejected my natural
-"Mon 9:00 AM Standup" lines (demands "Friday May 1" day headers — I needed the sample to get
-in), and still no bulk "add all to Google Calendar" (12 events = 12 taps).
+CLARITY — Yes. Headline + "Add events to Google Calendar or download the whole trip as a .ics file" told me in 10s what it is and that it speaks Google Calendar. Two clearly labeled links ("Edit link — anyone can edit" vs "View-only link — read-only") with one-line explanations removed my earlier confusion about which to send relatives.
 
-**Biggest blocker:** Parser strictness — it told me "Couldn't find any timed events... each
-day starts with a header like 'Friday May 1'." A manager pasting a real itinerary mid-meeting
-won't reformat; if it doesn't parse on first paste, I bounce.
+VALUE — Yes, recurring. Today I copy itinerary lines out of a Google Doc and hand-build calendar events one at a time on my phone before a family weekend. This pastes the whole doc, parses it into a day-by-day calendar, and one-taps each event into my calendar — and I share view-only so relatives can't scramble the plan. Real time saved, every trip.
 
-**Prior mobile blockers resolved (tap targets + delete confirm)?** YES — both fixed and
-verified on my phone viewport.
-
-```json
-{"tester": 9, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Parser rejects natural 'Mon 9:00 AM' lines — demands 'Friday May 1' day headers", "Still no bulk add-all-to-Google-Calendar (12 events = 12 taps)"], "priorConcernsAddressed": "all"}
-```
+ADVOCACY — 9. Every round-1 holdback is fixed and the killer feature survives on view-only, so the first impression a non-techy relative gets is a populated calendar with a working "Add to Google Calendar" — that's the thing I'd bring up unprompted. Not a 10 only because the per-event sheet offers Google Calendar but not a one-tap single-event .ics for Apple/Outlook relatives (they'd grab the whole-trip .ics instead) — a small gap, not a blocker.

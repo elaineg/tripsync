@@ -1,15 +1,16 @@
-# Marcus — round 2
+NAME: Marcus
 
-**1. CLARITY — Yes.** Same strong H1 ("Turn a messy itinerary into a shared day-by-day calendar — no app, no login") + the two labeled cards still tell me what it is and how to start well under 30s. The new recent-trips caption "Remove = this device only · Delete = everyone with the link" makes the scope obvious before I touch anything.
+{"name":"Marcus","clarity":"Yes","value":"Yes","advocacy":9,"view_only_clear":"Yes","prior_concern_addressed":"Yes","complaints":["Bare weekday with no date (just 'Saturday') still risks misparse — couldn't reproduce the Sat→Mon bug this round, but the fix only proves out when a date is present; explicit-date paths are now correct","Tiny: 'Go to' date picker in view-only is a raw native input — slightly unpolished vs the otherwise clean cards"]}
 
-**2. VALUE — Yes.** Still beats my rotting Google Doc: paste → preview ("events across N days") → clean visual day calendar with correct side-by-side overlap layout, Copy invite link, and Save to calendar (.ics). Day/Week/Month toggle and the "Saved" indicator are nice touches I'd actually use hosting friends.
+RE-CHECK OF MY 3 ROUND-1 HOLDBACKS — all addressed:
+(1) Leaked edit hint on empty read-only day — RESOLVED. View-only opened on an empty Day grid (Jun 16) and showed ZERO "Tap a slot / + button / add an event" hint; only the yellow "View-only — you can't edit this trip" banner. Confirmed across day AND week views on empty ranges.
+(2) View-only copy button low-contrast — RESOLVED. Now "Copy invite link" and "Copy view-only link", two outlined buttons styled identically, with paired labels "Edit link — anyone can edit" / "View-only link — read-only" and a one-line explainer. I can't grab the wrong one anymore.
+(3) Saturday→Monday date mapping — RESOLVED for dated input. Parse preview literally renders "Saturday June 13 → Sat, Jun 13" / "Sunday June 14 → Sun, Jun 14". Correct weekday→date.
 
-**3. ADVOCACY — 9/10.** Bumped from 8: the one jank I'd have flagged in PR review is gone, the management UI is now genuinely well-labeled (red "Delete for everyone" w/ trash icon vs grey "Remove from my list", always-visible scope caption), and zero console errors across paste, create, rename, and delete. I'd drop this in team Slack unprompted now. Holding back the last point only because I still haven't stress-tested the parser on truly messy real-world paste.
+CLARITY — Yes. H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" + the two cards still nail it in 10s. Unchanged, still excellent.
 
-**Biggest blocker:** None functional. Only soft gap: parser confidence on genuinely messy input is still unproven (sample is clean) — not a bug, just unverified.
+VALUE — Yes. Same as round 1: replaces the Google Doc that rots and that nobody opens on mobile. The new parse-preview ("3 events across 2 days will be added. Edit titles or times before confirming") is a genuine upgrade — I can fix a mis-parsed time inline before committing. Edit/view split is the thing a Doc can't do.
 
-**Prior bug fixed?** YES. Renamed a trip from the landing list, pressed Enter: it SAVED and STAYED on the list (URL stayed at `/`, new name visible, no navigation into the trip). Verified via screenshot. Fixed exactly as described.
+SHARE/READ-ONLY INTEGRITY — Both links discoverable, distinct paths (/t/ vs /v/), copy works (clipboard verified, label flips). View-only: banner present, 0 textareas, 0 selects, 0 edit/delete/save buttons, 0 console errors. Edit link: no readonly banner, events intact — no regression. View + edit links both open on the FIRST event day (Jun 13), not today.
 
-```json
-{"tester": 2, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Parser only exercised on the clean built-in sample; messy real-world paste still unproven"], "priorConcernsAddressed": "all"}
-```
+ADVOCACY — 9. All three of my holdbacks are fixed and the share UI now reads clean and parallel; CSS is polished (rounded cards, consistent spacing, no jank). The only reason it's not a 10 is the raw native date-picker in view-only and that the weekday-mapping fix is unverifiable on bare-weekday input (out of scope, noted). I'd drop this in team Slack unprompted now.

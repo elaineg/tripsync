@@ -858,6 +858,109 @@ chip is clearly the display-name control (not trip-rename), and Delete lives one
 behind a reliable confirm dialog. Nothing management-related is buried; the destructive path is the
 only red, confirmed one.
 
+## ADD-FEATURE (2026-06-15) — OPTIONAL VIEW-ONLY (read-only) SHARE LINK, additive
+Spec: folded into flow 4 + flow 1's share framing; success checks 24–27. This REVERSES the prior
+H5/Tomás "no read-only link" deferral — but the existing EDIT link stays fully open-edit and
+UNCHANGED (the no-account open-edit-by-link wedge is preserved). We ADD a SECOND, optional
+read-only link alongside it; we do NOT replace or lock the edit link.
+
+### KEY ARCHITECTURE CONSTRAINT (builder MUST honor — state in the spec/PR)
+The trip's EDIT link path id IS the secret that grants editing (`/t/<secret>`). A view-only link
+therefore CANNOT reuse or contain that secret — otherwise a "view-only" recipient could just
+navigate to `/t/<secret>` and edit. So:
+- Mint a SEPARATE, DISTINCT view token per trip (a different opaque slug, server-side, mapped to the
+  same trip) and serve it on its OWN route — e.g. `/v/<viewToken>` (or `/t/v/<viewToken>`). The
+  view token MUST NOT be derivable from, and MUST NOT contain or expose, the edit secret. A viewer
+  who only has the view token has NO way to obtain the edit secret from anything the view page
+  exposes (HTML, JSON, network, URLs in copy buttons, exported files).
+- Server enforces read-only by TOKEN, not by client trust: the view token resolves the trip for GET
+  ONLY. PUT/DELETE accept ONLY the edit secret; a PUT/DELETE presented with the view token is
+  REJECTED (403/error) and the shared state is unchanged. Client-side hiding of controls is UX, not
+  security — the server is the boundary.
+
+### VO-1 — SHARE AFFORDANCE: TWO clearly-distinct, clearly-labeled links (never confused)
+Where the existing "Copy invite link" lives (D3 — the persistent share control, top/in-app, NOT
+buried in a menu — lesson added-feature-buried-panel-surfaces-not-function), present BOTH links as
+two clearly-labeled, side-by-side (desktop) / stacked (mobile) rows of equal prominence. Both are
+discoverable in the obvious share spot — the new view-only option is NOT hidden behind "⋯".
+- **Row 1 — EDIT link (existing, unchanged):** heading **"Edit link — anyone can edit"**, one-line
+  sub "Anyone with this link can view AND edit. Share only with your travel companions." + its own
+  "Copy" button. This is the existing flush-then-confirm copy button (D3) over `/t/<secret>`.
+- **Row 2 — VIEW-ONLY link (new):** heading **"View-only link — read-only"**, one-line sub
+  "They can see the plan and add it to their own calendar, but can't change anything." + its own
+  "Copy" button over `/v/<viewToken>`.
+- **One-line inline difference** sits between/under the two so a user picks correctly: e.g.
+  "Edit = companions who plan with you · View-only = anyone you just want to show."
+- **Each copy button confirms inline** ("Copied ✓", aria-live polite, in place — no vanishing
+  toast), flush-then-confirm per D3 (await save, then copy). The two buttons are visually parallel
+  (same size/weight) but each labeled to its row so neither is mistaken for the other.
+- **Honest, distinct framing** — the edit row keeps the "can view and edit" warning; the view-only
+  row states it's read-only. Never imply the view-only link can edit, or vice versa.
+- **Checkable (24):** the trip page (header/share area, NOT an overflow menu) exposes BOTH a distinct
+  edit link (`/t/<secret>`, labeled "Edit link — anyone can edit") AND a distinct view-only link
+  (`/v/<viewToken>`, labeled "View-only link — read-only"), each with its own inline-confirming Copy
+  button; the two links are different URLs and the view-only URL does not contain the edit secret.
+
+### VO-2 — READ-ONLY VIEWING STATE (same beautiful grid, genuinely read-only)
+When the trip is opened via `/v/<viewToken>`, the calendar renders IDENTICALLY to the edit view —
+same hourly grid, same author-colored event blocks, same proposed/confirmed styling, same Day/Week/
+Month switcher, same Trip Details card, same date strip — but in a genuine read-only state:
+- **HIDE (do not grey/disable) every edit-only control** so nothing looks broken (lesson:
+  dead/greyed buttons read as broken). Specifically HIDDEN in read-only mode: tap-an-event Edit/
+  Confirm/Delete actions; the "+ Add event" FAB; the desktop drag-to-create affordance (no hover
+  `cursor:cell`, no drag hint, no drag-create binding); click/tap-to-create on empty slots;
+  drag-move and drag-resize on existing events; the "What's your name?" prompt (no name capture —
+  a viewer never attributes); the trip-title RENAME pencil; the header DELETE / "⋯ Trip options"
+  destructive items; the "Create New" nav control; the SHARE affordance itself (a view-only visitor
+  does not re-share/manage). Tapping an event opens a READ-ONLY detail view (title/time/location/
+  notes/links visible, links tappable) with NO Edit/Confirm/Delete — only the export action below.
+- **KEEP the personal export** (a read action that writes only the viewer's OWN calendar, never
+  shared state): per-event "Add to Google Calendar" (render?action=TEMPLATE URL) and the bulk
+  "Download .ics". These are the ONLY actions in read-only mode.
+- **Read-only banner (visible, explains WHY editing is absent):** a small, clear, non-occluding
+  banner near the top — verbatim **"View-only — you can't edit this trip. Ask the trip owner for
+  the edit link to make changes."** On mobile it collapses to one compact line (per the ≤96px header
+  budget, like the existing edit banner) but stays visible; it must not push the first event below
+  the fold.
+- **Checkable (25):** opening `/v/<viewToken>` loads the SAME trip + events read-only with the
+  banner shown; ZERO create/edit/confirm/manage controls are PRESENT in the DOM (hidden, not merely
+  disabled/greyed) — no "+ Add event" FAB, no drag-create, no Edit/Confirm/Delete, no rename pencil,
+  no name prompt; the per-event "Add to Google Calendar" and bulk "Download .ics" ARE present.
+
+### VO-3 — MODE GATED ON THE TOKEN, NOT ON DATA (lesson: data-presence gating)
+Read-only mode is an EXPLICIT mode flag derived from WHICH token/route opened the trip — set true
+when the page is reached via the view route/token, false on the edit route. It is NEVER inferred
+from data presence (e.g. "no events" or "no name set" must NOT trigger or suppress read-only). An
+EMPTY view-only trip is still read-only; a FULL edit trip is still editable. The flag is computed
+once at load from the route/token and drives every control's visibility.
+- **Checkable:** an empty trip opened via the view token is read-only (banner shown, no create
+  controls); the same trip opened via the edit secret is fully editable — the only difference is the
+  token, not the data.
+
+### VO-4 — STABLE DATA-TESTIDS (so the verifier/panel assert reliably; avoid harness false-negatives)
+Builder MUST add these stable `data-testid`s (lesson: lone-tester-feature-broken false-negative):
+- `share-edit-link` — the edit-link row/Copy control in the share affordance.
+- `share-view-link` — the view-only-link row, with `copy-view-link` on its Copy button (and
+  `copy-edit-link` on the edit Copy button).
+- `readonly-banner` — the view-only banner.
+- `readonly-mode` — a wrapper/attribute on the trip view that is present/true ONLY in read-only
+  mode (so a test can assert the mode flag directly, per VO-3).
+- The export controls keep stable testids in read-only mode (e.g. `add-to-gcal`, `download-ics`).
+
+### VO server/security checkable
+- **Checkable (26):** the view-only page/route does NOT expose the edit secret anywhere (HTML, JSON
+  payload, any URL it renders, the .ics, or the share buttons it shows). A PUT and a DELETE made
+  with the view token (not the edit secret) are REJECTED by the server (403/error JSON, no stack
+  trace) and the trip's shared state is UNCHANGED (a subsequent GET shows identical events).
+- **Checkable (27 — no regression):** the edit link `/t/<secret>` still grants full edit — Emily
+  acceptance (check 1), drag-create (9), confirm-by-name (15), rename/delete/Create-New (18–22) all
+  still pass; adding the view-only link does not alter the edit experience.
+
+### Minor / scope note
+- The view-only link is OPTIONAL and additive: a creator who never copies it loses nothing; the edit
+  link is still the default share. We do not add per-event view permissions, expiring links, or
+  revocation in this round (out of scope — note only).
+
 ## 1. Problem statement
 Your friend's messy itinerary, turned into a shared day-by-day calendar you both open and edit
 from one link — no app, no login.
@@ -1045,3 +1148,10 @@ touch targets, not dense spreadsheet rows). Author colors are soft saturated pas
   on mobile nothing auto-opens that would push the day-grid hero below the fold.
 - **Primary/new affordances stay discoverable:** view switcher, Copy-invite, and Add-to-Calendar
   live at the top or in the obvious event sheet — never buried in an overflow menu.
+
+## VIEW-ONLY SHARE POLISH — Round 1 fix decisions (2026-06-15)
+
+- **Edit-hint suppression in read-only mode (Fix 1):** The mobile empty-day hint "Tap a slot to add an event, or use the + button below." is gated on `!readOnly`. An empty day in view-only mode shows a neutral empty state — no edit affordance copy ever appears when `readOnly=true`.
+- **Parallel copy button labels/affordance (Fix 2):** The view-only copy button is relabeled "Copy view-only link" and styled identically to "Copy invite link" (same weight, gap, icon, border, Copied-confirmation) so the two share rows are visually equal and unconfusable. Both show inline "Copied ✓" confirmation.
+- **Initial calendar date = trip's first event day (Fix 3):** On load (both `/t/` and `/v/` routes), if the trip has events the calendar defaults to the earliest event date (`activeDates[0]`), not today — so a viewer lands on populated content. Falls back to today only when the trip has zero events.
+- **Share section surfaced above Trip Details (Fix 4):** The two share link rows and export controls are rendered BEFORE the collapsible Trip Details panel in the DOM, so they are always reachable without any expand click. Trip Details remains collapsible below the share section.

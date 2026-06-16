@@ -1,79 +1,103 @@
-# Panel Synthesis — Trip-Management add-feature, Round 1
+# TripSync — VIEW-ONLY share-link add-feature — Panel SYNTHESIS round 1
 
-**Result: 0/10 at the 9-advocacy bar.** Every tester rated clarity=Yes and value=Yes; the
-feature WORKS (validator + verifier confirmed delete→404 and rename-persists end-to-end).
-The panel clusters at 8 purely on CRAFT / SURFACING of the new management controls — not on
-function, not on trust (the for-everyone confirm modal earned explicit praise from 7 testers).
+Feature under test: read-only `/v/` share link alongside the editable `/t/` link.
 
-## Score table
+## 1. Score table
 
-| Tester | Clarity | Value | Advocacy |
-|--------|---------|-------|----------|
-| Priya  | Yes     | Yes   | 8        |
-| Marcus | Yes     | Yes   | 8        |
-| Wen    | Yes     | Yes   | 6        |
-| Tomás  | Yes     | Yes   | 8        |
-| Dana   | Yes     | Yes   | 7        |
-| Jules  | Yes     | Yes   | 8        |
-| Aisha  | Yes     | Yes   | 8        |
-| Rob    | Yes     | Yes   | 8        |
-| Elena  | Yes     | Yes   | 8        |
-| Sam    | Yes     | Yes   | 8        |
+| Name   | Clarity | Value    | Advocacy | view-only-works |
+|--------|---------|----------|----------|-----------------|
+| Priya  | Yes     | Marginal | 8        | Yes             |
+| Marcus | Yes     | Yes      | 8        | Yes             |
+| Wen    | Yes     | Yes      | 8        | Yes             |
+| Tomás  | Yes     | Yes      | 9        | Yes             |
+| Dana   | Yes     | Yes      | 8        | Yes             |
+| Jules  | Yes     | Yes      | 8        | Yes             |
+| Aisha  | Yes     | Yes      | 8        | Yes             |
+| Rob    | Yes     | Marginal | 7        | Yes             |
+| Elena  | Yes     | Yes      | 8        | Yes             |
+| Sam    | Yes     | Yes      | 9        | Yes             |
 
-Mean 7.7; eight at 8, Dana 7, Wen 6. No 9s. Exit bar = ≥9 testers at advocacy≥9 ∧ clarity=Yes ∧ value=Yes.
+- **At the ≥9 advocacy bar: 2/10** (Tomás 9, Sam 9).
+- **Clarity = Yes: 10/10.**
+- **view-only genuinely read-only with no boundary leak: 10/10** confirmed (distinct `/v/` route, banner present, edit affordances REMOVED not greyed/dead, clicking grid/event creates nothing, personal `.ics`/Add-to-Google-Calendar export still works for the recipient).
+- **Tomás's prior-round read-only ask: RESOLVED** ("That's precisely what I asked for").
 
-## Complaints grouped by cause
+## 2. Complaints grouped by cause
 
-### CAUSE 1 — Recent-trips row: labeling hierarchy is BACKWARDS (RECURS 8× — DOMINANT)
-Priya, Tomás, Dana, Jules, Aisha, Rob, Elena, Sam. The harmless "Remove from my list" gets
-full text while the DESTRUCTIVE delete is a tiny (~26px) unlabeled red trash ICON sitting
-~4px from the pencil; the device-vs-everyone scope lives ONLY in hover tooltips, invisible on
-mobile/touch. Rob: "the most dangerous control is the least labeled." Jules/Elena: ~26px
-targets ~4px apart = fat-finger risk on a destructive, for-everyone action. Aisha: a text link
-flush against two bare icons reads as two visual languages, clumsy. This is the single
-convergent reason the panel sits at 8. **REAL — fix.**
+### [IN-SCOPE FIX] Read-only mode leaks an edit hint on empty days — 4×
+Raised by **Marcus, Dana, Aisha, Elena.** Empty-day onboarding copy
+"Tap a slot to add an event, or use the + button below." renders under the
+yellow View-only banner — a dead edit affordance that names a "+ button" that
+isn't there and directly contradicts "you can't edit." Gone once events exist,
+so a half-built/empty shared trip is where it bites.
 
-### CAUSE 2 — Mobile recent-trip name truncation (RECURS 3×)
-Jules ("Beach…", "Campi…"), Sam ("Veg…", "Mike…"), Aisha (tight cluster). Names truncate so
-hard you can't tell trips apart at a glance at 375–390px. **REAL — fix.**
+### [IN-SCOPE FIX] View-only "Copy" button is non-parallel / wrong-link risk + testid on wrong element — 6×
+Raised by **Priya, Marcus, Wen, Tomás, Aisha, Sam.** The view row's button is a
+bare, lower-contrast "Copy" sitting next to the wide "Copy invite link" (edit) —
+non-parallel label/width/weight, easy to grab the wrong link at a glance. Should
+read "Copy view-only link" and match the edit button's weight. Separately (Wen),
+the `share-edit-link` testid sits on a label DIV, not the actionable
+"Copy invite link" button — move it onto the actual control.
 
-### CAUSE 3 — "Set name" / trip-rename confusion (RECURS 2×)
-Wen first clicked the header "Set name" trying to rename the TRIP (it sets the user's DISPLAY
-name); Aisha notes "Set name" persists awkwardly next to the green "Saved" after a name is
-set. The display-name control reads like a trip-rename control because they sit adjacent.
-**REAL — fix.**
+### [IN-SCOPE FIX] Share link opens on TODAY with an empty grid — 3×
+Raised by **Aisha, Elena** (and Priya touches the date-trust theme). The `/v/`
+(and `/t/`) link lands on today's date with a blank grid because the trip's
+events are on other dates; the viewer sees an empty calendar until they navigate
+to the trip's first day. Land on the trip's FIRST event day. (Mitigates the
+parser symptom below; Jules noted dates already auto-select correctly when the
+parse lands on real trip dates — so the fix is to default the view to the first
+populated day.)
 
-### CAUSE 4 — Inline-rename Enter also navigates into the trip (1×, but a genuine bug)
-Marcus: pressing Enter in the landing recent-list rename field saves the rename BUT also
-navigates into the trip; Enter should save and STAY on the list. The rename input is nested
-in / triggered by the row's navigation Link. Single-persona but a real defect a reviewer
-flags instantly. **REAL — fix.**
+### [IN-SCOPE FIX] Share + export controls buried in collapsed "Trip Details ▼" — 3×
+Raised by **Rob, Elena** (and Aisha on the export side). Sharing is the core job
+but the two-link share block — and the killer personal export (Download .ics /
+Add to Google Calendar) — sit inside a collapsed "Trip Details ▼" panel, taking
+a click to find. Surface share + export above the fold (especially on `/v/`).
 
-### CAUSE 5 — "Create New" under-surfaced on the trip page (1×, but spec-mandated)
-Sam couldn't find how to spin up the next trip — only a tiny home icon; the trip-page "⋯"
-menu has only Rename/Delete. Spec check 22 requires a labeled "Create New" control. Single
-persona but it fails an existing acceptance check. **REAL — fix.**
+### [OUT-OF-SCOPE / STRUCTURAL] Parser maps weekday names to today's dates — 3×
+Raised by **Priya, Marcus** (and Jules's format-mismatch is adjacent). Paste of
+"Friday/Saturday/Sunday" remaps to today's actual dates (e.g. Sat→Mon Jun 15)
+instead of the trip's intended dates. Pre-existing PARSER behavior, NOT the
+view-only feature. The date-default fix above mitigates the empty-grid SYMPTOM;
+true weekday-to-date trust is a separate parser deepen, not this round.
 
-### CAUSE 6 — Delete-confirm robustness (2×, conflicting evidence → harden)
-Wen (via automation) reported the for-everyone delete fired NO confirm and removed nothing on
-both entry points; Elena saw no confirm on mobile. EIGHT other testers saw the confirm modal
-fire correctly on both surfaces, and the verifier confirmed delete→404. Likely an
-automation/testid or mobile-render gap rather than a logic failure — but it dropped Wen to 6.
-**HARDEN — guarantee the modal is a reliably-rendered, mobile-friendly dialog on BOTH the
-list trash and the header menu, desktop AND mobile (builder adds testids).**
+### [OUT-OF-SCOPE / single-persona]
+- **Wen** — wants CSV in/out for a spreadsheet diff workflow (.ics only today).
+- **Rob** — wants an RSVP/"confirmed" visibility control; also plans trips
+  ~monthly, so value=Marginal (audience recurrence non-fit), advocacy 7.
+- **Sam** — slightly nervous about "anyone can edit" wording on the edit link
+  (did not block; advocacy 9).
+- **Jules** — can copy/share the link BEFORE confirming parsed events, so a
+  hasty user can send an empty trip; plus natural one-line "Friday 5pm…" format
+  failed to parse (parser-format, adjacent to the structural parser item).
 
-## Deferred / OUT OF SCOPE for this feature run (NOT fixes — note only)
-Pre-existing or unrelated asks, not trip-management craft; chasing them risks regressing passers:
-- Dana — Canva-grade per-category event color / cover imagery (the standing allowable visual miss).
-- Rob — per-person event color coding.
-- Tomás — read-only / view-only share mode (deliberate design choice; edit-by-link is the CUJ).
-- Wen — surfacing the assumed YEAR as a warning (parser nice-to-have).
-- Elena / Sam — bulk add-all-to-Google-Calendar (needs OAuth = out of scope; .ics is the bulk path).
-- Aisha — considered empty-state for Recent trips; "Remove from my list" undo/toast (nice-to-haves).
-- Marcus — parser robustness on genuinely messy real input (prior parser scope).
+**Likely structural holdouts:** Rob (value=Marginal, monthly use) and possibly
+Priya (parser weekday→date trust, value=Marginal). The **in-scope-fixable 8s**
+are Marcus, Dana, Aisha, Elena, Wen, Jules — their point-off is concrete polish,
+not the feature's logic (Dana and Aisha both explicitly scored the view-only
+feature itself a 9, docking the overall ~1 pt for these bugs/aesthetic).
 
-## Convergence
-Fix the six REAL causes above (1 dominant + 2–6) with the precise labels/sizes/placement
-specified in UX_BRIEF; carry Dana as the standing allowable visual miss. That lifts the eight
-8s + Wen + Dana past the bar without touching the event-styling/confirm-semantics surfaces
-that just recovered from the R3 regression. Target next round: ≥9/10.
+## 3. Verdict
+
+The view-only feature is a **functional success**: unanimous (10/10) confirmation
+that the `/v/` link is genuinely read-only with no boundary leak, plus 10/10
+clarity and Tomás's prior read-only ask resolved. The 8-cluster is driven by four
+concrete IN-SCOPE polish fixes, not by the feature's correctness.
+
+**Plan:** do ONE fix round targeting the four in-scope fixes, then DELTA-RETEST
+only the sub-bar testers (Priya, Marcus, Wen, Dana, Jules, Aisha, Rob, Elena).
+**Carry Tomás (9) and Sam (9) forward** — passing, no need to re-spawn.
+
+The four in-scope fixes:
+1. Remove the empty-day "Tap a slot to add an event…" edit hint from read-only mode.
+2. Make the view-only Copy button parallel — "Copy view-only link", matched
+   weight/width to "Copy invite link"; move `share-edit-link` testid onto the
+   actionable element.
+3. Default the share/view to land on the trip's FIRST event day, not today.
+4. Surface the share block + personal export above the collapsed "Trip Details ▼".
+
+**Predicted ceiling:** structural holdouts are **Rob** (value=Marginal, monthly
+use — audience recurrence non-fit) and possibly **Priya** (parser weekday→date
+trust). 9/10-at-9+ may or may not be reachable; if the fix round plateaus with
+only audience non-fits left, **PARK** rather than chase the parser deepen in this
+feature's panel.

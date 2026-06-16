@@ -1,27 +1,13 @@
-# Wen — round 1
-
-(Returning look — this round adds trip management. I re-checked my prior nits, then judged the new features.)
-
-PRIOR CONCERNS RE-CHECK:
-- Day/date mismatch warnings: STILL WORK ("you wrote Fri; Jul 11 is a Sat"). Good.
-- Assumed YEAR still surfaced silently (no warning like the day-mismatch one): NOT addressed.
-- "end time assumed (1h)" honesty + preview-before-commit: still present. Good.
-
-1. CLARITY (Yes) — Landing headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" + the two cards ("Paste an itinerary" / "Start from a blank calendar") told me the job in 10 seconds. The new "Recent trips on this device" list at the bottom is self-explanatory.
-
-2. VALUE (Yes) — Today I hand-type events into Google Calendar or fight CSV import. Here I pasted once, got a "Preview parsed events" review (12 events / 2 days) where I fixed times before committing. Parser fidelity is genuinely good: "1-2PM"->13:00-14:00, "2-4PM"->14:00-16:00, single times defaulted to 1h and flagged, the "weather...bring ID" non-event line routed to a Trip Details panel (not a fake event), and the partiful URL stripped from "El Chato" into a link icon. .ics export is valid VCALENDAR, correct TZID + DTSTART/DTEND. The preview step + clean data-out is what earns my trust.
-
-3. ADVOCACY — 6. The paste-to-calendar core is a 9 for me, but a destructive control that silently does nothing drops it hard. For shared trip data, "I deleted it for everyone" must be true; here it's a lie, and that's a trust killer.
-
-Biggest blocker: "Delete trip for everyone" is COMPLETELY non-functional on BOTH entry points — the red trash on the Recent-trips list (aria "Delete trip for everyone") AND "Delete" in the trip-page "Trip options" menu. Clicking fires NO confirmation, NO server request, removes nothing; the trip stays in the list and the URL still loads with all events after reload. I think I deleted it for everyone; it's still live at the share link. Worse than a missing feature.
-
-Management-feature notes:
-- Remove vs Delete labels: EXCELLENT and unambiguous. Trash tooltip = "Delete for everyone with the link"; text link = "Remove from my list". I knew which was device-only.
-- "Remove from my list" WORKS: drops from this device but the trip URL still loads (200). Correct.
-- Rename STICKS: works from trip-page title click (inline input, "Saved") AND from the list pencil ("Rename trip"); persists across nav.
-- Naming trap: header "Set name" is actually "Change YOUR name" (display name), NOT the trip name — I first clicked it to rename the trip. Relabel it.
-- "Create New" is a nav link to landing, not add-event. Clear.
+NAME: Wen
 
 ```json
-{"tester": 3, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 6, "topComplaints": ["'Delete trip for everyone' does nothing on either entry point (list trash + header menu) — no confirm, no server call, trip survives reload and stays live at the share link", "Header 'Set name' actually changes YOUR display name, not the trip name — easily mistaken for trip rename"], "priorConcernsAddressed": "some"}
+{"name":"Wen","clarity":"Yes","value":"Yes","advocacy":8,"view_only_clear":"Yes","complaints":["The `share-edit-link` testid sits on a label DIV, not the actual 'Copy invite link' button — slightly odd, and a relative might not immediately register that 'Copy invite link' (edit) vs 'Copy' (view) are different powers since the View 'Copy' button is unlabeled with the word 'View'.","No CSV out — only .ics/Google. I live in Sheets; an .ics is fine for relatives' calendars but I can't diff or re-import the parse into a spreadsheet to sanity-check it."]}
 ```
+
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two cards (Paste an itinerary / Start from a blank calendar) told me exactly what it is and who it's for inside 10 seconds. I'd tell a friend: "paste your typed-up trip plan, it parses into a calendar you can share with the family."
+
+VALUE — Yes, and more than once (every family/work trip I plan). Today I'd hand-type events into Google Calendar one by one, or build a Sheet I then can't turn into a calendar. This parsed my 12-event, 2-day sample correctly and — the part that won me over as a data person — it FLAGGED assumptions: "12 events across 2 days," "end time assumed (1h)" shown explicitly. It doesn't transform my data invisibly, which is my #1 distrust. Preview-before-confirm with editable time dropdowns means I verify before committing. .ics export carried all 12 events with correct titles.
+
+VIEW-ONLY — genuinely read-only and discoverable. Both links live together in TRIP DETAILS: "Edit link — anyone can edit" (Copy invite link → /t/...) and "View-only link — read-only" (Copy → /v/...), with the helpful line "Edit = companions who plan with you · View-only = anyone you just want to show." Opening the /v/ link in a fresh tab: a clear yellow banner "View-only — you can't edit this trip. Ask the trip owner for the edit link to make changes," events rendered muted/dashed, and Create New / Confirm / Parse / Paste / Delete are all GONE (not dead buttons). Clicking the grid created nothing. Download .ics STILL works in view-only (12 VEVENTs), so a relative can pull the plan into their own calendar without being able to mangle mine. The edit link still opens the full event modal (Confirm / Add to Google Calendar / Edit / Delete) — no parsing regression. As Wen, a read-only share is exactly right: I send relatives the plan to look at, not to wreck.
+
+ADVOCACY — 8. I'd bring it up to anyone organizing a group trip. Held back from 9: no CSV in/out for my spreadsheet workflow, and the View "Copy" button could spell out "Copy view-only link" so a hurried person doesn't grab the wrong one.

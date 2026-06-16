@@ -1102,10 +1102,13 @@ test("R5-3: 390px loaded-trip — date chips on own row, no overlap with toggle/
   const toggleBox = await dayViewBtn.boundingBox();
   expect(toggleBox).not.toBeNull();
 
-  // Get the Copy invite button bounding box
-  const copyBtn = page.getByLabel("Copy invite link");
-  const copyBox = await copyBtn.boundingBox();
-  expect(copyBox).not.toBeNull();
+  // Get the Refresh button bounding box — Refresh lives in the same toggle/action row as
+  // the day/week/month switcher. The "Copy invite link" button moved to the share section
+  // BELOW the header when the two-row share UI was added, so it is no longer a valid
+  // proxy for the header row boundary.
+  const refreshBtn2 = page.getByLabel("Refresh trip");
+  const refreshBox2 = await refreshBtn2.boundingBox();
+  expect(refreshBox2).not.toBeNull();
 
   // Get a date chip bounding box
   const chipBox = await dateChips.first().boundingBox();
@@ -1114,11 +1117,10 @@ test("R5-3: 390px loaded-trip — date chips on own row, no overlap with toggle/
   // Date chip must be BELOW the toggle row (chip top > toggle bottom) — own separate row
   expect(chipBox!.y).toBeGreaterThan(toggleBox!.y + toggleBox!.height - 4); // 4px tolerance
 
-  // Date chip must not overlap horizontally with the Copy button
-  // (they are on different rows, so vertical overlap check suffices)
-  // Chip must be on a row BELOW where Copy lives
-  const copyRowBottom = copyBox!.y + copyBox!.height;
-  expect(chipBox!.y).toBeGreaterThanOrEqual(copyRowBottom - 8); // chip starts near/after copy row bottom
+  // Date chip must also be below the Refresh button (same toggle row), confirming the chip
+  // is on its own dedicated third row, not sharing horizontal space with any action button.
+  const toggleRowBottom = refreshBox2!.y + refreshBox2!.height;
+  expect(chipBox!.y).toBeGreaterThanOrEqual(toggleRowBottom - 8); // chip starts at/after toggle row bottom
 
   // No element extends beyond 390px viewport
   const noOverflow = await page.evaluate(() => {
@@ -1126,11 +1128,9 @@ test("R5-3: 390px loaded-trip — date chips on own row, no overlap with toggle/
   });
   expect(noOverflow).toBe(true);
 
-  // Refresh button also visible and not overlapping chips
-  const refreshBtn = page.getByLabel("Refresh trip");
-  const refreshBox = await refreshBtn.boundingBox();
-  expect(refreshBox).not.toBeNull();
-  expect(refreshBox!.x + refreshBox!.width).toBeLessThanOrEqual(392);
+  // Refresh button also visible and not overlapping chips (reuse already-fetched bounding box)
+  expect(refreshBox2).not.toBeNull();
+  expect(refreshBox2!.x + refreshBox2!.width).toBeLessThanOrEqual(392);
 
   await ctx.close();
 });

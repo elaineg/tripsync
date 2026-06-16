@@ -1,44 +1,11 @@
-# Rob — round 1
+NAME: Rob
 
-Freelance brand/visual designer, splitting a ski cabin with three friends, sick of being the
-guy who maintains a master plan nobody reads. Tested desktop @1280px.
+{"name":"Rob","clarity":"Yes","value":"Marginal","advocacy":7,"view_only_clear":"Yes","complaints":["Two-link share block lives inside collapsed 'Trip Details ▼' — I almost missed it; share is the whole point, surface it on first load","No real RSVP/'confirm' control — companions can drop events but I still can't see at a glance who's locked in their arrival, which was my actual reason for one link"]}
 
-**1. CLARITY: Yes.** Headline "Turn a messy itinerary into a shared day-by-day calendar — no
-app, no login" + the two cards (Paste an itinerary / Start from a blank calendar) told me the
-whole job in ~10s. "Anyone with the link can view and edit ... No account or email required"
-nailed my exact need: one link, everyone edits.
+CLARITY — Yes. Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" + the two cards (Paste an itinerary / Start blank) told me exactly what it is and who it's for inside 10 seconds. The "no account or email required" footnote sealed it. I'd tell a friend: "one link, everyone adds to a shared trip calendar, no login, export to your own calendar."
 
-**2. VALUE: Yes — I'd use it for the cabin.** Today I half-maintain this in a Google Doc
-nobody reads + a group text. Paste→preview ("12 events across 2 days will be added, edit
-before confirming", times editable)→confirm→clean day grid is genuinely less work. Each event
-card shows "Added by you" attribution and per-event "Add to Google Calendar" + whole-trip
-".ics" export, so each friend can drop their own arrival in and pull it into the calendar they
-live in. Copy invite link copied the real /t/ URL (button flipped to "Copied!").
+VALUE — Marginal. Today I keep a master plan in a Google Doc or a Figma frame everyone ignores; this is genuinely better than that for a ski-trip split because the link is live and people add their own arrival times. Would I use it more than once a week? No — trip planning is maybe monthly for me, so it doesn't hit the recurring-habit bar even though it's good at the job.
 
-**3. ADVOCACY: 8.** I'd send it to my cabin group chat this week. Held back from 9 by design
-nits below, NOT trust — every destructive path is well-guarded.
+VIEW-ONLY (the new feature) — works cleanly. Both links are clearly distinct and labeled: "Edit link — anyone can edit" (Copy invite link) vs "View-only link — read-only" (Copy), with a one-liner "Edit = companions who plan with you · View = anyone you just want to show." View link is a clean /v/ URL vs the editor's /t/ URL. In the fresh view-only tab the banner reads "View-only — you can't edit this trip. Ask the trip owner for the edit link to make changes." No create/edit/manage buttons, clicking the grid does NOT open an editor (no dead buttons), the event still syncs and shows, and "Download .ics" personal export still works. Edit link still fully edits: name field + click-to-add + Save, no readonly banner. As Rob, yes — a view-only link for the in-laws/people who just need to see it, while companions get the edit link, is genuinely useful and matches how I'd share.
 
-**Biggest blocker:** Labeling hierarchy of the destructive action is backwards. On the
-Recent-trips rows the harmless "Remove from my list" gets full text, while the
-nuke-for-everyone action is a tiny unlabeled red trash icon sitting right next to the pencil.
-The most dangerous control is the least labeled — a non-designer friend would reflexively hit
-the trash thinking "hide this." (Saved only because it DOES fire the "Delete this trip for
-everyone with the link? This can't be undone" confirm.)
-
-**Management-feature notes:**
-- Local-vs-shared distinction IS clear and I trust it: header reads "Recent trips on this
-  device"; "Remove from my list" tooltip = "device-only; trip stays on the server"; trash
-  tooltip = "Delete for everyone with the link." BOTH the list trash and the trip-page header
-  "Delete trip" fire the same strong red confirm modal (Delete + Cancel). I tested Cancel on
-  both — nothing got nuked.
-- Inline rename via pencil works (Enter saves, list updated to my new name). Trip-page header
-  title pencil + "..." menu (Rename trip / Delete trip) also work. "Create New" home button +
-  paste/blank both created distinct /t/ trips; share link strips the ?blank= param.
-- Designer gripes: (a) icon-only rename/delete on rows need text labels or clearer affordance,
-  per the blocker above; (b) every event renders one flat pink — for 4 people arriving at
-  different times I want per-person color coding; that single feature would make this beat my
-  doc cold.
-
-```json
-{"tester": 8, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Destructive 'Delete for everyone' is an unlabeled red trash icon next to the harmless pencil — labeling hierarchy backwards (mitigated by confirm modal)", "No per-person color coding; all events one flat pink, weak for tracking who arrives when"], "priorConcernsAddressed": "n/a"}
-```
+ADVOCACY — 7. Honest: the view-only feature is well-executed and the distinction is crisp. What holds it back from a 9: (1) the share links hide under a collapsed "Trip Details" panel — sharing is the core job and shouldn't take a click to find; (2) there's no "I've confirmed" / RSVP affordance, so my master-plan-everyone-ignores problem is only half-solved — people can add but I can't see who's confirmed. For my once-a-month use I wouldn't bring it up unprompted, but I'd mention it if a friend complained about herding a group trip. Not a polite 7 — a real one.

@@ -41,7 +41,66 @@ export async function getDb(): Promise<Client> {
         updated_at INTEGER NOT NULL
       )
     `);
+    // Add view_token column if it doesn't exist (safe for existing DBs)
+    try {
+      await client.execute(`ALTER TABLE trips ADD COLUMN view_token TEXT`);
+    } catch {
+      // Column already exists — ignore
+    }
+    // Add an index on view_token for fast lookups (if not already there)
+    try {
+      await client.execute(`CREATE INDEX IF NOT EXISTS idx_trips_view_token ON trips(view_token)`);
+    } catch {
+      // Ignore
+    }
     _initialized = true;
   }
   return client;
+}
+
+/**
+ * Look up a trip by its view token.
+ * Returns the row id (the edit secret) and data, or null if not found.
+ * Lazily mints and persists a view token if the trip has none (backfill for old trips).
+ */
+export async function getTripByViewToken(
+  viewToken: string
+): Promise<{ id: string; data: string } | null> {
+  const client = getClient();
+  const result = await client.execute({
+    sql: "SELECT id, data FROM trips WHERE view_token = ?",
+    args: [viewToken],
+  });
+  if (result.rows.length > 0) {
+    return {
+      id: result.rows[0].id as string,
+      data: result.rows[0].data as string,
+    };
+  }
+  return null;
+}
+
+/**
+ * Ensure a trip has a view token; mint+persist one lazily if missing.
+ * Returns the view token.
+ */
+export async function ensureViewToken(
+  tripId: string,
+  generateId: () => string
+): Promise<string> {
+  const client = getClient();
+  const result = await client.execute({
+    sql: "SELECT view_token FROM trips WHERE id = ?",
+    args: [tripId],
+  });
+  if (result.rows.length === 0) return "";
+  const existing = result.rows[0].view_token as string | null;
+  if (existing) return existing;
+  // Mint a fresh token
+  const token = generateId();
+  await client.execute({
+    sql: "UPDATE trips SET view_token = ? WHERE id = ?",
+    args: [token, tripId],
+  });
+  return token;
 }

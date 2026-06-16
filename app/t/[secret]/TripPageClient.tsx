@@ -173,7 +173,7 @@ function NamePromptModal({
 
 // ── Copy invite link button ────────────────────────────────────────────────────
 // C: flush-then-confirm: caller passes onFlush which awaits the save before copy
-function CopyLinkButton({ secret, onFlush }: { secret: string; onFlush: () => Promise<void> }) {
+function CopyLinkButton({ secret, onFlush, testId = "copy-edit-link" }: { secret: string; onFlush: () => Promise<void>; testId?: string }) {
   // "idle" | "flushing" | "copied" | "failed"
   const [state, setState] = useState<"idle" | "flushing" | "copied" | "failed">("idle");
   const [showFallback, setShowFallback] = useState(false);
@@ -228,6 +228,7 @@ function CopyLinkButton({ secret, onFlush }: { secret: string; onFlush: () => Pr
       </div>
       <button
         aria-label="Copy invite link"
+        data-testid={testId}
         onClick={() => { void handleCopy(); }}
         disabled={flushing}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
@@ -260,6 +261,124 @@ function CopyLinkButton({ secret, onFlush }: { secret: string; onFlush: () => Pr
                 d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             Copy invite link
+          </>
+        )}
+      </button>
+      {/* Fallback for blocked clipboard — shown only when copy actually failed */}
+      {showFallback && (
+        <div role="alert" className="mt-2 text-xs text-[#888]">
+          Copy failed — select and copy this link:
+          <input
+            readOnly
+            value={fullUrl}
+            className="block w-full mt-1 border border-[#E8E2D8] rounded-lg px-2 py-1 text-xs bg-white"
+            onFocus={(e) => e.target.select()}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Copy view-only link button (VO-1) ─────────────────────────────────────────
+// Parallel to CopyLinkButton — same weight/width/affordance so the two rows are visually equal.
+// Shows "Loading…" while viewToken is not yet available.
+function CopyViewLinkButton({ viewToken, onFlush }: { viewToken: string | null; onFlush: () => Promise<void> }) {
+  const [state, setState] = useState<"idle" | "flushing" | "copied" | "failed">("idle");
+  const [showFallback, setShowFallback] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fullUrl =
+    typeof window !== "undefined" && viewToken
+      ? `${window.location.origin}/v/${viewToken}`
+      : viewToken ? `/v/${viewToken}` : "";
+
+  async function handleCopy() {
+    if (!viewToken) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setState("flushing");
+    try { await onFlush(); } catch { /* ignore */ }
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/v/${viewToken}`
+        : `/v/${viewToken}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(
+        () => {
+          setState("copied");
+          setShowFallback(false);
+          timerRef.current = setTimeout(() => setState("idle"), 3000);
+        },
+        () => {
+          setState("failed");
+          setShowFallback(true);
+          timerRef.current = setTimeout(() => { setState("idle"); setShowFallback(false); }, 8000);
+        }
+      );
+    } else {
+      setState("failed");
+      setShowFallback(true);
+      timerRef.current = setTimeout(() => { setState("idle"); setShowFallback(false); }, 8000);
+    }
+  }
+
+  const copied = state === "copied";
+  const flushing = state === "flushing";
+
+  if (!viewToken) {
+    return (
+      <button
+        disabled
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border border-[#E8E2D8] bg-[#FAF7F2] text-[#aaa] cursor-wait"
+        aria-label="Generating view-only link…"
+        data-testid="copy-view-link"
+      >
+        Loading…
+      </button>
+    );
+  }
+
+  return (
+    <div>
+      {/* aria-live region: announces copy result to screen readers */}
+      <div aria-live="polite" className="sr-only" role="status">
+        {copied ? "View-only link copied to clipboard" : showFallback ? "Copy failed — select the link to copy manually" : flushing ? "Saving…" : ""}
+      </div>
+      <button
+        aria-label="Copy view-only link"
+        data-testid="copy-view-link"
+        onClick={() => { void handleCopy(); }}
+        disabled={flushing}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+          copied
+            ? "bg-green-100 border-green-300 text-green-800"
+            : flushing
+            ? "bg-[#FAF7F2] border-[#E8E2D8] text-[#aaa] cursor-wait"
+            : "bg-white border-[#E8E2D8] text-[#1a1a1a] hover:border-[#B5C8E8]"
+        }`}
+      >
+        {copied ? (
+          <>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Copied ✓
+          </>
+        ) : flushing ? (
+          <>
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Saving…
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            Copy view-only link
           </>
         )}
       </button>
@@ -589,6 +708,7 @@ function EventBottomSheet({
   onAddToCalendar,
   currentParticipantId,
   currentParticipantName,
+  readOnly = false,
 }: {
   event: TripEvent;
   onClose: () => void;
@@ -598,6 +718,7 @@ function EventBottomSheet({
   onAddToCalendar: (event: TripEvent) => void;
   currentParticipantId: string | null;
   currentParticipantName: string | null;
+  readOnly?: boolean;
 }) {
   const color = getAuthorColor(event.authorId);
   // R1-3: "own" means the current device created this event (by authorId match)
@@ -675,8 +796,8 @@ function EventBottomSheet({
 
         {/* Actions */}
         <div className="flex flex-col gap-2">
-          {/* R1-3: Only show Confirm for others' proposed events */}
-          {showConfirm && (
+          {/* Confirm — hidden in read-only mode; only for others' proposed events in edit mode */}
+          {!readOnly && showConfirm && (
             <button
               onClick={() => onConfirm(event.id)}
               className="w-full bg-green-600 text-white rounded-xl py-2.5 font-semibold hover:bg-green-700 transition-colors"
@@ -685,26 +806,31 @@ function EventBottomSheet({
             </button>
           )}
           {/* H4: per-event Google add is the single-event path — labeled honestly */}
+          {/* VO: kept in read-only mode — adds to viewer's OWN calendar, not shared state */}
           <button
             onClick={() => onAddToCalendar(event)}
             className="w-full border border-blue-300 text-blue-700 rounded-xl py-2.5 font-medium hover:bg-blue-50 transition-colors"
+            data-testid="add-to-gcal"
           >
             Add to Google Calendar
           </button>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onEdit(event)}
-              className="flex-1 border border-[#E8E2D8] text-[#333] rounded-xl py-2.5 font-medium hover:border-[#aaa] transition-colors"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => onDelete(event.id)}
-              className="flex-1 border border-red-200 text-red-600 rounded-xl py-2.5 font-medium hover:border-red-400 transition-colors"
-            >
-              Delete
-            </button>
-          </div>
+          {/* Edit/Delete — hidden in read-only mode */}
+          {!readOnly && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => onEdit(event)}
+                className="flex-1 border border-[#E8E2D8] text-[#333] rounded-xl py-2.5 font-medium hover:border-[#aaa] transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(event.id)}
+                className="flex-1 border border-red-200 text-red-600 rounded-xl py-2.5 font-medium hover:border-red-400 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          )}
           <button onClick={onClose} className="text-sm text-[#888] py-1">
             Close
           </button>
@@ -1199,6 +1325,7 @@ function DayGrid({
   onDragHintDismiss,
   currentParticipantId,
   currentParticipantName,
+  readOnly = false,
 }: {
   date: string;
   events: TripEvent[];
@@ -1215,6 +1342,8 @@ function DayGrid({
   currentParticipantId: string | null;
   /** R2-1: current viewer's name — for viewer-relative "Confirmed by you/name" */
   currentParticipantName: string | null;
+  /** VO: suppress all edit-affordance hints in view-only mode */
+  readOnly?: boolean;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const totalHours = DAY_END_HOUR - DAY_START_HOUR;
@@ -1516,8 +1645,8 @@ function DayGrid({
           </button>
         </div>
       )}
-      {/* R1-6: Mobile empty-state hint — show on touch (coarse pointer) when no events */}
-      {!isPointerFine && activeEvents.length === 0 && (
+      {/* R1-6: Mobile empty-state hint — show on touch (coarse pointer) when no events; suppressed in read-only mode */}
+      {!readOnly && !isPointerFine && activeEvents.length === 0 && (
         <div
           role="status"
           className="absolute top-2 left-4 right-4 z-10 bg-[#EEF3FF] border border-[#B5C8E8] rounded-xl px-3 py-2 flex items-center gap-2 text-xs text-[#3a5a9a] shadow-sm"
@@ -2046,11 +2175,13 @@ function MonthView({
 }
 
 // ── Main TripPageClient ────────────────────────────────────────────────────────
-export default function TripPageClient({ secret }: { secret: string }) {
+export default function TripPageClient({ secret, readOnly = false }: { secret: string; readOnly?: boolean }) {
   const [trip, setTrip] = useState<TripData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false); // true after server GET completes
   const [serverHydrated, setServerHydrated] = useState(false); // guard: don't PUT until true
+  // VO: viewToken for the share UI (edit mode only) — loaded lazily from /api/trip-view-token/[id]
+  const [viewToken, setViewToken] = useState<string | null>(null);
   const [view, setView] = useState<CalView>("day");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showPastePanel, setShowPastePanel] = useState(false);
@@ -2136,6 +2267,37 @@ export default function TripPageClient({ secret }: { secret: string }) {
   // ── Load trip from server on mount ──────────────────────────────────────────
   useEffect(() => {
     async function init() {
+      if (readOnly) {
+        // VO: read-only mode — fetch via the view-token API, no participant setup, no writes
+        try {
+          const res = await fetch(`/api/trip-view/${secret}`);
+          if (res.status === 404) {
+            setLoadError("Trip not found. The view link may be invalid or expired.");
+            setHydrated(true);
+            return;
+          }
+          if (!res.ok) throw new Error("Server error");
+          const body = (await res.json()) as { data: TripData };
+          const t = body.data;
+          setTrip(t);
+          tripRef.current = t;
+          const activeDates = getUniqueDates(t.events);
+          const today = formatDate(new Date());
+          if (activeDates.length > 0) {
+            // Fix 3: default to trip's FIRST event day (earliest date), not today
+            setSelectedDate(activeDates[0]);
+          } else {
+            setSelectedDate(today);
+          }
+          // serverHydrated stays false in read-only — no writes
+          setHydrated(true);
+        } catch {
+          setLoadError("Could not load trip. Please try again.");
+          setHydrated(true);
+        }
+        return;
+      }
+
       // Read URL params (SSR-safe: only in effect)
       const params = new URLSearchParams(window.location.search);
       const isBlankMode = params.get("blank") === "1";
@@ -2183,11 +2345,12 @@ export default function TripPageClient({ secret }: { secret: string }) {
         tripRef.current = t;
         // Set default view: always Day (spec hero view)
         // (week was the old desktop default; Day is the primary spec view)
-        // Set selectedDate to first event date or today
+        // Fix 3: Set selectedDate to trip's FIRST event day (earliest), not today
         const activeDates = getUniqueDates(t.events);
         const today = formatDate(new Date());
         if (activeDates.length > 0) {
-          setSelectedDate(activeDates.includes(today) ? today : activeDates[0]);
+          // Always land on the first event day so viewer sees populated content, not an empty grid
+          setSelectedDate(activeDates[0]);
         } else {
           // No events yet — default to today so the grid is visible (blank calendar)
           setSelectedDate(today);
@@ -2208,6 +2371,12 @@ export default function TripPageClient({ secret }: { secret: string }) {
         // Mark hydration complete — BEFORE setServerHydrated so guard is set first
         setServerHydrated(true);
         setHydrated(true);
+
+        // VO: Load view token for share UI (edit mode only — fire and forget)
+        fetch(`/api/trip-view-token/${secret}`)
+          .then((r) => r.ok ? r.json() as Promise<{ viewToken: string }> : null)
+          .then((data) => { if (data?.viewToken) setViewToken(data.viewToken); })
+          .catch(() => { /* ignore — view token is optional in the share UI */ });
       } catch {
         setLoadError("Could not load trip. Please try again.");
         setHydrated(true);
@@ -2218,11 +2387,11 @@ export default function TripPageClient({ secret }: { secret: string }) {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [secret]);
+  }, [secret, readOnly]);
 
-  // Update recent trips when trip name loads
+  // Update recent trips when trip name loads (edit mode only — view links don't appear in recent trips)
   useEffect(() => {
-    if (!trip) return;
+    if (!trip || readOnly) return;
     try {
       const raw = window.localStorage.getItem(RECENT_TRIPS_KEY);
       const existing: Array<{ id: string; name: string; createdAt: number }> = raw
@@ -2234,13 +2403,16 @@ export default function TripPageClient({ secret }: { secret: string }) {
       ].slice(0, 10);
       window.localStorage.setItem(RECENT_TRIPS_KEY, JSON.stringify(updated));
     } catch { /* ignore */ }
-  }, [trip, secret]);
+  }, [trip, secret, readOnly]);
 
   // Tab-focus refresh
   useEffect(() => {
     function handleVisibility() {
-      if (document.visibilityState === "visible" && serverHydrated) {
-        fetch(`/api/trip/${secret}`)
+      if (document.visibilityState === "visible") {
+        // VO: use view API for read-only mode; edit API for edit mode
+        const url = readOnly ? `/api/trip-view/${secret}` : (serverHydrated ? `/api/trip/${secret}` : null);
+        if (!url) return;
+        fetch(url)
           .then((res) => res.ok ? res.json() as Promise<{ data: TripData }> : null)
           .then((body) => {
             if (body) {
@@ -2253,7 +2425,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
     }
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [secret, serverHydrated]);
+  }, [secret, serverHydrated, readOnly]);
 
   // ── Debounced save ───────────────────────────────────────────────────────────
   function scheduleSave(updated: TripData) {
@@ -2863,7 +3035,8 @@ export default function TripPageClient({ secret }: { secret: string }) {
   }
 
   function handleRefresh() {
-    fetch(`/api/trip/${secret}`)
+    const url = readOnly ? `/api/trip-view/${secret}` : `/api/trip/${secret}`;
+    fetch(url)
       .then((res) => res.ok ? res.json() as Promise<{ data: TripData }> : null)
       .then((body) => {
         if (body) {
@@ -2871,7 +3044,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
           tripRef.current = body.data;
         }
       })
-      .catch(() => setSaveStatus("error"));
+      .catch(() => { if (!readOnly) setSaveStatus("error"); });
   }
 
   // ── Derived data ──────────────────────────────────────────────────────────────
@@ -2907,9 +3080,13 @@ export default function TripPageClient({ secret }: { secret: string }) {
     : [...baseDates, selectedDate].sort();
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      {/* TM-R1-6: Delete confirm dialog — portal, focus-trapped, testids, reliable at 390px */}
-      {showDeleteConfirm && createPortal(
+    <div
+      className="flex flex-col h-screen overflow-hidden"
+      data-testid={readOnly ? "readonly-mode" : undefined}
+      data-readonly={readOnly ? "true" : undefined}
+    >
+      {/* TM-R1-6: Delete confirm dialog — portal, focus-trapped, testids, reliable at 390px; hidden in read-only */}
+      {!readOnly && showDeleteConfirm && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
           role="dialog"
@@ -2949,22 +3126,24 @@ export default function TripPageClient({ secret }: { secret: string }) {
       <header className="flex-shrink-0 bg-[#FAF7F2] border-b border-[#E8E2D8] px-4 py-1.5" style={{ maxHeight: "128px" }}>
         {/* Top row: Create New (nav, left) + trip name (center/flex) + Save status + name chip + ⋯ menu */}
         <div className="flex items-center justify-between gap-2 min-h-0">
-          {/* M4/TM-R1-3: Create New button — leading/left, LABELED on desktop AND mobile */}
-          <Link
-            href="/"
-            className="flex-shrink-0 flex items-center gap-1 text-xs text-[#555] border border-[#E8E2D8] rounded-lg px-2 py-1.5 bg-white hover:border-[#B5C8E8] hover:text-[#1a1a1a] transition-colors min-h-[44px]"
-            aria-label="Create new trip"
-          >
-            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {/* TM-R1-3: "New" on mobile (≤sm), "Create New" on desktop */}
-            <span className="sm:hidden font-medium">New</span>
-            <span className="hidden sm:inline font-medium">Create New</span>
-          </Link>
+          {/* M4/TM-R1-3: Create New button — leading/left, LABELED. Hidden in read-only mode. */}
+          {!readOnly && (
+            <Link
+              href="/"
+              className="flex-shrink-0 flex items-center gap-1 text-xs text-[#555] border border-[#E8E2D8] rounded-lg px-2 py-1.5 bg-white hover:border-[#B5C8E8] hover:text-[#1a1a1a] transition-colors min-h-[44px]"
+              aria-label="Create new trip"
+            >
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {/* TM-R1-3: "New" on mobile (≤sm), "Create New" on desktop */}
+              <span className="sm:hidden font-medium">New</span>
+              <span className="hidden sm:inline font-medium">Create New</span>
+            </Link>
+          )}
 
-          {/* M1: Trip name — click to rename (inline editor replaces title temporarily) */}
-          {isRenamingTitle ? (
+          {/* M1: Trip name — click to rename in edit mode; plain text in read-only */}
+          {!readOnly && isRenamingTitle ? (
             <div className="flex-1 min-w-0 flex items-center gap-1">
               <input
                 ref={renameTitleInputRef}
@@ -2989,6 +3168,11 @@ export default function TripPageClient({ secret }: { secret: string }) {
                 aria-label="Cancel rename"
               >✕</button>
             </div>
+          ) : readOnly ? (
+            /* Read-only: plain trip name, no rename affordance */
+            <span className="flex-1 min-w-0 text-base font-bold text-[#1a1a1a] truncate">
+              {trip.name}
+            </span>
           ) : (
             /* M1: Title with hover affordance — pencil shows on hover, click opens editor */
             <button
@@ -3017,19 +3201,19 @@ export default function TripPageClient({ secret }: { secret: string }) {
             </button>
           )}
 
-          {/* Save status */}
-          {saveStatus === "saving" && (
+          {/* Save status (edit mode only) */}
+          {!readOnly && saveStatus === "saving" && (
             <span className="text-xs text-[#aaa] flex-shrink-0">Saving…</span>
           )}
-          {saveStatus === "saved" && (
+          {!readOnly && saveStatus === "saved" && (
             <span className="text-xs text-green-600 flex-shrink-0">Saved</span>
           )}
-          {saveStatus === "error" && (
+          {!readOnly && saveStatus === "error" && (
             <span role="alert" className="text-xs text-red-500 flex-shrink-0">Save failed</span>
           )}
 
-          {/* TM-R1-5: "Your name" chip — trailing position, distinct from trip-title rename */}
-          {participant && (
+          {/* TM-R1-5: "Your name" chip — trailing position. Hidden in read-only mode. */}
+          {!readOnly && participant && (
             <button
               onClick={() => setShowNamePrompt(true)}
               className="flex-shrink-0 text-xs bg-white border border-[#E8E2D8] rounded-full px-2 py-1.5 font-medium hover:border-[#B5C8E8] transition-colors min-h-[44px]"
@@ -3042,75 +3226,77 @@ export default function TripPageClient({ secret }: { secret: string }) {
             </button>
           )}
 
-          {/* M2: ⋯ Trip options menu — contains Delete (and Rename + Create New as fallbacks) */}
-          <div className="relative flex-shrink-0" ref={tripMenuRef}>
-            <button
-              onClick={() => setShowTripMenu((v) => !v)}
-              className="p-1.5 rounded-lg border border-[#E8E2D8] bg-white text-[#555] hover:text-[#1a1a1a] hover:border-[#B5C8E8] transition-colors min-h-[44px]"
-              aria-label="Trip options"
-              aria-expanded={showTripMenu}
-              aria-haspopup="menu"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="5" cy="12" r="1.5" />
-                <circle cx="12" cy="12" r="1.5" />
-                <circle cx="19" cy="12" r="1.5" />
-              </svg>
-            </button>
-            {showTripMenu && (
-              <div
-                className="absolute right-0 top-full mt-1 bg-white border border-[#E8E2D8] rounded-xl shadow-lg z-40 min-w-[180px] py-1"
-                role="menu"
+          {/* M2: ⋯ Trip options menu — hidden in read-only mode */}
+          {!readOnly && (
+            <div className="relative flex-shrink-0" ref={tripMenuRef}>
+              <button
+                onClick={() => setShowTripMenu((v) => !v)}
+                className="p-1.5 rounded-lg border border-[#E8E2D8] bg-white text-[#555] hover:text-[#1a1a1a] hover:border-[#B5C8E8] transition-colors min-h-[44px]"
+                aria-label="Trip options"
+                aria-expanded={showTripMenu}
+                aria-haspopup="menu"
               >
-                {/* TM-R1-3: Create New — fallback in menu (Sam expected it here) */}
-                <Link
-                  href="/"
-                  role="menuitem"
-                  onClick={() => setShowTripMenu(false)}
-                  className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="5" cy="12" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="19" cy="12" r="1.5" />
+                </svg>
+              </button>
+              {showTripMenu && (
+                <div
+                  className="absolute right-0 top-full mt-1 bg-white border border-[#E8E2D8] rounded-xl shadow-lg z-40 min-w-[180px] py-1"
+                  role="menu"
                 >
-                  <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Create New
-                </Link>
-                <div className="border-t border-[#F0EDE8] my-1" />
-                {/* Rename option in menu (mobile fallback if pencil is hard to find) */}
-                <button
-                  role="menuitem"
-                  onClick={() => {
-                    setShowTripMenu(false);
-                    setRenameTitleDraft(trip.name);
-                    setIsRenamingTitle(true);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
-                >
-                  <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  Rename trip
-                </button>
-                <div className="border-t border-[#F0EDE8] my-1" />
-                {/* TM-R1-6: Delete — testid on trigger so automation finds it */}
-                <button
-                  role="menuitem"
-                  data-testid="trip-menu-delete"
-                  onClick={() => {
-                    setShowTripMenu(false);
-                    setShowDeleteConfirm(true);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-[#C0392B] hover:bg-red-50 flex items-center gap-2 transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Delete trip
-                </button>
-              </div>
-            )}
-          </div>
+                  {/* TM-R1-3: Create New — fallback in menu (Sam expected it here) */}
+                  <Link
+                    href="/"
+                    role="menuitem"
+                    onClick={() => setShowTripMenu(false)}
+                    className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create New
+                  </Link>
+                  <div className="border-t border-[#F0EDE8] my-1" />
+                  {/* Rename option in menu (mobile fallback if pencil is hard to find) */}
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setShowTripMenu(false);
+                      setRenameTitleDraft(trip.name);
+                      setIsRenamingTitle(true);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Rename trip
+                  </button>
+                  <div className="border-t border-[#F0EDE8] my-1" />
+                  {/* TM-R1-6: Delete — testid on trigger so automation finds it */}
+                  <button
+                    role="menuitem"
+                    data-testid="trip-menu-delete"
+                    onClick={() => {
+                      setShowTripMenu(false);
+                      setShowDeleteConfirm(true);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-[#C0392B] hover:bg-red-50 flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete trip
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Second row: view switcher + refresh + copy-invite (NO date chips here) */}
@@ -3140,7 +3326,7 @@ export default function TripPageClient({ secret }: { secret: string }) {
           {/* Flexible spacer */}
           <div className="flex-1" />
 
-          {/* Copy link + refresh — always visible at far right, never squeezed */}
+          {/* Refresh — always visible at far right */}
           <div className="flex-shrink-0 flex items-center gap-1">
             <button
               onClick={handleRefresh}
@@ -3153,8 +3339,6 @@ export default function TripPageClient({ secret }: { secret: string }) {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            {/* C: flush-then-confirm — flushPending awaits any pending debounced save */}
-            <CopyLinkButton secret={secret} onFlush={flushPending} />
           </div>
         </div>
 
@@ -3281,10 +3465,87 @@ export default function TripPageClient({ secret }: { secret: string }) {
         )}
       </header>
 
-      {/* ── Share framing (below header) ────────────────────────────────────── */}
-      {/* Shown inline in the CopyLinkButton context — framing in honest-framing section */}
+      {/* ── VO: Read-only banner (view-only mode) ───────────────────────────────── */}
+      {readOnly && (
+        <div
+          className="flex-shrink-0 bg-amber-50 border-b border-amber-200 px-3 py-2"
+          data-testid="readonly-banner"
+          role="status"
+          aria-label="View-only mode"
+        >
+          <p className="text-xs text-amber-800">
+            View-only — you can&apos;t edit this trip. Ask the trip owner for the edit link to make changes.
+          </p>
+        </div>
+      )}
 
-      {/* ── Trip details card (collapsed on mobile by default — F) ──────────── */}
+      {/* ── Fix 4: Share section surfaced ABOVE Trip Details — reachable without expanding anything ── */}
+      {/* Edit mode: two-row share UI always visible; view-only mode: export strip always visible */}
+      {readOnly ? (
+        /* Read-only: only show bulk export if there are events */
+        activeEvents.length > 0 && (
+          <div className="flex-shrink-0 bg-[#FFF8F0] border-b border-[#E8E2D8] px-3 py-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 w-full">
+            <button
+              onClick={handleBulkIcs}
+              className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
+              aria-label="Download .ics"
+              data-testid="download-ics"
+              title={confirmedEvents.length > 0 ? "Download confirmed events as .ics (imports into Google/Apple/Outlook)" : "Download all events as .ics (imports into Google/Apple/Outlook)"}
+            >
+              Download .ics
+            </button>
+          </div>
+        )
+      ) : (
+        /* Edit mode: two-row share UI + paste + export — always expanded, no click needed */
+        <div className="flex-shrink-0 bg-[#FFF8F0] border-b border-[#E8E2D8] px-3 py-2 w-full">
+          {/* VO-1: Two clearly-labeled share rows — parallel weight/width/affordance */}
+          <div className="flex flex-col gap-2 mb-1.5">
+            {/* Row 1: Edit link */}
+            <div className="flex items-start gap-2" data-testid="share-edit-link">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#1a1a1a]">Edit link — anyone can edit</p>
+                <p className="text-xs text-[#aaa] leading-tight">Anyone with this link can view AND edit. Share only with your travel companions.</p>
+              </div>
+              <CopyLinkButton secret={secret} onFlush={flushPending} testId="copy-edit-link" />
+            </div>
+            {/* Row 2: View-only link — button label/style matches edit row for equal visual weight */}
+            <div className="flex items-start gap-2" data-testid="share-view-link">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#1a1a1a]">View-only link — read-only</p>
+                <p className="text-xs text-[#aaa] leading-tight">They can see the plan and add it to their own calendar, but can&apos;t change anything.</p>
+              </div>
+              <CopyViewLinkButton viewToken={viewToken} onFlush={flushPending} />
+            </div>
+            {/* One-line inline picker */}
+            <p className="text-xs text-[#aaa] italic">Edit = companions who plan with you · View-only = anyone you just want to show.</p>
+          </div>
+          {/* Paste + export row */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+              onClick={() => setShowPastePanel(true)}
+              className="text-xs text-[#666] hover:text-[#1a1a1a] underline whitespace-nowrap"
+            >
+              Paste itinerary
+            </button>
+            {/* E/H4: bulk .ics is the PRIMARY "add to calendar" path */}
+            {activeEvents.length > 0 && (
+              <button
+                onClick={handleBulkIcs}
+                className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
+                aria-label="Save to calendar (.ics)"
+                data-testid="download-ics"
+                title={confirmedEvents.length > 0 ? "Download confirmed events as .ics (imports into Google/Apple/Outlook)" : "Download all events as .ics (imports into Google/Apple/Outlook)"}
+              >
+                Save to calendar (.ics)
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Trip details card (collapsed by default — F) ────────────────────── */}
+      {/* Moved BELOW the share section so share is always reachable without expanding this */}
       <div className="flex-shrink-0 bg-white border-b border-[#E8E2D8] px-4 py-1.5">
         <button
           onClick={() => setDetailsExpanded(!detailsExpanded)}
@@ -3297,13 +3558,20 @@ export default function TripPageClient({ secret }: { secret: string }) {
         </button>
         {detailsExpanded && (
           <div className="mt-1">
-            <textarea
-              value={trip.details}
-              onChange={(e) => handleDetailsChange(e.target.value)}
-              className="w-full text-sm text-[#444] bg-transparent focus:outline-none resize-none min-h-[60px]"
-              placeholder="Weather, what to bring, dress code, general reminders…"
-              aria-label="Trip details"
-            />
+            {readOnly ? (
+              /* Read-only: show as plain text, not editable */
+              <p className="w-full text-sm text-[#444] min-h-[40px] whitespace-pre-wrap">
+                {trip.details || <span className="text-[#aaa]">No trip details added.</span>}
+              </p>
+            ) : (
+              <textarea
+                value={trip.details}
+                onChange={(e) => handleDetailsChange(e.target.value)}
+                className="w-full text-sm text-[#444] bg-transparent focus:outline-none resize-none min-h-[60px]"
+                placeholder="Weather, what to bring, dress code, general reminders…"
+                aria-label="Trip details"
+              />
+            )}
           </div>
         )}
         {!detailsExpanded && trip.details && (
@@ -3316,37 +3584,9 @@ export default function TripPageClient({ secret }: { secret: string }) {
         )}
       </div>
 
-      {/* ── Compact action strip (honest framing + paste + export — F/E/H4) ──────── */}
-      {/* R4-2: flex-wrap so the strip wraps to a second row on 390px instead of
-          overflowing horizontally. No overflow-x-auto ancestor that would clip buttons. */}
-      <div className="flex-shrink-0 bg-[#FFF8F0] border-b border-[#E8E2D8] px-3 py-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 w-full">
-        {/* F: single small line for the framing — not a full banner */}
-        <p className="text-xs text-[#aaa]">
-          Anyone with this link can view &amp; edit
-        </p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 ml-auto">
-          <button
-            onClick={() => setShowPastePanel(true)}
-            className="text-xs text-[#666] hover:text-[#1a1a1a] underline whitespace-nowrap"
-          >
-            Paste itinerary
-          </button>
-          {/* E/H4: bulk .ics is the PRIMARY "add to calendar" path — show clearly. */}
-          {activeEvents.length > 0 && (
-            <button
-              onClick={handleBulkIcs}
-              className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
-              aria-label="Save to calendar (.ics)"
-              title={confirmedEvents.length > 0 ? "Download confirmed events as .ics (imports into Google/Apple/Outlook)" : "Download all events as .ics (imports into Google/Apple/Outlook)"}
-            >
-              Save to calendar (.ics)
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* ── Paste import panel (when shown) ──────────────────────────────────── */}
-      {showPastePanel && (
+      {/* Paste panel — edit mode only */}
+      {!readOnly && showPastePanel && (
         <div className="flex-shrink-0 bg-white border-b border-[#E8E2D8] px-4 py-4 max-h-[80vh] overflow-y-auto">
           <PasteImportPanel
             tripName={trip.name}
@@ -3367,15 +3607,16 @@ export default function TripPageClient({ secret }: { secret: string }) {
               date={selectedDate}
               events={activeEvents}
               onEventTap={handleEventTap}
-              onSlotTap={handleSlotTap}
-              isPointerFine={isPointerFine}
-              onDragCreateCommit={handleDragCreateCommit}
-              onDragMove={handleDragMove}
-              onDragResize={handleDragResize}
-              showDragHint={dragHintReady && showDragHint && isPointerFine && activeEvents.filter(e => !e.deletedAt && e.date === selectedDate).length === 0}
+              onSlotTap={readOnly ? (_m: number) => {} : handleSlotTap}
+              isPointerFine={readOnly ? false : isPointerFine}
+              onDragCreateCommit={readOnly ? (_s: number, _e: number) => new DOMRect() : handleDragCreateCommit}
+              onDragMove={readOnly ? (_id: string, _m: number) => {} : handleDragMove}
+              onDragResize={readOnly ? (_id: string, _edge: "top" | "bottom", _m: number) => {} : handleDragResize}
+              showDragHint={!readOnly && dragHintReady && showDragHint && isPointerFine && activeEvents.filter(e => !e.deletedAt && e.date === selectedDate).length === 0}
               onDragHintDismiss={handleDragHintDismiss}
               currentParticipantId={participant?.id ?? null}
               currentParticipantName={participant?.name ?? null}
+              readOnly={readOnly}
             />
           </div>
         )}
@@ -3412,12 +3653,13 @@ export default function TripPageClient({ secret }: { secret: string }) {
         )}
       </div>
 
-      {/* ── Add event FAB — touch/coarse-pointer ONLY (AF-3, R1-6)  ────────── */}
+      {/* ── Add event FAB — touch/coarse-pointer ONLY, hidden in read-only mode ── */}
       {/* AF-4: position:fixed so it never widens any toolbar row. */}
       {/* Hidden on (pointer:fine) — desktop uses drag-to-create as the primary path. */}
       {/* R1-6: FAB shows visible "Add event" text label, not a bare icon */}
       {/* R2-4: FAB taps open form with the CURRENTLY VIEWED date (not 9am today) */}
-      {view === "day" && selectedDate && !showPastePanel && !isPointerFine && (
+      {/* VO: hidden in read-only mode */}
+      {!readOnly && view === "day" && selectedDate && !showPastePanel && !isPointerFine && (
         <button
           onClick={() => handleSlotTap(9 * 60)}
           className="fixed bottom-4 right-4 z-30 bg-[#1a1a1a] text-white rounded-full shadow-lg flex items-center gap-2 px-4 py-3 hover:bg-[#333] transition-colors"
@@ -3431,8 +3673,8 @@ export default function TripPageClient({ secret }: { secret: string }) {
         </button>
       )}
 
-      {/* ── Quick-create popover (AF-2 — portal, fine pointer only) ─────────── */}
-      {quickCreatePopover && (
+      {/* ── Quick-create popover (AF-2 — portal, fine pointer only, hidden in read-only) ── */}
+      {!readOnly && quickCreatePopover && (
         <QuickCreatePopover
           anchorRect={quickCreatePopover.anchorRect}
           startMinutes={quickCreatePopover.startMinutes}
@@ -3443,8 +3685,8 @@ export default function TripPageClient({ secret }: { secret: string }) {
         />
       )}
 
-      {/* ── R2-1: Inline lazy name capture (first confirm action) ─────────── */}
-      {inlineNameCapture && (
+      {/* ── R2-1: Inline lazy name capture (edit mode only) ──────────────────── */}
+      {!readOnly && inlineNameCapture && (
         <InlineNameCapture
           prompt={inlineNameCapture.prompt}
           onConfirm={inlineNameCapture.onConfirmed}
@@ -3468,8 +3710,8 @@ export default function TripPageClient({ secret }: { secret: string }) {
         />
       )}
 
-      {/* ── Modals ────────────────────────────────────────────────────────────── */}
-      {showNamePrompt && (
+      {/* ── Modals (edit mode only) ──────────────────────────────────────────── */}
+      {!readOnly && showNamePrompt && (
         <NamePromptModal
           onConfirm={handleNameConfirm}
           onSkip={() => {
@@ -3495,10 +3737,11 @@ export default function TripPageClient({ secret }: { secret: string }) {
           onAddToCalendar={handleAddToCalendar}
           currentParticipantId={participant?.id ?? null}
           currentParticipantName={participant?.name ?? null}
+          readOnly={readOnly}
         />
       )}
 
-      {editingEvent && (
+      {!readOnly && editingEvent && (
         <EventEditSheet
           event={editingEvent}
           dates={availableDates}

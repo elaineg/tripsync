@@ -1,22 +1,16 @@
-# Aisha — round 2
+NAME: Aisha
 
-**1. CLARITY — Yes.** Same one-breath pitch: the H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two labeled start cards still tell me exactly what it is and who it's for within seconds. Nothing regressed.
+{"name":"Aisha","clarity":"Yes","value":"Yes","advocacy":9,"view_only_clear":"Yes","prior_concern_addressed":"Yes","complaints":["Edit/View link rows live in a persistent banner above the grid rather than behind a Share affordance — considered, but it's a lot of standing chrome on the owner's own calendar view"]}
 
-**2. VALUE — Yes.** Still beats squinting at an ugly Notion bullet list on the train — the parsed day-hourly grid is the considered shared view I want for the city trip, and the management layer now feels finished enough that I'd keep coming back rather than abandoning it after one paste.
+PRIOR DEFECTS — all 3 resolved:
+1. Dead read-only hint — RESOLVED. Cold-opened the /v/ link and paged forward to empty days; the "tap a slot to add / + button" copy is gone everywhere in view-only (regex for it returns false on both populated and empty days). No dead edit affordance leaks under the yellow banner anymore.
+2. Non-parallel share CTAs — RESOLVED, and nicely. The two rows are now fully parallel: "Edit link — anyone can edit" / "View-only link — read-only", each with a matching outlined button "Copy invite link" / "Copy view-only link" at equal width, weight, and icon. The helper line "Edit = companions who plan with you · View-only = anyone you just want to show" disambiguates which to send. Unconfusable now.
+3. Today-default date — RESOLVED. The view-only link cold-opens on Oct 3 (the trip's first event day) with Breakfast + Tram 28 already on screen — not an empty "today" grid. Day pills show only Oct 3/Oct 4. The person I share with sees a populated calendar immediately.
 
-**3. ADVOCACY — 9.** Both craft gaps that kept me at 8 are genuinely fixed and the management row now reads as one coherent design language instead of a patched-together cluster. I'd bring this up unprompted to design friends; the only thing between it and a 10 is the still-missing empty Recent state.
+CLARITY — Yes. Hero "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the Paste/Start-blank cards still land in ~10s. Nothing fought me.
 
-**Biggest blocker:** The empty Recent-trips state is still *absent entirely* — on a fresh device the "Recent trips on this device" heading simply doesn't render, so there's no "the trips you make will show up here" moment. A missed considered detail, not a bug, but it's the last thing keeping a craft-judger from a 10.
+VALUE — Yes. Same as round 1: my Notion bullet plan becomes a real shared day-grid via paste→"4 events across 2 days"→confirm. The parse-confirm step is the standout craft and a genuine time-save I'd reach for every trip.
 
-**Re-judged my prior gaps (drove real create / view rows / remove on desktop 1280):**
-- Recent rows: now three consistent labeled text actions on one baseline — "Rename" (icon+label), "Remove from my list" (plain text), red "Delete for everyone" (trash icon+label). No more bare unlabeled icons clustered against a text link. Clean affordance family, generous spacing, comfortable targets. RESOLVED.
-- Scope caption "Remove = this device only · Delete = everyone with the link" always visible under the heading — instantly disambiguates local vs destructive. Excellent.
-- "Remove from my list" now gives reassurance feedback (no longer silent) — my round-1 no-undo/no-reassurance complaint is addressed.
-- Header: "Your name" pill at the trailing edge, separated from the centered title and the Saved badge; the awkward "Set name" persisting next to green "Saved" is gone. RESOLVED.
-- Long trip name wraps cleanly to two lines; "Create New" is a clearly-labeled button. RESOLVED.
+VIEW-ONLY CRAFT — Genuinely read-only: no Create New, no Paste, no add control on empty days (all confirmed false); banner is calm and correctly placed; Download .ics export survives; edit link stays fully editable. The blemish that held me at 8 is gone.
 
-**Prior craft gaps resolved?** Yes for 3 of 4 — mixed-affordance rows, awkward header persistence, and silent removal all fixed; only the still-absent empty Recent state remains.
-
-```json
-{"tester": 7, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Empty Recent-trips state still absent entirely — no 'trips you make show up here' placeholder on a fresh device"], "priorConcernsAddressed": "some"}
-```
+ADVOCACY — 9. All three round-1 nits fixed with real craft, so I'd now bring this up unprompted to friends planning trips. Only thing keeping it off a 10: the dual-link share panel is persistent chrome on the owner's own calendar rather than tucked behind a Share button — minor, and I prefer it visible to hidden, so it's not a defect, just the last polish step.

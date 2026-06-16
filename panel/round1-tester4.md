@@ -1,25 +1,11 @@
-# Tomás — round 1
+NAME: Tomás
 
-Ops analyst, Excel/Tableau/Jira all day, IT blocks installs, wary of pasting company data — but this is a personal beach-house week in a browser tool, so it fits. This round I exercised the new trip-management features and re-checked my prior gripes.
+{"name":"Tomás","clarity":"Yes","value":"Yes","advocacy":9,"view_only_clear":"Yes","prior_concern_addressed":"Yes","complaints":["Both links sit in the same TRIP DETAILS panel with similar grey buttons ('Copy invite link' vs plain 'Copy') — under a quick glance I could grab the wrong one; the view-only button deserves a more distinct label/color","New events default to the literal title '(New event)' if you don't catch the title field — a relative opening the view link sees an unnamed block"]}
 
-Prior concerns re-checked:
-- "No way to reach a future month from a blank calendar (defaults to today)" — ADDRESSED. Blank mode now shows a "Go to:" date field (2026-06-16) with prev/next arrows, so I can jump to my August week. This was my #1 blocker; it's fixed.
-- "Week view showed one day, not 7" — UNCONFIRMED this round (my view-toggle click didn't register; couldn't re-verify), so I'm leaving it as an open question, not a pass.
+PRIOR CONCERN: Addressed. Last round I wanted a read-only share so relatives could SEE the plan without fat-fingering an edit. This version delivers exactly that. The view link is a distinct path (/v/... vs the edit /t/...), it shows a clear banner — "View-only — you can't edit this trip. Ask the trip owner for the edit link to make changes." — clicking an empty grid slot does nothing, and clicking an event opens a read-only card (title, time, "Proposed by the organizer") with only "Add to Google Calendar" and "Close". No edit/create/delete/manage controls, no dead buttons. The edit link still opens the full editor and has no banner. That's precisely what I asked for.
 
-CLARITY — Yes. "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus "Anyone with the link can view & edit... No account or email required" told me what it is and who it's for in ~5s. The two start cards (Paste vs Start blank) make the paths obvious.
+CLARITY (Yes): The H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus "Anyone with the link can view and edit — no account or email required" told me in 10 seconds what it is and who it's for. I'd tell a friend: it makes one no-signup link for a group trip calendar that anyone, any age, can open and add to their own calendar.
 
-VALUE — Yes. Today I'd fight a SharePoint Excel half my relatives can't open on their phones plus a Teams thread. Here: paste our rough plan → Parse → editable preview ("12 events across 2 days," "end time assumed") → "Add to..." → a clean calendar with side-by-side overlaps and a "Save to calendar (.ics)" export. One no-login link I can send Grandma. That genuinely beats my spreadsheet.
+VALUE (Yes, weekly+ during planning): Today I'd wrangle this in a shared Excel on SharePoint that half my relatives can't open, or a Google Sheet they won't sign into. This is a plain link, no install (IT-friendly for me), and the view-only mode finally solves my real fear: sending elderly relatives a link they can read without nuking the plan. The personal "Add to Google Calendar" and "Download .ics" both work IN view-only — so they get the dates into their own calendar without touching mine. I'd use it every trip-planning season and re-send updates.
 
-ADVOCACY — 8. I'd raise it next time family or ops coordinates a group thing. Held off 9 because there's still no read-only/view-only share — "anyone with the link can edit" handed to 15 relatives means one fat-finger changes the shared plan, and I can't restrict it.
-
-Biggest blocker: No view-only share mode. Universal edit-by-link is risky for a large mixed-age family; I want most people viewing and only me editing.
-
-Management-feature notes:
-- Recent list ("Recent trips on this device" — honest label) per row: "Remove from my list" (text), pencil=Rename, red trash=Delete. Tooltips are explicit — "Remove from my list (device-only; trip stays on the server)" vs "Delete for everyone with the link" — and the trash fires a modal: "Delete this trip for everyone with the link? This can't be undone." (red Delete + Cancel). As a cautious coordinator I do NOT fear accidentally nuking the shared plan. Good guardrail.
-- Nit: the red trash sits right next to "Remove from my list" with no visible label; the for-everyone vs for-me distinction is only clear on hover. A tiny "Delete for all" label would beat relying on tooltips.
-- Trip page: title pencil to rename, "..." menu = "Rename trip" + red "Delete trip", "Create New" top-left, live "Saved" status. Discoverable and clean.
-- Core sanity: paste → Load sample → Parse → confirm → events landed correctly. No console errors.
-
-```json
-{"tester": 4, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["No read-only/view-only share mode — anyone with the link can edit, risky for 15 relatives", "Red Delete trash sits next to 'Remove from my list' with no visible label; for-everyone vs for-me only clear on hover"], "priorConcernsAddressed": "some"}
-```
+ADVOCACY (9): It does the one thing I needed and does it cleanly with zero friction or signup. Not a 10 only because the two share buttons look too alike at a glance — make the view-only button visually distinct so a hurried organizer never sends the edit link by mistake — and the "(New event)" default-naming is a small papercut. Fix those and it's a 10 I'd bring up unprompted.

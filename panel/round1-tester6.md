@@ -1,54 +1,20 @@
-Name: Jules
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Jules — round 1
 
-I run a community and I'm planning a real friends' camping trip, and my one hard rule is: nobody
-creates an account just to see when we leave Friday. TripSync nails that rule.
+**1. CLARITY: Yes.** The H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two clearly-labeled cards ("Paste an itinerary" / "Start from a blank calendar") told me exactly what it is in under 10 seconds. The footer line "Anyone with the link can view and edit — No account or email required" is the exact promise I care about.
 
-CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no app,
-no login" plus the footer "Anyone with the link can view and edit... No account or email required"
-told me exactly what it is in under 5 seconds. Two clearly labeled cards — "Paste an itinerary"
-(I have a plan in a doc) vs "Start from a blank calendar" (build it myself) — meant I knew how to
-start without thinking. This is the rare landing page that doesn't make me guess.
+**2. VALUE: Yes.** Today I'd dump our camping plan into a Notion page or a group chat and people scroll a wall of text. Pasting my messy list and getting "12 events across 2 days" laid out on a real day grid — with an editable preview before confirming and a Copy invite link / .ics export — genuinely beats that, and nobody has to sign up. I'd actually send this link to the camping group.
 
-VALUE — Yes, real. Today I'd dump this into a Notion page or a Discord pinned message and people
-either ignore it or can't read it on a phone. TripSync beats both:
-- Paste flow is the standout. I pasted a rough Friday/Saturday itinerary and it correctly read
-  "Friday → Jun 15", "Saturday → Jun 16", parsed all 6 lines into titled events, assumed 1h end
-  times, and gave me a PREVIEW with editable time dropdowns before committing. That's genuinely
-  smart and saved me retyping.
-- Desktop blank flow works like Google Calendar: drag created a 12–2pm block, single-click made a
-  ~1h block, and I could grab a block and drag it from 2pm to 4pm. Felt familiar instantly.
-- Mobile (390px): no horizontal scroll anywhere, nothing cut off. Tap-to-create opens a full
-  bottom-sheet (Title/Date/Start/End/Location/Link/Notes). There's a floating round "+" button.
-- The actual test that matters: I copied the invite link, opened it in a FRESH mobile browser with
-  no login, and immediately saw the events and the Jun 15 / Jun 16 day tabs. That's my whole use
-  case in one tap. Copy invite link worked on both desktop and mobile (button flips to "Copied!").
+**3. ADVOCACY: 8.** The core is slick and the no-login share is the real hook. Two things keep it off a 9: recent-trip names truncate hard on mobile ("Beach ...", "Campi...") so I can't tell trips apart at a glance, and the rename/delete icons sit ~4px apart and are tiny — delete is "for everyone," so an accidental tap is scary.
 
-TOP LIKES: paste-parser is borderline magic; true no-login share that opens straight to the
-schedule on a phone; .ics export so people can drop it into their own calendar; clean, no horizontal
-scroll on mobile.
+**Biggest blocker:** None blocking — but on a narrow phone the recent-list name truncation + cramped delete icon make me nervous about destructive taps.
 
-TOP DISLIKES / FRICTION (why it's an 8, not a 9-10):
-1. The on-grid hint on MOBILE still reads "Drag down the grid to block out time, or click a slot" —
-   that's desktop language. On a phone you tap; "drag/click" is confusing and wrong for the device.
-2. The "Add event" button on mobile is icon-only (a bare "+", aria-label "Add event" but no visible
-   text), and on the empty blank calendar I didn't notice it at first — it reads as decoration until
-   you have events. New-to-blank mobile users may not realize how to add the first event besides
-   tapping the grid.
-3. The "What's your name?" dialog fires the moment you first interact/commit and it modal-blocks the
-   screen. It has a Skip, which is good, but as someone allergic to friction it's an unexpected
-   speed bump right when I'm trying to drop in an event. I'd make it dismissable-by-tapping-away.
-
-BLOCKING ISSUE: none. Everything I tried worked on both viewports; share link opened cleanly with
-no login; no console errors.
-
-Would I recommend it? Yes — I'd send it to friends planning a trip. It's an 8 because the mobile
-copy/affordance rough edges (desktop "drag" wording, the easily-missed "+" on an empty calendar)
-are exactly the small things that make a casual friend say "wait, how do I add anything?" Fix those
-and it's a 9 I'd post about unprompted.
+**Management-feature notes (mobile, 390px):**
+- Recent list: name / date / "Remove from my list" (grey text) / pencil-rename / red-trash-delete all fit on one line, NO overlap or occlusion. I CAN tell remove-from-list (grey text) from delete (red trash) — color does the work.
+- Inline rename is great: pencil swaps the row into a full-width pre-filled input + check/X, and shows the FULL name even though the static row truncates it. Worked cleanly.
+- Trip page header at 390px: home/title-with-pencil/"Saved"/Set name/"⋯" all fit, no crowding. "⋯" menu drops Rename trip + Delete trip (red) without occluding the calendar. The "+ Add event" FAB is bottom-right, not blocked by the header.
+- Nit: rename + delete icons are ~26px and ~4px apart — below comfortable touch target; risk of mis-tapping the destructive delete.
+- Core paste→parse→calendar verified on mobile: sample loaded, 12 events parsed, confirmed onto the day grid. No console/page errors.
 
 ```json
-{"tester": 6, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Mobile grid hint says desktop 'drag/click' wording instead of 'tap'", "Mobile 'Add event' is an icon-only '+' that's easy to miss on an empty calendar", "'What's your name?' modal interrupts the first event-add (has Skip, but blocks)"], "priorConcernsAddressed": "n/a"}
+{"tester": 6, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Recent-trip names truncate hard on mobile (Beach ..., Campi...) — can't distinguish trips at a glance", "Rename/delete icons ~26px and ~4px apart — fat-finger risk on a destructive delete-for-everyone"], "priorConcernsAddressed": "n/a"}
 ```

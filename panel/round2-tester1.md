@@ -1,56 +1,21 @@
-Name: Priya
-Clarity: Yes
-Value: Yes
-Advocacy: 9
-PriorConcernsAddressed: Both fixed (resize + snapping)
+# Priya — round 2
 
-I'm a backend eng, keyboard-first, allergic to signups. Round 1 I gave this an 8 and named
-exactly two things: (1) the resize handle was invisible/undiscoverable and my first resize
-did nothing, and (2) drag-to-create snapping was coarse/imprecise. I re-tested both first,
-in a real headless Chromium, at the DOM level.
+**1. CLARITY — Yes.** Same strong cold open: H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" + the "Paste an itinerary" / "Start from a blank calendar" cards + the "No account or email required" footnote told me what it is and why I'd use it in seconds. Nothing new confused me.
 
-## Did my prior concerns get fixed? Yes, both — verified.
-RESIZE — FIXED, and done right. The event block now has two VISIBLE pill grips
-(`rounded-full`, 24x3px) centered on the top and bottom edges — you can see them in the
-block as little horizontal handles. Hovering the bottom edge gives `cursor: ns-resize`
-(I checked elementFromPoint). Dragging that bottom handle down 120px changed DURATION ONLY:
-11:00am–2:00pm became 11:00am–4:00pm, the top stayed pinned, height grew 180→300px. It
-resized; it did not move or spawn a new event. That was my whole complaint and it's gone.
+**2. VALUE — Yes.** Still beats my Slack/iMessage group-thread habit where plans get lost. Pasted "Load sample," hit "Parse →", "Add to Untitled Trip" dropped 14 events onto a real Google-Calendar-style grid, and "Copy invite link"/"Save to calendar (.ics)" means non-technical friends just open a URL on a phone — no install, no signup. Real value, narrow frequency (trips, not weekly).
 
-SNAPPING — improved. My drag-create landed on clean 10:00am–1:00pm hour boundaries this
-round, not the awkward 10:45–1:00 I got last time. Resize snapped to clean hours too. The
-new inline hint "Drag down the grid to block out time, or click a slot for a 1-hour event"
-also tells you what to do before you flail.
+**3. ADVOCACY — 9.** Bumping 8→9: the one rough edge that capped me last round is gone and the organizer-side management is now genuinely phone-safe. I'd bring this up unprompted next time someone's wrangling a group trip. Not a 10 only because the value is inherently low-frequency for me — that's the product's nature, not a fixable flaw.
 
-## Everything else, re-checked fresh
-- MOVE: dragging the body shifted 10am–1pm to 11am–2pm, duration preserved. Correct.
-- PASTE: my cabin-weekend group-chat plan parsed to "6 events across 3 days," still flags
-  its own assumptions ("end time assumed (1h)") AND still caught my weekday error:
-  "Friday July 11 → Sat, Jul 11 (you wrote Fri; Jul 11 is a Sat)." That correctness check
-  is the thing that earns my trust.
-- SHARE: "Copy invite link" put a real http://localhost:3099/t/<id> URL on the clipboard,
-  label flipped to "Copied!". Opened that link in a FRESH context on a 390px iPhone
-  viewport — HTTP 200, events render (dinner 6–7pm, bonfire 9–10pm), day tabs Jul 11/12/13,
-  NO login/signup anywhere. That is exactly my use case delivered.
-- .ics "Save to calendar" present on desktop and mobile.
-- Zero console/page errors across create, move, resize, paste, share, and stranger-open.
+What I re-checked this round (all good, 0 console/page errors):
+- Landing "Recent trips on this device" now has an ALWAYS-VISIBLE caption "Remove = this device only · Delete = everyone with the link" — exactly my round-1 ask. Plus labeled grey "Remove from my list", red "Delete for everyone" with trash icon, "Rename" with pencil. No hover needed.
+- "Remove from my list" removed only my local row (2→1, no confirm). "Delete for everyone" fired a confirm ("...can't be undone... everyone with the link") then 1→0. Scope is now unmistakable.
+- Header title rename worked and Enter STAYED on the trip page (→ "Cabin Weekend", "Saved"); landing rename persisted into the list.
+- "Your name" control relabeled to "You: Priya" after I set it; tooltip "not the trip name" cleanly separates it from the trip name.
+- "Trip options" menu = Create New / Rename trip / Delete trip; header "Create New" link works. Blank trip ("Start blank" → empty grid) + paste→parse→calendar core both intact.
 
-## Top remaining friction (minor)
-- The resize grips are subtle on a busy day — fine for me, but a non-technical friend might
-  still not realize an event is draggable until they hover. A one-time "drag edges to
-  change length" tooltip on first event would close that.
-- When I drag-created and typed a title too fast, focus can land on the trip-name field
-  instead of the event title if you don't click into "Event title" first. Edge case.
+**Biggest blocker:** None. Only ceiling is inherent low usage frequency (a few trips/year), not a defect.
+**Prior blocker resolved?** Yes — the device-vs-everyone scope is now an always-visible caption plus labeled buttons, not a hover-only tooltip; works fine for the phone case I worried about.
 
-## Blocking issues
-None. Nothing made me abandon; every flow worked.
-
-## The three answers
-1. CLARITY — Yes. Headline + two start cards + "No account or email required" told me what
-   and who in seconds, same as before.
-2. VALUE — Yes. Beats my real alternative (a shared Google Doc nobody can read on a phone,
-   or a Google Calendar everyone has to join). Paste-and-correct saves real retyping and
-   the share link works for a stranger with nothing installed.
-3. ADVOCACY — 9. Both polish gaps that capped me at 8 are fixed and I verified the fixes
-   myself. It's a 9 not a 10 only because resize discoverability still leans on hover with
-   no first-run hint — but I'd now bring this up unprompted to friends planning a trip.
+```json
+{"tester": 1, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Inherently low-frequency use case (trips, not weekly) — caps enthusiasm, not a fixable defect", "Management UI is organizer-only; friends with the link never see these niceties"], "priorConcernsAddressed": "all"}
+```

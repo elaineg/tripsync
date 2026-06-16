@@ -634,6 +634,230 @@
 >   weekday, is editable.**
 > - **G — Tighten the run-on headline.**
 
+## ADD-FEATURE (2026-06-15) — TRIP MANAGEMENT: rename · delete · remove-from-list · Create New
+Spec flows 1 & 4, success checks 18–23. This adds ONLY calendar-management controls; do NOT
+redesign the app or touch the grid/parser/confirm flows. Four controls, two surfaces (trip-page
+header + "Recent trips" list). Each control's placement, label, color, and affordance is fixed
+below so two builders converge — and each is FIRST-CLASS visible (the panel historically burns
+rounds surfacing a working-but-hidden feature: added-feature-buried-panel-surfaces-not-function).
+
+> ## TM ROUND-1 FIXES (trip-management panel R1: 0/10 at adv≥9 — all 10 clarity=Yes, value=Yes)
+> The feature WORKS (validator + verifier: delete→404, rename persists end-to-end). The panel
+> clusters at 8 PURELY on craft/surfacing of the new controls — Wen 6, Dana 7, eight at 8. Six
+> REAL causes below; Dana's Canva-grade per-type color stays the ONE allowable visual miss. Do
+> NOT touch the event-styling / confirm-semantics surfaces that just recovered from the R3
+> regression. The M1–M4 specs below are AMENDED to these exact values — build to them, not to the
+> pre-R1 prose. The DOMINANT fix (TM-R1-1) recurred across 8 of 10 testers.
+>
+> - **TM-R1-1 (DOMINANT — recurs 8×: Priya, Tomás, Dana, Jules, Aisha, Rob, Elena, Sam) —
+>   recent-trips row labeling hierarchy is BACKWARDS; fix label, scope-legibility, target size,
+>   and visual distinction.** Today the harmless "Remove from my list" gets full text while the
+>   DESTRUCTIVE delete is a ~26px UNLABELED red trash icon ~4px from the pencil, and the
+>   device-vs-everyone scope lives ONLY in hover tooltips (invisible on touch). The most dangerous
+>   control is the least labeled. Fix ALL FOUR:
+>   - **(a) Visible text label on the destructive action.** The delete action carries the VISIBLE
+>     text **"Delete for everyone"** (trash glyph + that exact text, red #C0392B) — never a bare
+>     icon. The neutral action keeps the full text **"Remove from my list"** (muted grey, no glyph).
+>   - **(b) Scope legible WITHOUT hover, on mobile.** Below/beside the two actions render a small
+>     always-visible caption (≈12px, muted): "Remove = this device only · Delete = everyone with
+>     the link." Scope must be readable with zero hover/tooltip on a 390px touch screen.
+>   - **(c) ≥44px touch targets, clearly separated.** Each action is a ≥44px-tall tap target with
+>     ≥12px gap between the neutral and destructive action so an accidental destructive tap is
+>     unlikely (kills the ~26px / ~4px-apart fat-finger risk Jules/Elena flagged).
+>   - **(d) Unmistakably distinct, no shared verb.** Remove-from-list = light/grey/neutral text,
+>     no glyph, no confirm; Delete = red + trash glyph + "Delete for everyone" text + the verbatim
+>     confirm (M2). No shared lexeme ("Remove" vs "Delete").
+>   - **Exact row layout (see M3 below for the full desktop + 390px spec).**
+>   - **Checkable:** on a 390px touch viewport with NO hover, both actions show full text, the
+>     destructive one reads "Delete for everyone" in red, the scope caption is visible, each tap
+>     target is ≥44px tall with ≥12px separation.
+>
+> - **TM-R1-2 (Marcus — genuine bug) — Enter in the landing rename field SAVES and STAYS on the
+>   list.** Pressing Enter in the recent-list inline-rename input saves the rename BUT also
+>   navigates into the trip. The rename input must NOT be nested inside / triggered by the row's
+>   navigation Link. While the row is in rename mode the Link navigation is suppressed; Enter
+>   commits the PUT and the user STAYS on the list (row returns to static display showing the new
+>   name). Esc cancels and stays.
+>   - **Checkable:** rename a recent-trips entry, press Enter → name updates IN the list, URL stays
+>     on `/` (landing), no navigation into `/t/<secret>`.
+>
+> - **TM-R1-3 (Sam — spec check 22) — surface a labeled "Create New" on the trip page.** Sam
+>   couldn't find how to start the next trip (only a tiny home icon; the "⋯" menu had only
+>   Rename/Delete). Make it a clearly-LABELED header control **"Create New"** (text + a small
+>   plus/home-in-page icon), in the leading nav zone, visually distinct from the grid's bottom-right
+>   "+ Add event" FAB. See M4 for placement (desktop + mobile).
+>   - **Checkable:** the trip-page header shows a control with the visible word "Create New" that
+>     navigates to the landing/create screen; it is not the "+ Add event" FAB.
+>
+> - **TM-R1-4 (Jules, Sam) — give recent-trip names more room on mobile.** Names truncate to
+>   "Beach…", "Mike…", "Veg…" at 375–390px so trips are indistinguishable. The static name in each
+>   recent-trips entry WRAPS to up to 2 lines (then ellipsis) on mobile — never single-line
+>   hard-truncation at ~6 chars. The name gets the dominant width of the row; actions sit on their
+>   own line beneath it on mobile (see M3 mobile layout).
+>   - **Checkable:** at 390px a 20-char trip name ("Beach house weekend") shows enough to be
+>     distinguished from another ("Beach trip — Mike"), wrapping to a second line rather than "Beach…".
+>
+> - **TM-R1-5 (Wen, Aisha) — clearly separate the DISPLAY-name control from trip rename.** The
+>   header "Set name" (sets YOUR display name) sits next to the trip-title rename and reads like it
+>   renames the TRIP (Wen clicked it to rename the trip); it also persists awkwardly next to the
+>   green "Saved." Relabel + reposition: the display-name chip reads **"Your name"** (or shows the
+>   name once set, e.g. "You: Wen ⌄"), lives at the TRAILING edge of the header next to the "⋯"
+>   menu — NOT adjacent to the editable trip title at the leading/center. The trip title is the
+>   ONLY rename-the-trip affordance (pencil/underline on the title). The "Your name" chip must not
+>   sit flush against the green "Saved" trip-rename confirmation.
+>   - **Checkable:** the header has exactly two clearly-distinct name controls — the centered trip
+>     TITLE (pencil = rename the trip) and a trailing **"Your name"** chip (sets the user's display
+>     name); they are not adjacent and neither reads as the other.
+>
+> - **TM-R1-6 (Wen, Elena — harden) — the delete confirm modal renders reliably on BOTH surfaces,
+>   BOTH viewports.** Wen (automation) saw the for-everyone delete fire no confirm / remove nothing
+>   on both entry points; Elena saw no confirm on mobile (8 others saw it work; verifier confirmed
+>   delete→404). The confirm must be a real, reliably-rendered, mobile-friendly DIALOG (portal /
+>   `role="dialog"`, focus-trapped, dimmed backdrop, full-width buttons at 390px) that fires on
+>   BOTH the list "Delete for everyone" AND the header "⋯ → Delete trip", on desktop AND mobile.
+>   Builder adds stable testids on the trigger, the dialog, and its Delete/Cancel buttons so
+>   automation reliably exercises it.
+>   - **Checkable:** tapping the list delete AND the header-menu delete each opens the SAME
+>     `role="dialog"` confirm on 390px and 1280px; Cancel dismisses with nothing deleted; Delete
+>     calls `DELETE /api/trip/[id]` once and the trip 404s in a fresh browser. Testids present.
+>
+> - **Minor / NO-FIX (note only):** Dana's Canva-grade per-type/per-category event COLOR and Rob's
+>   per-person color = the standing allowable visual miss (do NOT chase — it risks the event-style
+>   passers). Tomás's read-only/view-only share = deliberate out-of-scope (edit-by-link is the CUJ,
+>   prior H5). Wen's assumed-YEAR warning = parser nice-to-have. Elena/Sam bulk add-all-to-Google =
+>   OAuth out of scope (.ics is the bulk path). Aisha's considered empty-state + "Remove" undo/toast
+>   = nice-to-haves, not gating. None are trip-management craft; chasing them risks regression.
+
+### M1 — RENAME (inline-edit; shared via PUT; discoverable affordance)
+- **Header (trip-page).** The trip title in the sticky header IS the edit affordance: on hover
+  (fine pointer) it shows an underline + a small pencil glyph to its right; tap/click anywhere on
+  the title swaps it in-place for a text input pre-filled with the current name. A check ("Save")
+  and × ("Cancel") sit immediately after the input; Enter saves, Esc cancels. Saving PUTs the new
+  name and it is SHARED — everyone on the link sees it on their next load/refresh. The header title
+  must visibly look editable BEFORE interaction (the pencil/underline) so it's discovered, not guessed.
+- **Recent-trips entry (AMENDED by TM-R1-2).** Each entry gets a small pencil "Rename" icon-button
+  (≥44px, aria-label "Rename trip"). Clicking it turns the entry's name into the same inline input +
+  check/×. **Entering rename mode SUPPRESSES the row's navigation** (the rename input is NOT nested
+  in / triggered by the row's nav Link) so committing does NOT open the trip. **Enter saves the PUT
+  and STAYS on the list** (row returns to static display with the new name); Esc cancels and stays.
+  Saving PUTs the shared name AND updates this device's localStorage label.
+- **Checkable (18):** rename from header and from the list both persist, survive reload, and appear
+  in a different browser opening the same `/t/<secret>`. Pressing Enter in the LIST rename input
+  updates the name in place and the URL STAYS on `/` (no navigation into the trip).
+
+### M2 — DELETE (heavy, destructive, shared) — BOTH header and list
+- **Label & weight everywhere:** the word is "Delete" (never "Remove"). It is the ONLY destructive
+  control: rendered in red (#C0392B text / red on hover), with a trash glyph.
+- **Header (trip-page):** a "Delete trip" item lives inside an overflow "⋯" / "Trip options" menu
+  anchored to the header (NOT a bare always-on red button beside the grid, so it can't be fat-fingered
+  and never reads as event chrome). Menu also can hold Rename as a fallback.
+- **Recent-trips entry (AMENDED by TM-R1-1):** a LABELED red button reading **"Delete for everyone"**
+  (trash glyph + that exact visible text, red #C0392B) — NOT a bare icon, NEVER tooltip-only. It is
+  the rightmost / lowest, visually-separated destructive action with a ≥44px touch target and ≥12px
+  gap from the neutral "Remove from my list" (see M3 for the full row layout). aria-label matches
+  the visible text.
+- **Confirm dialog — verbatim copy (both surfaces); a REAL reliably-rendered dialog (TM-R1-6):**
+  rendered as a portal `role="dialog"`, focus-trapped, on a dimmed backdrop, with FULL-WIDTH buttons
+  at 390px. Title/body reads exactly
+  **"Delete this trip for everyone with the link? This can't be undone."** Buttons: a red
+  **"Delete"** (destructive) and a neutral **"Cancel"**. It MUST fire on BOTH the list
+  "Delete for everyone" AND the header "⋯ → Delete trip", on desktop AND 390px mobile. Only on
+  confirm does it call `DELETE /api/trip/[id]` (one request). From the header, a successful delete
+  navigates back to the landing page. From the list, the entry is removed after the server confirms.
+  Builder adds stable testids on the trigger, the dialog, and the Delete/Cancel buttons.
+- **Checkable (19):** after confirmed delete, `/t/<secret>` no longer loads in a fresh browser; the
+  header delete returns to landing; the SAME confirm dialog appears from both surfaces at 390px and
+  1280px; Cancel deletes nothing.
+
+### M3 — "Remove from my list" (light, device-local) — list ONLY, distinct from Delete
+- **Label & weight:** the full phrase **"Remove from my list"** (never just "Remove", never "Delete").
+  NEUTRAL: a muted grey text-button (≈14px, grey-600), NO trash glyph, NO red, NO confirm. The full
+  text is ALWAYS visible — never hover/tooltip-only (TM-R1-1b).
+- **No destructive confirm.** Non-destructive and reversible (re-open the link to re-add). Fires
+  immediately (optional soft inline "Removed — undo"). Does NOT call DELETE; edits only this device's
+  localStorage. The shared trip is untouched.
+- **Always-visible scope caption (TM-R1-1b — replaces the hover tooltips).** A small muted line
+  (≈12px, grey-500) is rendered in the entry — visible without any hover, on touch: **"Remove =
+  this device only · Delete = everyone with the link."**
+- **Disambiguation (check 21 + TM-R1-1d), no shared verb:** the two list actions differ on ALL of —
+  WORDING ("Remove from my list" vs "Delete for everyone"), WEIGHT (muted grey text, no glyph vs red
+  + trash glyph), and CONSEQUENCE COPY (none/soft vs the verbatim "for everyone … can't be undone"
+  confirm). No shared lexeme.
+
+### M3-LAYOUT — exact recent-trips entry layout (DESKTOP + 390px MOBILE) (TM-R1-1, -4)
+- **Each entry is a single card/row, ≥56px tall.** Tapping the NAME/DATE region navigates into the
+  trip; the action controls are OUTSIDE that nav hit-area (and during rename, nav is suppressed —
+  TM-R1-2).
+- **Desktop (≥640px) — one row, left-to-right:** [ trip NAME (bold, flex-grow, truncate at the row
+  edge only) · date (muted) ] … [ pencil "Rename" (≥44px, aria "Rename trip") ] … gap ≥16px …
+  [ muted text-button "Remove from my list" ] … gap ≥16px … [ red labeled button trash +
+  "Delete for everyone" ]. The scope caption sits as a small muted line under the name. The red
+  Delete is the rightmost, clearly separated, and is the ONLY red element in the row.
+- **Mobile (≤390px) — TWO stacked rows inside the entry (TM-R1-4 gives the name room):**
+  - Row 1: the trip NAME wraps to UP TO 2 LINES (then ellipsis) — it gets the full row width; the
+    date sits beneath it (muted). NO 6-char hard-truncation. (Fixes "Beach…", "Mike…", "Veg…".)
+  - Row 2 (full width, beneath the name): the three actions as a horizontal cluster, each a ≥44px-tall
+    tap target with ≥12px gaps — [ ✎ Rename ] · [ Remove from my list ] · [ 🗑 Delete for everyone
+    (red) ]. Then the muted scope caption line. Right edge ≤390px, no horizontal scroll.
+- **No two same-looking adjacent icons** (same-verb-adjacent-controls-read-as-broken): the neutral
+  actions are text/light, the destructive one is red + labeled + spaced apart.
+
+### M4 — "Create New" (header navigation, NOT an add-event control) (AMENDED by TM-R1-3)
+- **Placement:** TOP-LEFT/leading area of the sticky header (the app-nav zone), deliberately FAR from
+  the grid and from the bottom-right "+ Add event" FAB (create-new-not-mistaken-for-add-event).
+- **Label & icon — MUST be a LABELED control, not a bare home icon (Sam couldn't find it).** Text
+  reads exactly **"Create New"** with a small plus-in-page / home icon to its left, styled as a
+  secondary nav button (outline or muted chrome) — NOT the filled accent style of the in-grid create
+  affordance, NOT an icon-only button. It navigates to the landing/create screen.
+- **Desktop (≥640px):** the full "Create New" text + icon shows in the leading header zone.
+- **Mobile (≤390px):** keep the visible word — show the icon + the short label "New" (a labeled pill,
+  ≥44px tap target) rather than icon-only, within the ≤96px header budget; it must not widen the
+  toolbar or collide with the trailing "Your name" chip / "⋯" menu.
+- **Also offer it where users look:** add a "Create New" item to the header "⋯ Trip options" menu as
+  a fallback (Sam expected it there alongside Rename/Delete) — but the visible leading-header control
+  is the primary path.
+- **Checkable (22):** the trip-page header shows a control with the VISIBLE word "Create New" (and a
+  "New" labeled control at 390px) that navigates to landing; it is distinct from the "+ Add event"
+  FAB and is not an unlabeled icon.
+
+### Empty / single-entry list correctness (optional-ui-gated-on-data-presence)
+- The "Recent trips" management UI must render correctly for ZERO entries (the whole list section is
+  simply absent — no orphaned headers or action rows) and for exactly ONE entry (its rename / remove /
+  delete actions all present and individually operable; removing/deleting the last entry collapses the
+  section cleanly with no empty shell left behind).
+
+### M5 — DISPLAY-NAME control distinct from trip rename (TM-R1-5)
+- The control that sets the USER'S display name reads **"Your name"** (or, once set, shows it: e.g.
+  "You: Wen ⌄") and lives at the TRAILING edge of the header, next to the "⋯ Trip options" menu —
+  NOT adjacent to the editable trip title. (Old "Set name" next to the title read as trip-rename and
+  was clicked to rename the trip — Wen.) It must not sit flush against the green "Saved" trip-rename
+  confirmation (Aisha's noisy-adjacency complaint).
+- The trip TITLE (centered/leading, with pencil + underline-on-hover) is the ONLY rename-the-trip
+  affordance. Two clearly-distinct controls, not adjacent: TITLE = rename the trip; "Your name" chip
+  (trailing) = set the user's display name.
+- **Checkable (TM-R1-5):** the header has a centered trip-title rename and a trailing "Your name"
+  chip that are visually separated; neither reads as the other.
+
+### Mobile (~390px) notes
+- Header at 390px has a ≤96px budget (CAUSE F). The leading "Create New"/"New" labeled control
+  (M4), the centered editable trip title, and the trailing cluster ["Your name" chip + "⋯ Trip
+  options" menu holding Delete] must all fit WITHOUT widening the toolbar or clipping — use compact
+  labeled pills (not icon-only for Create New); the inline rename input replaces the title row
+  temporarily (it does not add a row). Nothing occludes the grid or the bottom-right "+ Add event" FAB.
+- Recent-trips entry on mobile follows M3-LAYOUT (name wraps to 2 lines on its own; the three
+  actions sit on a full-width second row, each ≥44px with ≥12px gaps, red Delete labeled and
+  separated from the muted "Remove from my list" so a thumb can't confuse them).
+
+### 5-second discoverability rationale
+A returning user lands and immediately sees: their trips in "Recent trips" each with a visible
+pencil (rename), a muted "Remove from my list", and a clearly RED, LABELED "Delete for everyone"
+button — three obviously different actions with the scope spelled out in a visible caption (no hover
+needed), not a hidden menu or a bare icon. Inside a trip, the centered title visibly invites editing
+(pencil/underline), a LABELED "Create New" sits in the leading nav zone, the trailing "Your name"
+chip is clearly the display-name control (not trip-rename), and Delete lives one tap away in "⋯"
+behind a reliable confirm dialog. Nothing management-related is buried; the destructive path is the
+only red, confirmed one.
+
 ## 1. Problem statement
 Your friend's messy itinerary, turned into a shared day-by-day calendar you both open and edit
 from one link — no app, no login.

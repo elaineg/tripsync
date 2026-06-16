@@ -1,43 +1,37 @@
-Name: Elena
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Elena — round 1 (returning look)
 
-I'm an EM, half my day in meetings, I live in Google Calendar and check things on my phone
-between standups. I've used TripSync before; this round I tested the new blank-calendar start
-on a 390px phone viewport.
+Re-checking my 3 prior complaints (390px phone):
+- Name-prompt before first event: FIXED. Tapping a slot on a blank trip goes straight to an
+  Event-title/time form, Save — no "what's your name?" speed bump. 
+- "Proposed by Someone / Confirm" on a solo trip: FIXED. My saved event now reads "Added by
+  you" — no fake proposed/confirm framing. 
+- Bulk add-all-to-Google-Calendar: NOT addressed. Still per-event "Add to Google Calendar";
+  whole-trip push is only via the .ics download.
 
-CLARITY — Yes. In ~5s the headline told me exactly what it is: "Turn a messy itinerary into a
-shared day-by-day calendar — no app, no login," and the subline "Add events to Google Calendar
-or download the whole trip as a .ics" is the line that made me lean in. The two start cards
-("Paste an itinerary" / "Start from a blank calendar — Start blank") are unambiguous. I knew
-how to start without thinking.
+**1. CLARITY: Yes.** Same strong headline — "Turn a messy itinerary into a shared day-by-day
+calendar — no app, no login" + the "Add events to Google Calendar / .ics" subline. Two start
+cards. Cold-readable in ~5 seconds.
 
-VALUE — Yes, this is built for my exact situation. I named the trip "Family weekend", hit
-Start blank, tapped the floating +, added "Lunch with Grandma" 9–10am, and it landed on a
-clean Day view with a "Jun 15" date pill — glanceable, nothing cut off, event block readable.
-Then the payoff: tapping the event gives me "Add to Google Calendar" right there. I verified
-the button opens Google's real prefilled template (text=Lunch+with+Grandma,
-dates=20260615T090000/100000, ctz set) — on my phone where I'm already signed in, that's a
-genuine one-tap into the calendar that runs my life. That is THE feature for me. Desktop
-drag-to-create also works like Google Calendar (dragged a span, got an 11–1 event + form).
-This beats my current habit (retyping family plans from a group text into my own calendar).
+**2. VALUE: Yes.** I'd otherwise retype family plans from a group text into Google Calendar.
+I pasted a doc, hit Parse → "Add to Family weekend," tapped an event, and "Add to Google
+Calendar" opened a real prefilled GCal template (text, dates 20260501T123000, ctz set). On my
+signed-in phone that's the one-tap-into-the-calendar-that-runs-my-life flow I wanted.
 
-ADVOCACY — 8. I'd bring this up to friends planning a group trip, specifically "you can one-tap
-each thing into your own Google Calendar, no login." What keeps it off a 9/10:
-- The very first + tap interrupts with a "What's your name?" modal before I can add anything.
-  I get why (multi-editor attribution), but for someone solo on a 30-sec budget it's a speed
-  bump on the most important action. Default it to skipped or ask after the first save.
-- The saved event opened with "Proposed by Someone / Confirm" — I never proposed anything to
-  anyone, it's my own solo trip. That proposed/confirm framing is confusing when there's one
-  user; "Someone" reads like a bug.
-- It's a per-event "Add to Google Calendar." For a weekend with 8 events I'd want one tap to
-  push the whole day/trip at once. The .ics download covers bulk, but .ics is more friction on
-  mobile than the slick per-event Google button.
+**3. ADVOCACY: 8.** I'd recommend it for group-trip planning. Two fixes landed, which helps.
+Held off 9 by: tiny mobile tap targets on trip management, and still no bulk add-to-Google
+(8 events = 8 taps).
 
-Top likes: instant no-login start; Add-to-Google-Calendar opens a correctly-prefilled real
-GCal event; Day view is genuinely glanceable on phone with a clear date pill; desktop
-drag-to-create matches Google Calendar muscle memory.
-Top friction: name-prompt before first event; "Proposed by Someone/Confirm" on a solo trip;
-no bulk add-all-to-Google-Calendar.
-BLOCKING: none. Mobile was fast, no console/page errors, nothing cut off at 390px.
+**Biggest blocker:** Recent-trips row icons — Rename (pencil) and Delete (trash) are only
+~26x26px and right next to each other, well under the 44px thumb standard. Between meetings I'd
+fear hitting "Delete trip for everyone" instead of Rename, and that delete has no confirm step.
+
+**Management-feature notes:**
+- Removal wording is clear and distinct: "Remove from my list" (text link) vs trash labeled
+  "Delete trip for everyone." I knew which was which instantly — good.
+- Trip-page header stays clean at 390px: home / title+pencil (rename) / "Saved" / Set name /
+  "..." (Trip options w/ Delete) / "Create new trip." Not crowded.
+- Fix the 26px pencil/trash targets + add a confirm on "Delete trip for everyone."
+
+```json
+{"tester": 9, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Recent-trips Rename/Delete icons ~26px, too small/close for confident thumb taps", "'Delete trip for everyone' is destructive with no confirm step", "Still no bulk add-all-to-Google-Calendar (8 events = 8 taps)"], "priorConcernsAddressed": "some"}
+```

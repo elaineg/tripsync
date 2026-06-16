@@ -1,54 +1,44 @@
-Name: Rob
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Rob — round 1
 
-I'm Rob — freelance brand designer, splitting a ski cabin with three friends, sick of being
-the guy who manually maintains a master plan nobody reads. Tested on desktop at 1280px.
+Freelance brand/visual designer, splitting a ski cabin with three friends, sick of being the
+guy who maintains a master plan nobody reads. Tested desktop @1280px.
 
-CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no
-app, no login" plus "no account or email required" told me exactly what it is in under 5
-seconds. The two cards ("Paste an itinerary" / "Start from a blank calendar — Drag on the
-grid to add events") made the two ways to start obvious. I knew where to click immediately.
+**1. CLARITY: Yes.** Headline "Turn a messy itinerary into a shared day-by-day calendar — no
+app, no login" + the two cards (Paste an itinerary / Start from a blank calendar) told me the
+whole job in ~10s. "Anyone with the link can view and edit ... No account or email required"
+nailed my exact need: one link, everyone edits.
 
-VALUE — Yes, this actually fits my situation. The blank-calendar drag flow is the real win:
-I named the trip, hit "Start blank," click-dragged on the hourly grid and got a clean
-12:00pm–2:00pm block with a Google-Calendar-style popover (title field + two time dropdowns
-+ Save). Single-click made a 1h block, and I dragged the event to move it (2pm→4pm, time
-relabeled correctly). It feels like GCal, which I know. The killer part for MY problem: I
-opened the share link in a totally separate browser as a "friend" and it instantly saw my
-event — no login, no prompt. Friend could open an event and there's a green CONFIRM button
-plus "Add to Google Calendar / Edit / Delete." When I confirmed, it asked "What's your
-name?" and then the block showed a green check "Confirmed by Rob" — and the friend's browser
-saw "Confirmed by Rob" too. That's exactly the "everyone adds their arrival and confirms
-what they're in for" thing I wanted, and the .ics / Add-to-Google-Calendar export means it
-lands in the calendar people actually live in. Today I do this in a Google Doc + a group
-text that everyone ignores; this is genuinely less work.
+**2. VALUE: Yes — I'd use it for the cabin.** Today I half-maintain this in a Google Doc
+nobody reads + a group text. Paste→preview ("12 events across 2 days will be added, edit
+before confirming", times editable)→confirm→clean day grid is genuinely less work. Each event
+card shows "Added by you" attribution and per-event "Add to Google Calendar" + whole-trip
+".ics" export, so each friend can drop their own arrival in and pull it into the calendar they
+live in. Copy invite link copied the real /t/ URL (button flipped to "Copied!").
 
-TOP LIKES
-- Drag-to-create on the grid behaves like Google Calendar; zero learning curve.
-- Confirm + "Confirmed by Rob" attribution synced across two separate browsers, no login.
-- Copy invite link worked (clipboard got a clean /t/<id> URL, button flipped to "Copied!"),
-  and it strips the ?blank= param — the link you share looks right.
+**3. ADVOCACY: 8.** I'd send it to my cabin group chat this week. Held back from 9 by design
+nits below, NOT trust — every destructive path is well-guarded.
 
-TOP DISLIKES / FRICTION
-- Name is captured LAZILY, only on your first confirm/edit. Until then every event reads
-  "Proposed by Someone" / "Confirmed by Someone." For a 4-person trip where the whole point
-  is "who's arriving when," I'd rather it ask my name once up front so nothing is anonymous.
-- The grid loads scrolled to ~noon. To add a morning arrival (9–10am) I had to scroll up;
-  not obvious, and a friend on a quick phone glance might miss the morning entirely.
-- Paste-itinerary is picky: my natural paste "Fri 6pm Drive up to Tahoe / Sat 9am Lift
-  opens" was rejected ("Couldn't find any timed events"); it wants "Day 1" headers and
-  "9:00 AM" formats. Good error message + sample link, but most real pastes won't match.
+**Biggest blocker:** Labeling hierarchy of the destructive action is backwards. On the
+Recent-trips rows the harmless "Remove from my list" gets full text, while the
+nuke-for-everyone action is a tiny unlabeled red trash icon sitting right next to the pencil.
+The most dangerous control is the least labeled — a non-designer friend would reflexively hit
+the trash thinking "hide this." (Saved only because it DOES fire the "Delete this trip for
+everyone with the link? This can't be undone" confirm.)
 
-BLOCKING ISSUE — None. Full create→share→add→confirm→export loop worked across two browsers
-with no JS errors. (Copy verified visually; clipboard read worked in my test env.)
-
-ADVOCACY — 8. I'd actually send this to my cabin group chat this week. It's not a 9–10 only
-because (a) anonymous "Someone" attribution until you act undercuts the trust the whole tool
-is selling, and (b) the morning events sit below the fold on load. Fix the name-up-front and
-default-scroll-to-trip-start and it's a 9.
+**Management-feature notes:**
+- Local-vs-shared distinction IS clear and I trust it: header reads "Recent trips on this
+  device"; "Remove from my list" tooltip = "device-only; trip stays on the server"; trash
+  tooltip = "Delete for everyone with the link." BOTH the list trash and the trip-page header
+  "Delete trip" fire the same strong red confirm modal (Delete + Cancel). I tested Cancel on
+  both — nothing got nuked.
+- Inline rename via pencil works (Enter saves, list updated to my new name). Trip-page header
+  title pencil + "..." menu (Rename trip / Delete trip) also work. "Create New" home button +
+  paste/blank both created distinct /t/ trips; share link strips the ?blank= param.
+- Designer gripes: (a) icon-only rename/delete on rows need text labels or clearer affordance,
+  per the blocker above; (b) every event renders one flat pink — for 4 people arriving at
+  different times I want per-person color coding; that single feature would make this beat my
+  doc cold.
 
 ```json
-{"tester": 8, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Author shows as 'Someone' until you act — no upfront name prompt undercuts who-did-what trust", "Grid loads scrolled to noon; morning arrival events sit below the fold", "Paste-itinerary parser rejects natural formats like 'Fri 6pm Drive up'"], "priorConcernsAddressed": "n/a"}
+{"tester": 8, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Destructive 'Delete for everyone' is an unlabeled red trash icon next to the harmless pencil — labeling hierarchy backwards (mitigated by confirm modal)", "No per-person color coding; all events one flat pink, weak for tracking who arrives when"], "priorConcernsAddressed": "n/a"}
 ```

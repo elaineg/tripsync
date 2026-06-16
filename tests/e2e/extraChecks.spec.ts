@@ -1034,8 +1034,8 @@ test("R5-2: paste-import commits without name prompt (R3-1: stable ID at init); 
     await expect(nameDialog).not.toBeVisible({ timeout: 1000 });
   }
 
-  // Header should show "Set name" chip (optional name entry via chip)
-  const setNameChip = page.locator('[aria-label="Change your name"]');
+  // Header should show "Your name" chip (optional name entry via chip)
+  const setNameChip = page.locator('[aria-label="Set or change your display name"]');
   await expect(setNameChip).toBeVisible({ timeout: 2000 });
 
   await ctx.close();

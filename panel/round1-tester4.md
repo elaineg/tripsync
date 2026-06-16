@@ -1,49 +1,25 @@
-Name: Tomás
-Clarity: Yes
-Value: Yes
-Advocacy: 7
+# Tomás — round 1
 
-I'm an ops analyst — Excel/Tableau/Jira all day, IT blocks installs, and I'm wary of pasting
-company data into random sites. But this is a personal trip and a browser tool, so it fits.
-I've used TripSync before; this round I tried both start paths and the new drag editing.
+Ops analyst, Excel/Tableau/Jira all day, IT blocks installs, wary of pasting company data — but this is a personal beach-house week in a browser tool, so it fits. This round I exercised the new trip-management features and re-checked my prior gripes.
 
-CLARITY — Yes. The headline "Turn a messy itinerary into a shared day-by-day calendar — no
-app, no login" plus "One link, open and edit on any phone" told me exactly what it is in
-about 3 seconds. Two labeled cards ("Paste an itinerary" vs "Start from a blank calendar")
-made the two ways to start obvious. The footer "Anyone with the link can view and edit... No
-account or email required" is exactly the reassurance I needed for relatives who won't sign up.
+Prior concerns re-checked:
+- "No way to reach a future month from a blank calendar (defaults to today)" — ADDRESSED. Blank mode now shows a "Go to:" date field (2026-06-16) with prev/next arrows, so I can jump to my August week. This was my #1 blocker; it's fixed.
+- "Week view showed one day, not 7" — UNCONFIRMED this round (my view-toggle click didn't register; couldn't re-verify), so I'm leaving it as an open question, not a pass.
 
-VALUE — Yes, and this is the real win for me. Today I do this in a shared Google Sheet plus a
-long Teams/group-text thread, and half my relatives can't read the sheet on their phones. Here
-I made a trip, dragged out events, hit "Copy invite link," and opened that link in a clean
-browser with NO login — it showed my "Welcome BBQ 11am–1pm" and was editable. That's the one
-link I can send Grandma. It renders fine at phone width too. The PASTE path genuinely
-impressed me: I pasted a 6-line messy itinerary, it parsed all 6 events across 2 days, let me
-edit times in a preview before committing, flagged "end time assumed (1h)," and even caught my
-date error ("you wrote Fri; Aug 8 is a Sat"). That's a thoughtful detail a spreadsheet never
-gives me. The optional "What's your name?" prompt (skippable) for change attribution is smart.
+CLARITY — Yes. "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus "Anyone with the link can view & edit... No account or email required" told me what it is and who it's for in ~5s. The two start cards (Paste vs Start blank) make the paths obvious.
 
-ADVOCACY — 7. I'd mention it, but not unprompted-evangelize yet, because of one real gap for
-MY exact situation: my trip is in AUGUST, and when I "Start from a blank calendar" everything
-defaults to today (Jun 15) and I found NO way to navigate to a future month. Month view shows
-June 2026 with no next/prev arrows, and there's no visible date picker until after you've
-already created an event. The paste path lands on the right dates automatically, so it's hidden
-there — but a blank-start user building an August week is stuck on June. Also "Week" view
-showed only a single day, not a 7-day spread, which is odd for a tool literally named for a
-"week." Fix month/date navigation in blank mode and this is a 9.
+VALUE — Yes. Today I'd fight a SharePoint Excel half my relatives can't open on their phones plus a Teams thread. Here: paste our rough plan → Parse → editable preview ("12 events across 2 days," "end time assumed") → "Add to..." → a clean calendar with side-by-side overlaps and a "Save to calendar (.ics)" export. One no-login link I can send Grandma. That genuinely beats my spreadsheet.
 
-Top likes: zero-login share link that truly opens for a relative; the paste parser's editable
-preview + date-mismatch warning; drag-to-create and drag-to-move both worked smoothly; clean
-on mobile; "Saved" indicator gives confidence.
-Top friction: no way to navigate to a future month from a blank calendar (defaults to today);
-Week view rendered one day, not a week; bottom-edge resize was finicky (felt like it moved the
-event instead of extending it).
-Blocking issue: none that stops sharing, but the missing month/date navigation in blank mode
-nearly blocks my real use case (an August trip) and is the single thing holding back my score.
+ADVOCACY — 8. I'd raise it next time family or ops coordinates a group thing. Held off 9 because there's still no read-only/view-only share — "anyone with the link can edit" handed to 15 relatives means one fat-finger changes the shared plan, and I can't restrict it.
 
-(Note: clipboard copy verified — invite link copied cleanly without ?blank query param and the
-button changed to "Copied!"; clipboard read confirmed in my test setup.)
+Biggest blocker: No view-only share mode. Universal edit-by-link is risky for a large mixed-age family; I want most people viewing and only me editing.
+
+Management-feature notes:
+- Recent list ("Recent trips on this device" — honest label) per row: "Remove from my list" (text), pencil=Rename, red trash=Delete. Tooltips are explicit — "Remove from my list (device-only; trip stays on the server)" vs "Delete for everyone with the link" — and the trash fires a modal: "Delete this trip for everyone with the link? This can't be undone." (red Delete + Cancel). As a cautious coordinator I do NOT fear accidentally nuking the shared plan. Good guardrail.
+- Nit: the red trash sits right next to "Remove from my list" with no visible label; the for-everyone vs for-me distinction is only clear on hover. A tiny "Delete for all" label would beat relying on tooltips.
+- Trip page: title pencil to rename, "..." menu = "Rename trip" + red "Delete trip", "Create New" top-left, live "Saved" status. Discoverable and clean.
+- Core sanity: paste → Load sample → Parse → confirm → events landed correctly. No console errors.
 
 ```json
-{"tester": 4, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 7, "topComplaints": ["No way to navigate to a future month from blank calendar — defaults to today (Jun), blocks building an August trip", "Week view shows a single day, not a 7-day spread", "Bottom-edge resize felt like it moved the event instead of resizing"], "priorConcernsAddressed": "n/a"}
+{"tester": 4, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["No read-only/view-only share mode — anyone with the link can edit, risky for 15 relatives", "Red Delete trash sits next to 'Remove from my list' with no visible label; for-everyone vs for-me only clear on hover"], "priorConcernsAddressed": "some"}
 ```

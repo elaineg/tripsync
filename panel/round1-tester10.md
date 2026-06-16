@@ -1,28 +1,19 @@
-Name: Sam
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Sam — round 1
 
-I'm the guy who always ends up running the bachelor weekend, so I came in skeptical. This is the closest thing I've seen to "paste the rough plan, send one link, done."
+**1. CLARITY: Yes.** Cold on my phone, "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus "Add events to Google Calendar or download the whole trip as a .ics file" told me exactly what it does and that it's for the trip organizer. The two start cards ("Paste an itinerary" / "Start blank") made the next step obvious.
 
-CLARITY (Yes). The headline nails it in under 5s: "Turn a messy itinerary into a shared day-by-day calendar — no app, no login," plus the subline "One link... Add events to Google Calendar or download the whole trip as a .ics." Two clearly labeled start cards — "Paste an itinerary" and "Start from a blank calendar" — so I knew exactly what to do. The "Anyone with the link can view and edit — no account or email required" footer is what made me trust it.
+**2. VALUE: Yes.** Today I run this in a Notion doc + group text and half the crew never adds it to their calendars. Here I pasted the rough itinerary → Parse → "12 events across 2 days" on a real editable calendar → copied ONE invite link → a friend opening it in a clean browser saw every event and could export to their own calendar. That's the exact bachelor-party flow: one link out, everyone self-serves. I'd use it for Mike's weekend.
 
-VALUE (Yes). Today I do this in a Notion doc + a group text + nagging people to add things to their own calendars, and half of them never do. Here I pasted my rough Fri/Sat/Sun plan, it parsed 7 events across 3 days into an editable preview ("end time assumed" flags were a nice touch), I hit Add, got a share link, and a fresh phone opened that link with NO login and saw "Mike's Weekend / Casino night." Per-event "Confirm (Proposed by Guest)" is exactly the confirm flow I want so I can see who's in. And both export paths actually work: the .ics downloaded as a real valid file (VCALENDAR, 2 VEVENTs, correct times/timezone), and "Add to Google Calendar" opens the real calendar.google.com prefilled-event link. That's the whole reason I'd use it.
+**3. ADVOCACY: 8.** It nails the share-link-that-makes-me-look-organized job with zero login, and the new trip-management is genuinely safe. Two things keep it off a 9: in "Recent trips on this device" the names truncate brutally on mobile ("Veg...", "Mike...") so I can't tell my trips apart at a glance; and there's no "create another trip" button on the trip page — I had to hunt for the tiny home icon to spin up the next weekend.
 
-ADVOCACY (8). It genuinely does the job and I'd bring it up next time someone's organizing a trip — but a few things keep it off a 9/10.
+**Biggest blocker:** None functional — every flow worked. Soft blocker is mobile name truncation in Recent trips making multi-trip management guess-y at 375px.
 
-TOP LIKES:
-- One no-login link that a friend opens on their phone and immediately sees the trip. Core promise delivered.
-- Paste parser is smart (mapped "Friday/Saturday/Sunday" to real dates Jun 15-17, defaulted 1h durations, let me edit before committing).
-- Both exports work for real: .ics download AND per-event Add to Google Calendar. That's what makes me look organized.
-
-TOP DISLIKES / FRICTION:
-- It silently assigned my "Friday/Saturday/Sunday" to Jun 15/16/17 (this coming weekend) with no date picker shown up front. For a trip 6 weeks out I'd paste, not notice, and send the wrong dates. I want to set/confirm the trip's start date before or during parse.
-- Tapping the mobile "+" the first time popped a "What's your name?" dialog instead of the add-event form — felt like a detour. Minor, but on mobile between meetings every extra tap counts.
-- The whole trip .ics is one download; some friends will want "add EVERYTHING to my Google Calendar" in one click, not per-event. Per-event Google add is great but tedious for a 10-event weekend.
-
-BLOCKING ISSUE: None. Created trips both ways, added events on desktop and mobile, shared link loaded in a clean browser, both exports produced real output. No console/page errors anywhere.
+**Management-feature notes:**
+- Recent list nails the safety distinction I worried about: "Remove from my list" is a plain text label (tooltip "device-only; trip stays on the server"); destructive delete is a small red trash icon → tap fires a modal "Delete this trip for everyone with the link? This can't be undone." (red Delete / Cancel). No, I would NOT accidentally nuke the shared plan — the wording literally says "for everyone."
+- Inline Rename (pencil) in the recent list works AND propagates to the shared trip (friend saw the new name). Header-title rename ("Click to rename trip") also works.
+- Trip-page "..." = Trip options → only "Rename trip" / "Delete trip" (red). No "Create New" here — the only gap vs what I expected; new trips only via the home icon.
+- Core re-verified: paste→Load sample→Parse→commit→calendar; Copy invite link (clipboard returned the URL, button → "Copied!"); .ics export downloaded `Mike-Bachelor-Party---Austin.ics`; share link opened in a fresh no-login browser. 0 console errors throughout.
 
 ```json
-{"tester": 10, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["No upfront trip-date picker — Friday/Sat/Sun silently mapped to THIS weekend (Jun 15-17), risking wrong dates for a future trip", "Mobile + button shows name prompt before the add-event form, an extra detour", "No one-click 'add whole trip to Google Calendar' — .ics is all-at-once but Google add is per-event only"], "priorConcernsAddressed": "n/a"}
+{"tester": 10, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Recent-trips names truncate hard on mobile (\"Veg...\", \"Mike...\") — can't distinguish trips at a glance", "No 'Create New' on the trip page; spinning up the next trip means finding the tiny home icon", "Trip-page '...' menu only has Rename/Delete — felt thin vs the recent-list controls"], "priorConcernsAddressed": "n/a"}
 ```

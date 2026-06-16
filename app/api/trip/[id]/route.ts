@@ -1,9 +1,11 @@
 /**
- * GET  /api/trip/[id] → { data: TripData } | 404
- * PUT  /api/trip/[id] → 200 | 400 | 404 | 413
+ * GET    /api/trip/[id] → { data: TripData } | 404
+ * PUT    /api/trip/[id] → 200 | 400 | 404 | 413
+ * DELETE /api/trip/[id] → 200 | 404
  *
  * PUT body: TripData JSON (stringified).
  * Last-write-wins; no field-level merge.
+ * DELETE removes the Turso row — shared trip gone for everyone.
  *
  * runtime = "nodejs" — libsql is NOT edge-compatible.
  */
@@ -112,6 +114,34 @@ export async function PUT(
   await db.execute({
     sql: "UPDATE trips SET data = ?, updated_at = ? WHERE id = ?",
     args: [JSON.stringify(data), now, id],
+  });
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  ctx: RouteContext
+): Promise<NextResponse> {
+  const { id } = await ctx.params;
+
+  if (!isValidTripId(id)) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  const db = await getDb();
+
+  const existing = await db.execute({
+    sql: "SELECT id FROM trips WHERE id = ?",
+    args: [id],
+  });
+  if (existing.rows.length === 0) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  await db.execute({
+    sql: "DELETE FROM trips WHERE id = ?",
+    args: [id],
   });
 
   return NextResponse.json({ ok: true });

@@ -2055,6 +2055,19 @@ export default function TripPageClient({ secret }: { secret: string }) {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showPastePanel, setShowPastePanel] = useState(false);
   const [participant, setParticipant] = useState<Participant | null>(null);
+
+  // M1: Inline title rename state
+  const [isRenamingTitle, setIsRenamingTitle] = useState(false);
+  const [renameTitleDraft, setRenameTitleDraft] = useState("");
+  const renameTitleInputRef = useRef<HTMLInputElement>(null);
+
+  // M2: Trip options menu (⋯) open/close state
+  const [showTripMenu, setShowTripMenu] = useState(false);
+  const tripMenuRef = useRef<HTMLDivElement>(null);
+
+  // M2: Delete confirm dialog state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   // R3-1: stable per-device participant ID, always set at init — even when name is empty.
   // This ref is the AUTHORITATIVE source for authorId stamping, so drag-create and
   // handleEventSave always use the right ID even if the participant state is being updated.
@@ -2758,6 +2771,72 @@ export default function TripPageClient({ secret }: { secret: string }) {
     setQuickCreatePopover(null);
   }
 
+  // M1: Focus rename input when title rename starts
+  useEffect(() => {
+    if (isRenamingTitle) {
+      setTimeout(() => renameTitleInputRef.current?.focus(), 50);
+    }
+  }, [isRenamingTitle]);
+
+  // M2: Close trip menu on click-outside
+  useEffect(() => {
+    if (!showTripMenu) return;
+    function handleClick(e: MouseEvent) {
+      if (tripMenuRef.current && !tripMenuRef.current.contains(e.target as Node)) {
+        setShowTripMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showTripMenu]);
+
+  // M1: save inline title rename — PUTs immediately via the existing updateTrip path (shared)
+  function saveRenameTitle() {
+    const newName = renameTitleDraft.trim();
+    if (!newName) { setIsRenamingTitle(false); return; }
+    // updateTrip with immediate flush so all openers see it
+    const now = Date.now();
+    const prev = tripRef.current;
+    if (!prev) { setIsRenamingTitle(false); return; }
+    const updated = { ...prev, name: newName.slice(0, 120), updatedAt: now };
+    tripRef.current = updated;
+    setTrip(updated);
+    void flushSave(updated);
+    // Also update localStorage recent-trips label so the landing list stays in sync
+    try {
+      const raw = window.localStorage.getItem(RECENT_TRIPS_KEY);
+      const existing: Array<{ id: string; name: string; createdAt: number }> = raw
+        ? (JSON.parse(raw) as Array<{ id: string; name: string; createdAt: number }>)
+        : [];
+      const next = existing.map((t) => t.id === secret ? { ...t, name: newName.slice(0, 120) } : t);
+      window.localStorage.setItem(RECENT_TRIPS_KEY, JSON.stringify(next));
+    } catch { /* ignore */ }
+    setIsRenamingTitle(false);
+  }
+
+  // M2: Delete trip — calls DELETE /api/trip/[id], then navigates to landing
+  async function handleDeleteTrip() {
+    if (deleteLoading) return;
+    setDeleteLoading(true);
+    try {
+      await fetch(`/api/trip/${secret}`, { method: "DELETE" });
+      // Remove from localStorage recent-trips
+      try {
+        const raw = window.localStorage.getItem(RECENT_TRIPS_KEY);
+        const existing: Array<{ id: string; name: string; createdAt: number }> = raw
+          ? (JSON.parse(raw) as Array<{ id: string; name: string; createdAt: number }>)
+          : [];
+        const next = existing.filter((t) => t.id !== secret);
+        window.localStorage.setItem(RECENT_TRIPS_KEY, JSON.stringify(next));
+      } catch { /* ignore */ }
+      // Navigate to landing page
+      window.location.href = "/";
+    } catch {
+      setDeleteLoading(false);
+      setShowDeleteConfirm(false);
+    }
+  }
+
   function handleAddToCalendar(event: TripEvent) {
     window.open(googleCalendarUrl(event), "_blank", "noopener");
   }
@@ -2829,18 +2908,115 @@ export default function TripPageClient({ secret }: { secret: string }) {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {/* TM-R1-6: Delete confirm dialog — portal, focus-trapped, testids, reliable at 390px */}
+      {showDeleteConfirm && createPortal(
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="trip-delete-confirm-title"
+          data-testid="delete-confirm-dialog"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleteLoading) setShowDeleteConfirm(false); }}
+          onKeyDown={(e) => { if (e.key === "Escape" && !deleteLoading) setShowDeleteConfirm(false); }}
+        >
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 id="trip-delete-confirm-title" className="text-base font-bold text-[#1a1a1a] mb-2">
+              Delete this trip for everyone with the link? This can&apos;t be undone.
+            </h2>
+            <div className="flex flex-col gap-3 mt-4 sm:flex-row">
+              <button
+                data-testid="delete-confirm-button"
+                onClick={() => void handleDeleteTrip()}
+                disabled={deleteLoading}
+                className="flex-1 bg-[#C0392B] text-white rounded-xl py-3 font-semibold hover:bg-[#a93226] disabled:opacity-50 transition-colors min-h-[44px]"
+              >
+                {deleteLoading ? "Deleting…" : "Delete"}
+              </button>
+              <button
+                onClick={() => !deleteLoading && setShowDeleteConfirm(false)}
+                disabled={deleteLoading}
+                className="flex-1 border border-[#E8E2D8] text-[#666] rounded-xl py-3 font-medium hover:border-[#aaa] disabled:opacity-50 transition-colors min-h-[44px]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* ── Sticky header ──────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 bg-[#FAF7F2] border-b border-[#E8E2D8] px-4 py-1.5" style={{ maxHeight: "112px" }}>
-        {/* Top row: trip name + share/actions */}
+      <header className="flex-shrink-0 bg-[#FAF7F2] border-b border-[#E8E2D8] px-4 py-1.5" style={{ maxHeight: "128px" }}>
+        {/* Top row: Create New (nav, left) + trip name (center/flex) + Save status + name chip + ⋯ menu */}
         <div className="flex items-center justify-between gap-2 min-h-0">
-          {/* Trip name — inline editable */}
-          <input
-            type="text"
-            value={trip.name}
-            onChange={(e) => handleTripNameChange(e.target.value)}
-            className="flex-1 min-w-0 text-base font-bold bg-transparent focus:outline-none focus:ring-0 truncate text-[#1a1a1a]"
-            aria-label="Trip name"
-          />
+          {/* M4/TM-R1-3: Create New button — leading/left, LABELED on desktop AND mobile */}
+          <Link
+            href="/"
+            className="flex-shrink-0 flex items-center gap-1 text-xs text-[#555] border border-[#E8E2D8] rounded-lg px-2 py-1.5 bg-white hover:border-[#B5C8E8] hover:text-[#1a1a1a] transition-colors min-h-[44px]"
+            aria-label="Create new trip"
+          >
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {/* TM-R1-3: "New" on mobile (≤sm), "Create New" on desktop */}
+            <span className="sm:hidden font-medium">New</span>
+            <span className="hidden sm:inline font-medium">Create New</span>
+          </Link>
+
+          {/* M1: Trip name — click to rename (inline editor replaces title temporarily) */}
+          {isRenamingTitle ? (
+            <div className="flex-1 min-w-0 flex items-center gap-1">
+              <input
+                ref={renameTitleInputRef}
+                type="text"
+                value={renameTitleDraft}
+                onChange={(e) => setRenameTitleDraft(e.target.value)}
+                className="flex-1 min-w-0 text-base font-bold border border-[#B5C8E8] rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#B5C8E8] bg-white"
+                aria-label="Trip name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveRenameTitle();
+                  if (e.key === "Escape") setIsRenamingTitle(false);
+                }}
+              />
+              <button
+                onClick={saveRenameTitle}
+                className="flex-shrink-0 text-xs bg-[#1a1a1a] text-white rounded-lg px-2 py-1.5 font-medium hover:bg-[#333] transition-colors"
+                aria-label="Save trip name"
+              >✓</button>
+              <button
+                onClick={() => setIsRenamingTitle(false)}
+                className="flex-shrink-0 text-xs text-[#888] rounded-lg px-2 py-1.5 hover:text-[#333] transition-colors"
+                aria-label="Cancel rename"
+              >✕</button>
+            </div>
+          ) : (
+            /* M1: Title with hover affordance — pencil shows on hover, click opens editor */
+            <button
+              className="flex-1 min-w-0 flex items-center gap-1 group text-left"
+              onClick={() => {
+                setRenameTitleDraft(trip.name);
+                setIsRenamingTitle(true);
+              }}
+              aria-label="Click to rename trip"
+              title="Click to rename trip"
+            >
+              <span className="text-base font-bold text-[#1a1a1a] truncate group-hover:underline">
+                {trip.name}
+              </span>
+              {/* Pencil glyph — visible on hover (fine pointer) always on mobile */}
+              <svg
+                className="w-3.5 h-3.5 flex-shrink-0 text-[#aaa] group-hover:text-[#555] transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          )}
+
           {/* Save status */}
           {saveStatus === "saving" && (
             <span className="text-xs text-[#aaa] flex-shrink-0">Saving…</span>
@@ -2852,16 +3028,89 @@ export default function TripPageClient({ secret }: { secret: string }) {
             <span role="alert" className="text-xs text-red-500 flex-shrink-0">Save failed</span>
           )}
 
-          {/* Participant chip — show name if set; show "Set name" prompt if unnamed */}
+          {/* TM-R1-5: "Your name" chip — trailing position, distinct from trip-title rename */}
           {participant && (
             <button
               onClick={() => setShowNamePrompt(true)}
-              className="flex-shrink-0 text-xs bg-white border border-[#E8E2D8] rounded-full px-2 py-1 font-medium hover:border-[#B5C8E8] transition-colors"
-              aria-label="Change your name"
+              className="flex-shrink-0 text-xs bg-white border border-[#E8E2D8] rounded-full px-2 py-1.5 font-medium hover:border-[#B5C8E8] transition-colors min-h-[44px]"
+              aria-label="Set or change your display name"
+              title="Your display name (not the trip name)"
             >
-              {participant.name && participant.name !== "" ? participant.name : "Set name"}
+              {participant.name && participant.name !== ""
+                ? <>You: {participant.name}</>
+                : "Your name"}
             </button>
           )}
+
+          {/* M2: ⋯ Trip options menu — contains Delete (and Rename + Create New as fallbacks) */}
+          <div className="relative flex-shrink-0" ref={tripMenuRef}>
+            <button
+              onClick={() => setShowTripMenu((v) => !v)}
+              className="p-1.5 rounded-lg border border-[#E8E2D8] bg-white text-[#555] hover:text-[#1a1a1a] hover:border-[#B5C8E8] transition-colors min-h-[44px]"
+              aria-label="Trip options"
+              aria-expanded={showTripMenu}
+              aria-haspopup="menu"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="5" cy="12" r="1.5" />
+                <circle cx="12" cy="12" r="1.5" />
+                <circle cx="19" cy="12" r="1.5" />
+              </svg>
+            </button>
+            {showTripMenu && (
+              <div
+                className="absolute right-0 top-full mt-1 bg-white border border-[#E8E2D8] rounded-xl shadow-lg z-40 min-w-[180px] py-1"
+                role="menu"
+              >
+                {/* TM-R1-3: Create New — fallback in menu (Sam expected it here) */}
+                <Link
+                  href="/"
+                  role="menuitem"
+                  onClick={() => setShowTripMenu(false)}
+                  className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create New
+                </Link>
+                <div className="border-t border-[#F0EDE8] my-1" />
+                {/* Rename option in menu (mobile fallback if pencil is hard to find) */}
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setShowTripMenu(false);
+                    setRenameTitleDraft(trip.name);
+                    setIsRenamingTitle(true);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#F0EDE8] flex items-center gap-2 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Rename trip
+                </button>
+                <div className="border-t border-[#F0EDE8] my-1" />
+                {/* TM-R1-6: Delete — testid on trigger so automation finds it */}
+                <button
+                  role="menuitem"
+                  data-testid="trip-menu-delete"
+                  onClick={() => {
+                    setShowTripMenu(false);
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-[#C0392B] hover:bg-red-50 flex items-center gap-2 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete trip
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Second row: view switcher + refresh + copy-invite (NO date chips here) */}

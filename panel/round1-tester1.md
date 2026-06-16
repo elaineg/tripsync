@@ -1,61 +1,20 @@
-Name: Priya
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Priya — round 1
 
-I'm a backend eng who lives in a terminal and bounces off anything that smells like a
-signup. I cold-loaded localhost:3099 and gave it the cabin-weekend test for real.
+**1. CLARITY — Yes.** The H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two labeled cards ("Paste an itinerary" / "Start from a blank calendar") told me exactly what it does and how to start in well under 30s. The footnote "No account or email required" is the line that made me stop being skeptical — that's the whole reason I'd use this over the group chat.
 
-## 5-second read
-Headline "Turn a messy itinerary into a shared day-by-day calendar — no app, no login"
-plus two clearly-labeled cards (Paste an itinerary / Start from a blank calendar) and the
-"No account or email required" line. I knew exactly what it was and how to start before I
-finished reading. As a skeptic, "no login / no account or email" up front is the thing
-that made me keep going instead of closing the tab.
+**2. VALUE — Yes.** Today I'd dump the cabin plan in the Slack/iMessage group thread and people lose it. I pasted "Load sample itinerary," hit Parse →, got a clean preview of 12 events across 2 days with editable start/end times ("end time assumed" flagged honestly), confirmed, and got a real Google-Calendar-style day grid with overlapping events side-by-side. "Copy invite link" + "Save to calendar (.ics)" means my non-technical friends just open a URL on their phone — no install, no signup. That genuinely beats my workflow.
 
-## What I actually did
-- Start blank: dragged on the hourly grid -> got an inline editor with a title field and
-  two time dropdowns + Save/More. Single-click made a ~1h block. Dragged an event to move
-  it (worked), dragged the bottom edge to resize (105px -> 225px, label updated to the new
-  time). Feels like Google Calendar, which is the right thing to copy.
-- Paste: dropped my group-chat-style itinerary in. The parser is genuinely good — it
-  showed "8 events across 3 days," defaulted missing end times to 1h (and labeled them
-  "end time assumed"), and CAUGHT my wrong weekdays: "Friday July 11 -> Sat, Jul 11 (you
-  wrote Fri; Jul 11 is a Sat)." That correctness check earned trust fast.
-- Share: "Copy invite link" copied a clean /t/<id> URL; opened it in a fresh browser with
-  no login and it showed every event. That IS my use case — non-technical friends opening
-  it on a phone with nothing installed.
-- .ics export is a valid VCALENDAR with proper TZID. I'd actually import this.
-- Zero console errors in any flow. I checked.
+**3. ADVOCACY — 8.** I'd bring this up the next time someone's wrangling a group trip. Not a 9/10 because the value is real but narrow (trips, a few times a year for me, not a daily tool) and the management features are organizer-side polish my friends never see. What holds it back from 9: the landing-list rename/delete are icon-only — scope only readable via hover tooltips that don't exist on touch.
 
-## Top likes
-- No login, and it means it. The "What's your name?" prompt has a Skip and says "you can
-  set this later" — optional, no email. That's the difference between trust and a closed tab.
-- Paste parser flags its own assumptions instead of silently guessing.
-- Share link works for a stranger with no account. Core promise delivered.
-- Valid .ics export. I'm not locked into their UI.
+**Biggest blocker:** None blocking. Closest thing: landing "Recent trips" rename (pencil) and delete (trash) are unlabeled icons; on a phone there's no hover, so the careful "Remove from my list (device-only)" vs "Delete for everyone" distinction is invisible until you tap.
 
-## Top dislikes / friction
-- The bottom-edge resize handle isn't discoverable. My first resize attempt did nothing
-  because the event was in a selected/dashed state and there's no visible grip; I had to
-  hover the exact edge. Friends will think resize is broken.
-- Drag-to-create snapped to 10:45am–1:00pm when I dragged a cleaner range — the snap
-  granularity is coarse and a little imprecise. Fine because the dropdowns let me fix it,
-  but the first drag rarely lands where you expect.
-- The "What's your name?" modal auto-pops right after committing a pasted itinerary and
-  intercepts every click until you Skip/Escape. Minor, but it interrupts the moment you
-  just want to grab the share link.
+**Management-feature notes:**
+- "Remove from my list" vs "Delete" — clearly distinguished where it matters: tooltips read "Remove from my list (device-only; trip stays on the server)" vs "Delete for everyone with the link," and trash-delete fires a confirm modal "Delete this trip for everyone with the link? This can't be undone." Excellent. Only gap: those tooltips are hover-only.
+- Header pencil rename worked inline (title → "Renamed Cabin Trip", "Saved" confirmed). Landing pencil rename also worked (input pre-filled current name, Enter saved → "Gamma RENAMED").
+- Header "..." menu has Rename trip / Delete trip / Copy invite link / Save to calendar — good.
+- "Create New" reads as navigation (home icon + word "New"), and it did take me to the landing page. NOT mistakable for an add-event button — correct, since add-event is click-a-slot on the grid.
+- Core flow intact: paste→parse→preview→confirm→calendar all worked; blank grid shows "Drag down the grid… or click a slot for a 1-hour event" and clicking a slot opens a tidy title + Start/End stepper editor. 0 console errors throughout.
 
-## Blocking issues
-None. Nothing made me abandon. Everything I tried worked.
-
-## The three answers
-1. CLARITY — Yes. Headline + two start cards + "no login" told me what and how in seconds.
-2. VALUE — Yes. For dropping a loose group-chat plan into something friends open on a phone
-   with no app and no account, this beats what I'd do today (a shared Google Doc that
-   nobody can read on a phone, or a Google Calendar that requires everyone to have/join an
-   account). The paste-and-correct flow saved me real retyping.
-3. ADVOCACY — 8. I'd recommend it for exactly this scenario. It's not a 9/10 because the
-   resize handle is invisible and the drag snapping is imprecise — small polish gaps that
-   a non-technical friend would stumble on and ping me about. Fix the resize affordance and
-   tighten drag snapping and this is a 9 I'd bring up unprompted.
+```json
+{"tester": 1, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Landing-list rename/delete are icon-only; the device-only-vs-everyone scope lives in hover tooltips invisible on touch devices", "Value is real but low-frequency (trips, not a weekly tool), and management UI is organizer-only — friends with the link never see it"], "priorConcernsAddressed": "n/a"}
+```

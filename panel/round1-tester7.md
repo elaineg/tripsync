@@ -1,48 +1,21 @@
-Name: Aisha
-Clarity: Yes
-Value: Yes
-Advocacy: 8
+# Aisha — round 1
 
-I'm a product designer; I judge spacing, copy tone and empty states hard, and I came for one
-thing: a day-hourly trip view that looks considered on my phone instead of my squinty bulleted
-Notion page. I tried both start paths, drag/click/move/resize on desktop, the popover, the
-mobile day view, and the share link.
+**1. CLARITY — Yes.** The H1 "Turn a messy itinerary into a shared day-by-day calendar — no app, no login" plus the two labeled cards ("Paste an itinerary" / "Start from a blank calendar") told me exactly what it is and who it's for. Subhead naming Google Calendar + .ics killed any "where does it live" doubt. One-breath pitch.
 
-CLARITY — Yes. In 5s the headline "Turn a messy itinerary into a shared day-by-day calendar —
-no app, no login" plus the subline about Google Calendar / .ics told me exactly what it is. The
-two start cards are genuinely visually EQUAL — symmetric, parallel copy ("Already have a plan
-in a doc?" vs "Prefer to build it yourself?"), matching icons and black CTAs. That equality is
-craft I noticed and respect; neither option feels like the afterthought. "Name your trip" up
-top is the right first step.
+**2. VALUE — Yes.** Today I squint at an ugly bulleted Notion page on the train. The parsed day-hourly grid — soft-blue blocks, bold title + time, overlaps split into side-by-side columns like Google Calendar, subtle gray hour rails — is genuinely the considered view I want. The editable parse-preview ("12 events across 2 days will be added," with an italic "end time assumed" flag) earns trust. I'd use it for the city trip.
 
-VALUE — Yes. The paste path is the standout: I pasted a messy Porto day and got a "Preview
-parsed events" screen — "5 events across 1 day will be added. Edit titles or times below before
-confirming," editable per-event time dropdowns, an italic "end time assumed" flag on inferred
-times, and "Events will be added and you can set your name after." That's a considerate,
-trustworthy flow — it parsed all 5 correctly. Drag-to-create on desktop feels like Google
-Calendar (10am→12pm gave me a clean 10:00–12:00 block + autofocused popover), single-click made
-a tidy block, and move worked. Share genuinely works — my companion's tab loaded the saved
-event; copy-invite-link copies the URL and flips to "Copied!". The mobile day view at 390px is
-the win vs Notion: generous spacing, legible grey hour rails, side-by-side collision columns. I
-would actually use this on the train.
+**3. ADVOCACY — 8.** High craft and unusually thoughtful management copy, but two polish gaps keep it off a 9. I'd still bring it up to design friends.
 
-TOP LIKES: the parse preview + "end time assumed" copy; the optional bottom-sheet "What's your
-name? … You can always set this later." with a Skip — attribution without a signup wall; the
-two start cards being truly equal; the GCal-style drag popover.
+**Biggest blocker:** Recent-trips row mixes affordances — "Remove from my list" is a gray text link sitting flush against a bare pencil + bare red trash icon. Three sibling actions in two visual languages reads slightly clumsy, and the unlabeled icons are a tight target cluster on a trackpad.
 
-TOP DISLIKES / FRICTION (craft):
-1. RESIZE has no visible handle and is ambiguous — grabbing near a block's bottom edge often
-   STARTS A NEW EVENT instead of resizing, or moves the whole block. A designer expects a 2px
-   bottom handle with a resize cursor; right now it's a guessing game.
-2. Event COLOR is inconsistent across platforms: saved blocks are pale blue on desktop but
-   render PINK with a DASHED border on mobile — dashed reads as "draft/unsaved" to me even
-   though the header says "Saved." Pick one saved style; reserve dashed for the drag preview.
-3. EMPTY-STATE PARITY: desktop blank gets the helpful banner "Drag down the grid… or click a
-   slot for a 1-hour event," but the mobile blank grid has NO guidance — just a bare grid and a
-   "+" FAB. New mobile users get zero hint.
-4. The quick-create time pickers are NATIVE <select> dropdowns — they break the otherwise-custom
-   styling with OS chrome, the ugliest element on the screen.
+**Management-feature notes (craft):**
+- EMPTY recent state: there is NONE — the "Recent trips on this device" heading is hidden entirely until a trip exists. Not clumsy, but a missed considered moment; a "trips you make show up here" line would feel finished.
+- Removal distinction is ELEGANT in copy: "Remove from my list" vs "Delete trip for everyone" is instantly clear (local vs shared/destructive). But "Remove from my list" fires SILENTLY — no toast, no undo, no reassurance the trip survives at its link.
+- Delete confirm tone is excellent: "Delete this trip for everyone with the link? This can't be undone." Red Delete + neutral Cancel on a dimmed backdrop. On point.
+- Inline rename (landing pencil AND header title) is considered: the row morphs to a full-width prefilled input with black ✓ / gray ✕; header flips to a green "Saved." Notion-grade.
+- Header "..." menu is clean: "Rename trip" (edit icon) + "Delete trip" (red trash). Good hierarchy.
+- Nit: day-grid blocks sit a hair above their hour gridline (e.g. the 9am block edge), and "Set name" persists in the header even after the trip is named — slightly noisy next to the green "Saved."
 
-BLOCKING: none — no crashes, zero console errors, share + persistence work. The resize ambiguity
-and the pink/dashed "saved looks unsaved" color are what keep me at 8, not 9. Fix those two and
-I'd bring it up unprompted to anyone planning a trip out of a Notion doc.
+```json
+{"tester": 7, "round": 1, "clarity": "Yes", "value": "Yes", "advocacy": 8, "topComplaints": ["Recent-row controls mix a text link with two bare icons — inconsistent affordance, tight unlabeled target cluster", "No considered empty state for Recent trips; 'Remove from my list' is silent with no undo or 'stays at its link' reassurance"], "priorConcernsAddressed": "n/a"}
+```

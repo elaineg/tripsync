@@ -1,40 +1,34 @@
-Name: Elena
-Clarity: Yes
-Value: Yes
-Advocacy: 9
-PriorConcernsAddressed: 2 of 3 fixed (name-modal gone, solo attribution fixed); no bulk-Google add yet
+# Elena — round 2
 
-Round 2, tested at 390px mobile on the real prod build. EM, half my day in meetings, I live
-in Google Calendar and check plans on my phone.
+Re-checked my two round-1 mobile blockers at 390px:
+- Tap targets on recent-trips rows: FIXED. Destructive action is now a labeled red
+  "Delete for everyone" button (149x44px), grey "Remove from my list" text, and an
+  always-visible caption "Remove = this device only · Delete = everyone with the link."
+  No more 26px pencil/trash sitting side-by-side. (Rename pencil is 30x44 — narrow but
+  now full-height and well clear of the destructive button, so I won't misfire.)
+- Delete confirm: FIXED + verified on phone. Tapping "Delete for everyone" opens a modal:
+  "Delete this trip for everyone with the link? This can't be undone." with red Delete +
+  Cancel. Reliable on mobile now.
 
-PRIOR CONCERNS — re-checked first:
-1. Name modal before first add — FIXED. I named the trip "Family weekend", hit Start blank,
-   tapped the floating "Add event" and went STRAIGHT into the New event form. No "What's your
-   name?" wall. The top-right just shows a "you" chip; it never interrupted my most important
-   action. This was my main gripe and it's gone.
-2. "Proposed by Someone / Confirm" on a solo event — FIXED. My saved event's detail sheet
-   reads "Added by you" in green, with Add to Google Calendar / Edit / Delete. No "Proposed by
-   Someone", no stray Confirm button. Reads exactly like my own event should. Verified in the
-   DOM too: zero "proposed by" anywhere.
-3. One-tap add-the-whole-trip to Google Calendar — NOT addressed. Still per-event for Google;
-   bulk is only "Save to calendar (.ics)" in the header. For an 8-event weekend I'd still tap
-   Google 8 times or fall back to the clunkier .ics on mobile.
+**1. CLARITY: Yes.** Same strong headline + "Add events to Google Calendar / .ics" subline,
+two start cards, cold-readable in ~5s. Trip title now wraps/truncates cleanly ("Team offsi...").
 
-CLARITY — Yes. Same strong headline ("Turn a messy itinerary into a shared day-by-day calendar
-— no app, no login") and the two start cards. I could explain it to a friend in one breath:
-"shared trip calendar, no login, one-tap each plan into your Google Calendar."
+**2. VALUE: Yes.** I'd otherwise retype plans from a group text into Google Calendar. Tapping
+an event opens a clean sheet with a big "Add to Google Calendar" button (336x46) + "Added by
+you" — exactly the one-tap-into-my-calendar flow I wanted. Whole-trip .ics is there too.
 
-VALUE — Yes. The blank start is instant, the Day view is genuinely glanceable on phone (clean
-"Jun 15" pill, the 9–10am block readable, nothing cut off). The payoff held up: the Add to
-Google Calendar button opens the real GCal render template, correctly prefilled
-(text=Lunch+with+Grandma, dates=20260615T090000/100000, ctz set) — on my logged-in phone that's
-a true one-tap into the calendar that runs my life. Beats retyping family plans from a group
-text. No console or page errors the whole session.
+**3. ADVOCACY: 9.** Both mobile blockers landed and the destructive flow is now safe between
+meetings — I'd bring it up to my team unprompted. Held off 10 by: parser rejected my natural
+"Mon 9:00 AM Standup" lines (demands "Friday May 1" day headers — I needed the sample to get
+in), and still no bulk "add all to Google Calendar" (12 events = 12 taps).
 
-ADVOCACY — 9 (up from 8). Both speed-bumps I named are gone, so I'd now bring this up unprompted
-to anyone planning a group trip: "no login, one-tap each thing into Google Calendar." The single
-thing keeping it off a 10 is the missing bulk "add whole trip to Google Calendar" — for a real
-weekend with 8 events, tapping Google per-event is the last bit of friction; an "Add all to
-Google Calendar" (or at least add-all-for-this-day) would make it a no-caveats 10.
+**Biggest blocker:** Parser strictness — it told me "Couldn't find any timed events... each
+day starts with a header like 'Friday May 1'." A manager pasting a real itinerary mid-meeting
+won't reformat; if it doesn't parse on first paste, I bounce.
 
-BLOCKING: none. Mobile was fast, no errors, nothing cut off at 390px.
+**Prior mobile blockers resolved (tap targets + delete confirm)?** YES — both fixed and
+verified on my phone viewport.
+
+```json
+{"tester": 9, "round": 2, "clarity": "Yes", "value": "Yes", "advocacy": 9, "topComplaints": ["Parser rejects natural 'Mon 9:00 AM' lines — demands 'Friday May 1' day headers", "Still no bulk add-all-to-Google-Calendar (12 events = 12 taps)"], "priorConcernsAddressed": "all"}
+```
